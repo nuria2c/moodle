@@ -123,16 +123,8 @@ class import_ui_stage_confirmation extends backup_ui_stage_confirmation {
      * @return moodleform
      */
     protected function initialise_stage_form() {
-		global $PAGE;
         $form = parent::initialise_stage_form();
         $form->remove_element('filenamesetting');
-		$config = new stdClass;
-		$config->title = get_string('importconfirmperform', 'backup');
-		$config->question = get_string('importconfirmperformquestion', 'backup');
-		$config->noLabel = get_string('importconfirmperformno', 'backup');
-		$config->yesLabel = get_string('importconfirmperformyes', 'backup');
-		$config->inprogress = get_string('importconfirmperforminprogress', 'backup');
-		$PAGE->requires->yui_module('moodle-backup-proceedbutton', 'M.core_backup.watch_proceed_buttons', array($config));
         return $form;
     }
 

@@ -360,14 +360,6 @@ class backup_ui_stage_confirmation extends backup_ui_stage {
                     }
                 }
             }
-			$config = new stdClass;
-			$config->title = get_string('backupconfirmperform', 'backup');
-			$config->question = get_string('backupconfirmperformquestion', 'backup');
-			$config->noLabel = get_string('backupconfirmperformno', 'backup');
-			$config->yesLabel = get_string('backupconfirmperformyes', 'backup');
-			$config->inprogress = get_string('backupconfirmperforminprogress', 'backup');
-			$PAGE->requires->yui_module('moodle-backup-proceedbutton', 'M.core_backup.watch_proceed_buttons', array($config));
-			
             $this->stageform = $form;
         }
         return $this->stageform;

@@ -576,14 +576,6 @@ class restore_ui_stage_review extends restore_ui_stage {
                     $form->add_fixed_setting($setting, $task);
                 }
             }
-			$config = new stdClass;
-			$config->title = get_string('restoreconfirmperform', 'backup');
-			$config->question = get_string('restoreconfirmperformquestion', 'backup');
-			$config->noLabel = get_string('restoreconfirmperformno', 'backup');
-			$config->yesLabel = get_string('restoreconfirmperformyes', 'backup');
-			$config->inprogress = get_string('restoreconfirmperforminprogress', 'backup');
-			$PAGE->requires->yui_module('moodle-backup-proceedbutton', 'M.core_backup.watch_proceed_buttons', array($config));
-			
             $this->stageform = $form;
         }
         return $this->stageform;

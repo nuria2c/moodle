@@ -236,7 +236,7 @@ class restore_ui_stage_destination extends restore_ui_independent_stage {
     }
     public function process() {
         global $CFG, $DB;
-        if (!file_exists("$CFG->dataroot/temp/backup/".$this->filepath) || !is_dir("$CFG->dataroot/temp/backup/".$this->filepath)) {
+        if (!file_exists("$CFG->tempdir/backup/".$this->filepath) || !is_dir("$CFG->tempdir/backup/".$this->filepath)) {
             throw new restore_ui_exception('invalidrestorepath');
         }
         if (optional_param('searchcourses', false, PARAM_BOOL)) {

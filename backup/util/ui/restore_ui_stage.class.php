@@ -576,6 +576,7 @@ class restore_ui_stage_review extends restore_ui_stage {
                     $form->add_fixed_setting($setting, $task);
                 }
             }
+			
             $this->stageform = $form;
         }
         return $this->stageform;

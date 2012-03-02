@@ -360,6 +360,7 @@ class backup_ui_stage_confirmation extends backup_ui_stage {
                     }
                 }
             }
+			
             $this->stageform = $form;
         }
         return $this->stageform;

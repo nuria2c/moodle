@@ -16,6 +16,7 @@ require_once($CFG->libdir . '/filelib.php');
 
 $groupid = required_param('group', PARAM_INT);
 $cancel  = optional_param('cancel', false, PARAM_BOOL);
+$filterenrolid  = optional_param('ienrolfilter', 0, PARAM_INT);
 
 $group = $DB->get_record('groups', array('id'=>$groupid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$group->courseid), '*', MUST_EXIST);
@@ -27,6 +28,8 @@ require_login($course);
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 require_capability('moodle/course:managegroups', $context);
 
+$pageurl = $CFG->wwwroot.'/group/members.php?group='.$group->id;
+$formid = 'assignform';
 $returnurl = $CFG->wwwroot.'/group/index.php?id='.$course->id.'&group='.$group->id;
 
 if ($cancel) {
@@ -35,7 +38,8 @@ if ($cancel) {
 
 $groupmembersselector = new group_members_selector('removeselect', array('groupid' => $groupid, 'courseid' => $course->id));
 $groupmembersselector->set_extra_fields(array());
-$potentialmembersselector = new group_non_members_selector('addselect', array('groupid' => $groupid, 'courseid' => $course->id));
+$potentialmembersselector = new group_non_members_selector('addselect', 
+                                    array('groupid' => $groupid, 'courseid' => $course->id, 'filterenrolid' => $filterenrolid, 'formid' => $formid ));
 $potentialmembersselector->set_extra_fields(array());
 
 if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
@@ -108,7 +112,7 @@ echo html_writer::table($groupinfotable);
 ?>
 
 <div id="addmembersform">
-    <form id="assignform" method="post" action="<?php echo $CFG->wwwroot; ?>/group/members.php?group=<?php echo $groupid; ?>">
+    <form id="<?php echo $formid; ?>" method="post" action="<?php echo $pageurl; ?>">
     <div>
     <input type="hidden" name="sesskey" value="<?php p(sesskey()); ?>" />
 

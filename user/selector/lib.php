@@ -724,6 +724,21 @@ class group_non_members_selector extends groups_user_selector_base {
      * An array of user ids populated by find_users() used in print_user_summaries()
      */
     private $potentialmembersids = array();
+    private $filterenrolid;
+    private $formid;
+
+    public function __construct($name, $options) {
+        parent::__construct($name, $options);
+        $this->filterenrolid = isset($options['filterenrolid']) ? $options['filterenrolid'] : 0;
+        $this->formid = isset($options['formid']) ? $options['formid'] : '';
+    }
+
+    protected function get_options() {
+        $options = parent::get_options();
+        $options['filterenrolid'] = $this->filterenrolid;
+        $options['formid'] = $this->formid;
+        return $options;
+    }
 
     public function output_user($user) {
         return parent::output_user($user) . ' (' . $user->numgroups . ')';
@@ -798,6 +813,9 @@ class group_non_members_selector extends groups_user_selector_base {
             $roleparams = array();
         }
 
+        // Get the search condition for enrolment instance filter
+        list($filterenrolsql, $filterenrolparams) = $this->get_enrolinstance_sql();
+
         // Get the search condition.
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
 
@@ -813,15 +831,16 @@ class group_non_members_selector extends groups_user_selector_base {
                    JOIN ($enrolsql) e ON e.id = u.id
               LEFT JOIN {role_assignments} ra ON (ra.userid = u.id AND ra.contextid " . get_related_contexts_string($context) . " AND ra.roleid $roleids)
               LEFT JOIN {role} r ON r.id = ra.roleid
+              $filterenrolsql
                   WHERE u.deleted = 0
                         AND u.id NOT IN (SELECT userid
                                           FROM {groups_members}
                                          WHERE groupid = :groupid)
                         AND $searchcondition";
         $orderby = "ORDER BY u.lastname, u.firstname";
-
-        $params = array_merge($searchparams, $roleparams, $enrolparams);
-        $params['courseid'] = $this->courseid;
+        
+        $params = array_merge($searchparams, $roleparams, $enrolparams, $filterenrolparams);
+        $params['courseid'] = $this->courseid;    
         $params['groupid']  = $this->groupid;
 
         if (!$this->is_validating()) {
@@ -848,5 +867,93 @@ class group_non_members_selector extends groups_user_selector_base {
         }
 
         return $this->convert_array_format($roles, $search);
+    }
+
+    /**
+     * Output this user_selector as HTML.
+     * @param boolean $return if true, return the HTML as a string instead of outputting it.
+     * @return mixed if $return is true, returns the HTML as a string, otherwise returns nothing.
+     */
+    public function display($return = false) {
+        global $PAGE;
+
+        $parentoutput = parent::display();
+
+        // output list of enrolment instances of the course for filter
+        // of the potential members list
+        $formid = html_writer::random_id('single_select_f');
+        $attributeid = html_writer::random_id('single_select_f');
+
+        $output = html_writer::label(get_string('enrolmentinstances', 'enrol'), $attributeid);
+        $output .= html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'sesskey', 'value'=>sesskey()));
+
+        $enrolinstances = $this->get_enrolment_instance_names();
+        $output .= html_writer::select(array(0=>get_string('all')) + (array)$enrolinstances, 'ienrolfilter', 
+                                       $this->filterenrolid, 
+                                       array(), 
+                                       array('id' => $attributeid));
+     
+        $go = html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('go')));
+        $output .= html_writer::tag('noscript', html_writer::tag('div', $go), array('style'=>'inline'));
+
+        $PAGE->requires->js_init_call('M.util.init_select_autosubmit', array($this->formid, $attributeid, false));
+
+        $output = html_writer::tag('div', $output, array('class' => 'userselector'));
+
+        $output = $parentoutput . $output;
+        // Return or output it.
+        if ($return) {
+            return $output;
+        } else {
+            echo $output;
+        }
+        
+    }
+
+    /**
+     * Return sql and parameters for enrolment instance condition filter
+     *
+     * @return array
+     */
+    private function get_enrolinstance_sql() {
+        $params = array();
+        $sql = "";
+
+        if(!empty($this->filterenrolid)) {
+            $sql = "JOIN (SELECT DISTINCT eu2_u.id 
+                    FROM {user} eu2_u 
+                    JOIN {user_enrolments} eu2_ue ON eu2_ue.userid = eu2_u.id 
+                    JOIN {enrol} eu2_e ON (eu2_e.id = eu2_ue.enrolid 
+                                           AND eu2_e.courseid = :filterenrolcourseid 
+                                           AND eu2_e.id = :filterenrolid)
+                   ) e2 ON e2.id = u.id ";
+
+            $params['filterenrolid'] = $this->filterenrolid;
+            $params['filterenrolcourseid'] = $this->courseid;
+        }
+        
+        return array($sql, $params);
+    }
+
+    /**
+     * Returns the names for all of the enrolment instances of the course.
+     *
+     * @return array
+     */
+    private function get_enrolment_instance_names() {
+        $enrolinames = array();
+
+        $instances = enrol_get_instances($this->courseid, true);
+        $plugins = enrol_get_plugins(true);
+        foreach ($instances as $key=>$instance) {
+            if (!isset($plugins[$instance->enrol])) {
+                // weird, some broken stuff in plugin
+                unset($instances[$key]);
+                continue;
+            }
+            $enrolinames[$key] = $plugins[$instance->enrol]->get_instance_name($instance);
+        }
+
+        return $enrolinames;
     }
 }

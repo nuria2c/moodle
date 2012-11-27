@@ -257,6 +257,8 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
         365 => new lang_string('numdays', '', 365)
     )));
     $temp->add(new admin_setting_configcheckbox('backup/backup_auto_skip_modif_prev', new lang_string('skipmodifprev', 'backup'), new lang_string('skipmodifprevhelp', 'backup'), 0));
+    $temp->add(new admin_setting_configcheckbox('backup/backup_auto_skip_newly_created',
+            new lang_string('skipnewlycreated', 'backup'), new lang_string('skipnewlycreatedhelp', 'backup'), 0));
 
     // Automated defaults section.
     $temp->add(new admin_setting_heading('automatedsettings', new lang_string('automatedsettings','backup'), ''));

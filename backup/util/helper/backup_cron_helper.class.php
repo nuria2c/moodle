@@ -122,6 +122,7 @@ abstract class backup_cron_automated_helper {
 
             $rs = $DB->get_recordset('course');
             foreach ($rs as $course) {
+                $lastbackupwassuccessful = true;
                 $backupcourse = $DB->get_record('backup_courses', array('courseid' => $course->id));
                 if (!$backupcourse) {
                     $backupcourse = new stdClass;
@@ -129,12 +130,11 @@ abstract class backup_cron_automated_helper {
                     $backupcourse->laststatus = self::BACKUP_STATUS_NOTYETRUN;
                     $DB->insert_record('backup_courses', $backupcourse);
                     $backupcourse = $DB->get_record('backup_courses', array('courseid' => $course->id));
+                } else {
+                    // The last backup is considered as successful when OK or SKIPPED.
+                    $lastbackupwassuccessful = ($backupcourse->laststatus == self::BACKUP_STATUS_SKIPPED ||
+                                                $backupcourse->laststatus == self::BACKUP_STATUS_OK);
                 }
-
-                // The last backup is considered as successful when OK or SKIPPED.
-                $lastbackupwassuccessful =  ($backupcourse->laststatus == self::BACKUP_STATUS_SKIPPED ||
-                                            $backupcourse->laststatus == self::BACKUP_STATUS_OK) && (
-                                            $backupcourse->laststarttime > 0 && $backupcourse->lastendtime > 0);
 
                 // Assume that we are not skipping anything.
                 $skipped = false;
@@ -150,13 +150,21 @@ abstract class backup_cron_automated_helper {
                     $skippedmessage = 'Not visible';
                 }
 
+                // If config backup_auto_skip_newly_created is set to true,
+                // check and consider if the course is newly created.
+                $isnewlycreatedcourse = false;
+                if ($config->backup_auto_skip_newly_created) {
+                    $isnewlycreatedcourse = ($course->timemodified <= $course->timecreated);
+                }
+
                 // If config backup_auto_skip_modif_days is set to true, skip courses
                 // that have not been modified since the number of days defined.
                 if ($shouldrunnow && !$skipped && $lastbackupwassuccessful && $config->backup_auto_skip_modif_days) {
                     $timenotmodifsincedays = $now - ($config->backup_auto_skip_modif_days * DAYSECS);
                     // Check log if there were any modifications to the course content.
-                    $logexists = self::is_course_modified($course->id, $timenotmodifsincedays);
-                    $skipped = ($course->timemodified <= $timenotmodifsincedays && !$logexists);
+                    $logexists = self::is_course_modified($course->id, $timenotmodifsincedays,
+                            $config->backup_auto_skip_newly_created);
+                    $skipped = (($isnewlycreatedcourse || $course->timemodified <= $timenotmodifsincedays) && !$logexists);
                     $skippedmessage = 'Not modified in the past '.$config->backup_auto_skip_modif_days.' days';
                 }
 
@@ -164,9 +172,10 @@ abstract class backup_cron_automated_helper {
                 // that have not been modified since previous backup.
                 if ($shouldrunnow && !$skipped && $lastbackupwassuccessful && $config->backup_auto_skip_modif_prev) {
                     // Check log if there were any modifications to the course content.
-                    $logexists = self::is_course_modified($course->id, $backupcourse->laststarttime);
-                    $skipped = ($course->timemodified <= $backupcourse->laststarttime && !$logexists);
-                    $skippedmessage = 'Not modified since previous backup';
+                    $logexists = self::is_course_modified($course->id, $backupcourse->laststarttime,
+                            $config->backup_auto_skip_newly_created);
+                    $skipped = (($isnewlycreatedcourse || $course->timemodified <= $backupcourse->laststarttime) && !$logexists);
+                    $skippedmessage = 'Not modified since previous backup process';
                 }
 
                 // Check if the course is not scheduled to run right now.
@@ -664,15 +673,20 @@ abstract class backup_cron_automated_helper {
      *
      * @param int $courseid course id to check
      * @param int $since timestamp, from which to check
+     * @param bool $skipnewlycreated whether or not to skip newly created course event
      *
      * @return bool true if the course was modified, false otherwise. This also returns false if no readers are enabled. This is
      * intentional, since we cannot reliably determine if any modification was made or not.
      */
-    protected static function is_course_modified($courseid, $since) {
+    protected static function is_course_modified($courseid, $since, $skipnewlycreated = false) {
         $logmang = get_log_manager();
         $readers = $logmang->get_readers('core\log\sql_select_reader');
         $where = "courseid = :courseid and timecreated > :since and crud <> 'r'";
         $params = array('courseid' => $courseid, 'since' => $since);
+        if ($skipnewlycreated) {
+            /*$where .= " and eventname <> :eventname";
+            $params['eventname'] = '\core\event\course_created';*/
+        }
         foreach ($readers as $reader) {
             if ($reader->get_events_select_count($where, $params)) {
                 return true;

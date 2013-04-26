@@ -1416,14 +1416,13 @@ class grade_structure {
         // If element name is categorytotal, get the name of the parent category
         if ($strparams->itemname == get_string('categorytotal', 'grades')) {
             $parent = $element['object']->get_parent_category();
-            $strparams->category = $parent->get_name() . ' ';
-        } else {
-            $strparams->category = '';
+            $strparams->category = $parent->get_name();
         }
 
         $strparams->itemmodule = null;
         if (isset($element['object']->itemmodule)) {
-            $strparams->itemmodule = $element['object']->itemmodule;
+            $itemmodule = $element['object']->itemmodule;
+            $strparams->itemmodule = strtolower(get_string('pluginname', $itemmodule));
         }
         return $strparams;
     }
@@ -1462,7 +1461,7 @@ class grade_structure {
             case 'item':
             case 'categoryitem':
             case 'courseitem':
-                $stredit = get_string('editverbose', 'grades', $strparams);
+                $stredit = preg_replace('/\s+/', ' ', get_string('editverbose', 'grades', $strparams));
                 if (empty($object->outcomeid) || empty($CFG->enableoutcomes)) {
                     $url = new moodle_url('/grade/edit/tree/item.php',
                             array('courseid' => $this->courseid, 'id' => $object->id));
@@ -1473,7 +1472,7 @@ class grade_structure {
                 break;
 
             case 'category':
-                $stredit = get_string('editverbose', 'grades', $strparams);
+                $stredit = preg_replace('/\s+/', ' ', get_string('editverbose', 'grades', $strparams));
                 $url = new moodle_url('/grade/edit/tree/category.php',
                         array('courseid' => $this->courseid, 'id' => $object->id));
                 break;
@@ -1521,8 +1520,8 @@ class grade_structure {
         }
 
         $strparams = $this->get_params_for_iconstr($element);
-        $strshow = get_string('showverbose', 'grades', $strparams);
-        $strhide = get_string('hideverbose', 'grades', $strparams);
+        $strshow = preg_replace('/\s+/', ' ', get_string('showverbose', 'grades', $strparams));
+        $strhide = preg_replace('/\s+/', ' ', get_string('hideverbose', 'grades', $strparams));
 
         $url = new moodle_url('/grade/edit/tree/action.php', array('id' => $this->courseid, 'sesskey' => sesskey(), 'eid' => $element['eid']));
         $url = $gpr->add_url_params($url);
@@ -1562,8 +1561,8 @@ class grade_structure {
         global $CFG, $OUTPUT;
 
         $strparams = $this->get_params_for_iconstr($element);
-        $strunlock = get_string('unlockverbose', 'grades', $strparams);
-        $strlock = get_string('lockverbose', 'grades', $strparams);
+        $strunlock = preg_replace('/\s+/', ' ', get_string('unlockverbose', 'grades', $strparams));
+        $strlock = preg_replace('/\s+/', ' ', get_string('lockverbose', 'grades', $strparams));
 
         $url = new moodle_url('/grade/edit/tree/action.php', array('id' => $this->courseid, 'sesskey' => sesskey(), 'eid' => $element['eid']));
         $url = $gpr->add_url_params($url);
@@ -1626,7 +1625,7 @@ class grade_structure {
 
         if ($type == 'item' or $type == 'courseitem' or $type == 'categoryitem') {
             $strparams = $this->get_params_for_iconstr($element);
-            $streditcalculation = get_string('editcalculationverbose', 'grades', $strparams);
+            $streditcalculation = preg_replace('/\s+/', ' ', get_string('editcalculationverbose', 'grades', $strparams));
 
             $is_scale = $object->gradetype == GRADE_TYPE_SCALE;
             $is_value = $object->gradetype == GRADE_TYPE_VALUE;

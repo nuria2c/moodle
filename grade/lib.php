@@ -1420,38 +1420,38 @@ class grade_structure {
     }
 
     /**
-     * Given a grade_tree element, returns an array of parameters
-     * used to build an icon for that element.
+     * Given a grade_tree element, returns a string with the 
+     * concatenated parameters used to build an icon for that element.
      *
      * @param array $element An array representing an element in the grade_tree
      *
-     * @return array
+     * @return string
      */
     public function get_params_for_iconstr($element) {
-        $strparams = new stdClass();
-        $strparams->category = '';
-        $strparams->itemname = '';
-        $strparams->itemmodule = '';
+        $strparams = array();
 
         if (!method_exists($element['object'], 'get_name')) {
-            return $strparams;
+            return '';
         }
 
-        $strparams->itemname = html_to_text($element['object']->get_name());
+        $itemname = html_to_text($element['object']->get_name());
 
         // If element name is categorytotal, get the name of the parent category
-        if ($strparams->itemname == get_string('categorytotal', 'grades')) {
+        if ($itemname == get_string('categorytotal', 'grades')) {
             $parent = $element['object']->get_parent_category();
-            $strparams->category = $parent->get_name() . ' ';
-        } else {
-            $strparams->category = '';
+            $strparams[] = get_string('iconstringcategory', 'grades', $parent->get_name());
         }
 
-        $strparams->itemmodule = null;
+        // If element has a module, get the type of activity
         if (isset($element['object']->itemmodule)) {
-            $strparams->itemmodule = $element['object']->itemmodule;
+            $itemmodule = get_string('pluginname', $element['object']->itemmodule);
+            $strparams[] = get_string('iconstringactivitytype', 'grades', $itemmodule);
         }
-        return $strparams;
+
+        // Finally, get the name of the activity
+        $strparams[] = get_string('iconstringactivityname', 'grades', $itemname);
+
+        return implode($strparams);
     }
 
     /**

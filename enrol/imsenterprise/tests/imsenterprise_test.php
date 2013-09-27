@@ -142,35 +142,84 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
     public function test_user_update() {
         global $DB;
 
-        $user3 = new StdClass();
-        $user3->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_ADD;
-        $user3->username = 'u3';
-        $user3->email = 'u3@u3.org';
-        $user3->firstname = 'U';
-        $user3->lastname = '3';
+        $user = $this->getDataGenerator()->create_user(array('idnumber' => 'test-update-user'));
+        $imsuser = new stdClass();
+        $imsuser->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
+        // THIS SHOULD WORK, surely?: $imsuser->username = $user->username;
+        // But this is required...
+        $imsuser->username = $user->idnumber;
+        $imsuser->email = 'u3@u3.org';
+        $imsuser->firstname = 'U';
+        $imsuser->lastname = '3';
 
-        $users = array($user3);
-        $this->set_xml_file($users);
+        $this->set_xml_file(array($imsuser));
         $this->imsplugin->cron();
-
-        $user3u = $DB->get_record('user', array('username' => $user3->username));
-
-        $user3u->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
-        $user3u->email = 'updated_u3@updated_u3.org';
-        $user3u->firstname = 'updated_U';
-        $user3u->lastname = 'updated_3';
-
-        $users = array($user3u);
-        $this->set_xml_file($users);
-        $this->imsplugin->cron();
-
-        $dbuser = $DB->get_record('user', array('username' => $user3->username));
-
-        $this->assertEquals($dbuser->email, $user3u->email);
-        $this->assertEquals($dbuser->firstname, $user3u->firstname);
-        $this->assertEquals($dbuser->lastname, $user3u->lastname);
+        $dbuser = $DB->get_record('user', array('id' => $user->id), '*', MUST_EXIST);
+        $this->assertEquals($imsuser->email, $dbuser->email);
+        $this->assertEquals($imsuser->firstname, $dbuser->firstname);
+        $this->assertEquals($imsuser->lastname, $dbuser->lastname);
     }
 
+    public function test_user_update_disabled() {
+        global $DB;
+
+        $this->imsplugin->set_config('imsupdateusers', false);
+
+        $user = $this->getDataGenerator()->create_user(array('idnumber' => 'test-update-user'));
+        $imsuser = new stdClass();
+        $imsuser ->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
+        // THIS SHOULD WORK, surely?: $imsuser->username = $user->username;
+        // But this is required...
+        $imsuser->username = $user->idnumber;
+        $imsuser->email = 'u3@u3.org';
+        $imsuser->firstname = 'U';
+        $imsuser->lastname = '3';
+
+        $this->set_xml_file(array($imsuser));
+        $this->imsplugin->cron();
+
+        // Verify no changes have been made.
+        $dbuser = $DB->get_record('user', array('id' => $user->id), '*', MUST_EXIST);
+        $this->assertEquals($user->email, $dbuser->email);
+        $this->assertEquals($user->firstname, $dbuser->firstname);
+        $this->assertEquals($user->lastname, $dbuser->lastname);
+    }
+
+    public function test_user_delete() {
+        global $DB;
+
+        $this->imsplugin->set_config('imsdeleteusers', true);
+        $user = $this->getDataGenerator()->create_user(array('idnumber' => 'test-update-user'));
+
+        $imsuser = new stdClass();
+        $imsuser->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_DELETE;
+        $imsuser->username = $user->username;
+        $imsuser->firstname = $user->firstname;
+        $imsuser->lastname = $user->lastname;
+        $imsuser->email = $user->email;
+        $this->set_xml_file(array($imsuser));
+
+        $this->imsplugin->cron();
+        $this->assertEquals(1, $DB->get_field('user', 'deleted', array('id' => $user->id), '*', MUST_EXIST));
+    }
+
+    public function test_user_delete_disabled() {
+        global $DB;
+
+        $this->imsplugin->set_config('imsdeleteusers', false);
+        $user = $this->getDataGenerator()->create_user(array('idnumber' => 'test-update-user'));
+
+        $imsuser = new stdClass();
+        $imsuser->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_DELETE;
+        $imsuser->username = $user->username;
+        $imsuser->firstname = $user->firstname;
+        $imsuser->lastname = $user->lastname;
+        $imsuser->email = $user->email;
+        $this->set_xml_file(array($imsuser));
+
+        $this->imsplugin->cron();
+        $this->assertEquals(0, $DB->get_field('user', 'deleted', array('id' => $user->id), '*', MUST_EXIST));
+    }
 
     /**
      * Existing courses are not created again
@@ -220,6 +269,41 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $this->imsplugin->cron();
 
         $this->assertEquals(($prevncourses + 2), $DB->count_records('course'));
+        $this->assertTrue($DB->record_exists('course', array('idnumber' => $course1->idnumber)));
+        $this->assertTrue($DB->record_exists('course', array('idnumber' => $course2->idnumber)));
+    }
+
+
+    /**
+     * Verify that courses are not created when createnewcourses
+     * option is diabled.
+     */
+    public function test_courses_add_createnewcourses_disabled() {
+        global $DB;
+
+        $this->imsplugin->set_config('createnewcourses', false);
+        $prevncourses = $DB->count_records('course');
+
+        $course1 = new StdClass();
+        $course1->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_ADD;
+        $course1->idnumber = 'id1';
+        $course1->imsshort = 'id1';
+        $course1->category = 'DEFAULT CATNAME';
+
+        $course2 = new StdClass();
+        $course2->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_ADD;
+        $course2->idnumber = 'id2';
+        $course2->imsshort = 'id2';
+        $course2->category = 'DEFAULT CATNAME';
+
+        $courses = array($course1, $course2);
+        $this->set_xml_file(false, $courses);
+        $this->imsplugin->cron();
+
+        // Verify the courses have not ben creased.
+        $this->assertEquals($prevncourses , $DB->count_records('course'));
+        $this->assertFalse($DB->record_exists('course', array('idnumber' => $course1->idnumber)));
+        $this->assertFalse($DB->record_exists('course', array('idnumber' => $course2->idnumber)));
     }
 
     /**
@@ -241,6 +325,34 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
 
         // Verify no action.
         $this->assertEquals($prevncourses, $DB->count_records('course'));
+    }
+
+    /**
+     * Add new course with the truncateidnumber setting.
+     */
+    public function test_courses_add_truncate_idnumber() {
+        global $DB;
+
+        $truncatelength = 4;
+
+        $this->imsplugin->set_config('truncatecoursecodes', $truncatelength);
+        $prevncourses = $DB->count_records('course');
+
+        $course1 = new StdClass();
+        $course1->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_ADD;
+        $course1->idnumber = '123456789';
+        $course1->imsshort = 'id1';
+        $course1->category = 'DEFAULT CATNAME';
+
+        $this->set_xml_file(false, array($course1));
+        $this->imsplugin->cron();
+
+        // Verify the new course has been added.
+        $this->assertEquals(($prevncourses + 1), $DB->count_records('course'));
+
+        $truncatedidnumber = substr($course1->idnumber, 0, $truncatelength);
+
+        $this->assertTrue($DB->record_exists('course', array('idnumber' => $truncatedidnumber)));
     }
 
 

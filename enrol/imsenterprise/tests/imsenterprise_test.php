@@ -222,6 +222,27 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $this->assertEquals(($prevncourses + 2), $DB->count_records('course'));
     }
 
+    /**
+     * Test adding a course with no idnumber.
+     */
+    public function test_courses_no_idnumber() {
+        global $DB;
+
+        $prevncourses = $DB->count_records('course');
+
+        $course1 = new StdClass();
+        $course1->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_ADD;
+        $course1->idnumber = '';
+        $course1->imsshort = 'id1';
+        $course1->category = 'DEFAULT CATNAME';
+
+        $this->set_xml_file(false, array($course1));
+        $this->imsplugin->cron();
+
+        // Verify no action.
+        $this->assertEquals($prevncourses, $DB->count_records('course'));
+    }
+
 
     /**
      * Course attributes mapping to IMS enterprise group description tags

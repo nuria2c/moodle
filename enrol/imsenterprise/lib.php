@@ -295,8 +295,8 @@ function process_group_tag($tagcontents) {
 
     $recstatus = ($this->get_recstatus($tagcontents, 'group'));
 
-    if (!(strlen($group->coursecode)>0)) {
-        $this->log_line('Error at line '.$line.': Unable to find course code in \'group\' element.');
+    if (empty($group->coursecode)) {
+        $this->log_line('Error: Unable to find course code in \'group\' element.');
     } else {
         // First, truncate the course code if desired
         if (intval($truncatecoursecodes)>0) {

@@ -98,11 +98,20 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $user1->firstname = 'U';
         $user1->lastname = '1';
 
-        $users = array($user1);
+        $user2 = new StdClass();
+        $user2->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
+        $user2->username = 'u2';
+        $user2->email = 'u2@u2.org';
+        $user2->firstname = 'U';
+        $user2->lastname = '2';
+
+        $users = array($user1, $user2);
         $this->set_xml_file($users);
         $this->imsplugin->cron();
 
         $this->assertEquals(($prevnusers + 1), $DB->count_records('user'));
+        $this->assertTrue($DB->record_exists('user', array('username' => $user1->username)));
+        $this->assertFalse($DB->record_exists('user', array('username' => $user2->username)));
     }
 
 
@@ -167,7 +176,7 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
 
         $user = $this->getDataGenerator()->create_user(array('idnumber' => 'test-update-user'));
         $imsuser = new stdClass();
-        $imsuser ->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
+        $imsuser->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
         // THIS SHOULD WORK, surely?: $imsuser->username = $user->username;
         // But this is required...
         $imsuser->username = $user->idnumber;
@@ -264,13 +273,20 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $course2->imsshort = 'id2';
         $course2->category = 'DEFAULT CATNAME';
 
-        $courses = array($course1, $course2);
+        $course3 = new StdClass();
+        $course3->recstatus = enrol_imsenterprise_plugin::IMSENTERPRISE_UPDATE;
+        $course3->idnumber = 'id3';
+        $course3->imsshort = 'id3';
+        $course3->category = 'DEFAULT CATNAME';
+
+        $courses = array($course1, $course2, $course3);
         $this->set_xml_file(false, $courses);
         $this->imsplugin->cron();
 
         $this->assertEquals(($prevncourses + 2), $DB->count_records('course'));
         $this->assertTrue($DB->record_exists('course', array('idnumber' => $course1->idnumber)));
         $this->assertTrue($DB->record_exists('course', array('idnumber' => $course2->idnumber)));
+        $this->assertFalse($DB->record_exists('course', array('idnumber' => $course3->idnumber)));
     }
 
 
@@ -488,12 +504,12 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $this->imsplugin->cron();
 
         $parentcatid = $DB->get_field('course_categories', 'id', array('name' => $topcat));
-        $subcatid = $DB->get_field('course_categories', 'id', array('name' => $subcat,'parent' => $parentcatid));
+        $subcatid = $DB->get_field('course_categories', 'id', array('name' => $subcat, 'parent' => $parentcatid));
 
         $this->assertTrue(isset($subcatid));
         $this->assertTrue($subcatid > 0);
 
-        # Change the category separator character
+        // Change the category separator character.
         $this->imsplugin->set_config('categoryseparator', ':');
 
         $catsep = trim($this->imsplugin->get_config('categoryseparator'));
@@ -515,7 +531,7 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
         $this->imsplugin->cron();
 
         $parentcatid = $DB->get_field('course_categories', 'id', array('name' => $topcat));
-        $subcatid = $DB->get_field('course_categories', 'id', array('name' => $subcat,'parent' => $parentcatid));
+        $subcatid = $DB->get_field('course_categories', 'id', array('name' => $subcat, 'parent' => $parentcatid));
 
         $this->assertTrue(isset($subcatid));
         $this->assertTrue($subcatid > 0);
@@ -594,7 +610,7 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
                 $xmlcontent .= '
   <person';
 
-                // Optional recstatus (1=add, 2=update, 3=delete)
+                // Optional recstatus (1=add, 2=update, 3=delete).
                 if (!empty($user->recstatus)) {
                     $xmlcontent .= ' recstatus="'.$user->recstatus.'"';
                 }
@@ -606,12 +622,12 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
     </sourcedid>
     <userid';
 
-            // Optional authentication type
-            if (!empty($user->auth)) {
-                $xmlcontent .= ' authenticationtype="'.$user->auth.'"';
-            }
+                // Optional authentication type.
+                if (!empty($user->auth)) {
+                    $xmlcontent .= ' authenticationtype="'.$user->auth.'"';
+                }
 
-            $xmlcontent .= '>'.$user->username.'</userid>
+                $xmlcontent .= '>'.$user->username.'</userid>
     <name>
       <fn>'.$user->firstname.' '.$user->lastname.'</fn>
       <n>
@@ -632,7 +648,7 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
                 $xmlcontent .= '
   <group';
 
-                // Optional recstatus (1=add, 2=update, 3=delete)
+                // Optional recstatus (1=add, 2=update, 3=delete).
                 if (!empty($course->recstatus)) {
                     $xmlcontent .= ' recstatus="'.$course->recstatus.'"';
                 }
@@ -662,7 +678,7 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
       <full>'.$course->imsfull.'</full>';
                 }
 
-                // orgunit tag value is used by moodle as category name.
+                // The orgunit tag value is used by moodle as category name.
                 $xmlcontent .= '
     </description>
     <org>

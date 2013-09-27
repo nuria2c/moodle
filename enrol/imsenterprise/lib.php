@@ -240,17 +240,16 @@ function remove_tag_from_cache($tagname){ // Trim the cache so we're not in dang
 
 /**
 * Very simple convenience function to return the "recstatus" found in person/group/role tags.
-* 1=Add, 2=Update, 3=Delete, as specified by IMS, and we also use 0 to indicate "unspecified".
+* 1=Add, 2=Update, 3=Delete, as specified by IMS, and default to 1=Add.
 * @param string $tagdata the tag XML data
 * @param string $tagname the name of the tag we're interested in
 */
-function get_recstatus($tagdata, $tagname){
-    if(preg_match('{<'.$tagname.'\b[^>]*recstatus\s*=\s*["\'](\d)["\']}is', $tagdata, $matches)){
-        // echo "<p>get_recstatus($tagname) found status of $matches[1]</p>";
+private function get_recstatus($tagdata, $tagname) {
+    if (preg_match('{<'.$tagname.'\b[^>]*recstatus\s*=\s*["\'](\d)["\']}is', $tagdata, $matches)) {
         return intval($matches[1]);
-    }else{
-        // echo "<p>get_recstatus($tagname) found nothing</p>";
-        return 0; // Unspecified
+    } else {
+        // Set default to Add.
+        return self::IMSENTERPRISE_ADD;
     }
 }
 
@@ -312,8 +311,10 @@ function process_group_tag($tagcontents) {
         foreach ($group->coursecode as $coursecode) {
             $coursecode = trim($coursecode);
             $dbcourse = $DB->get_record('course', array('idnumber' => $coursecode));
-            if (!$dbcourse) {
-                if (!$createnewcourses) {
+            if ($recstatus == self::IMSENTERPRISE_ADD) {
+                if ($dbcourse) {
+                    $this->log_line("Trying to add the course $coursecode that already exists.");
+                } else if (!$createnewcourses) {
                     $this->log_line("Course $coursecode not found in Moodle's course idnumbers.");
                 } else {
 
@@ -420,8 +421,10 @@ function process_group_tag($tagcontents) {
 
                     $this->log_line("Created course $coursecode in Moodle (Moodle ID is $course->id)");
                 }
-            } else if (($recstatus == self::IMSENTERPRISE_UPDATE) && $dbcourse) {
-                if ($updatecourses) {
+            } else if ($recstatus == self::IMSENTERPRISE_UPDATE) {
+                if (!$dbcourse) {
+                    $this->log_line("Trying to update the course $coursecode that does not exist.");
+                } else if ($updatecourses) {
                     // Update course. Allowed fields to be updated are:
                     // Short Name, and Full Name.
                     $hasupdates = false;
@@ -447,13 +450,19 @@ function process_group_tag($tagcontents) {
                     // Update courses option is not enabled. Ignore.
                     $this->log_line("Ignoring update to course $coursecode");
                 }
-            } else if (($recstatus == self::IMSENTERPRISE_DELETE) && $dbcourse) {
-                // If course does exist, but recstatus==3 (delete), then set the course as hidden
-                $courseid = $dbcourse->id;
-                $dbcourse->visible = 0;
-                $DB->update_record('course', $dbcourse);
-                add_to_log(SITEID, "course", "update", "view.php?id=$courseid", "Updated (set to hidden) course $coursecode (Moodle ID is $courseid)");
-                $this->log_line("Updated (set to hidden) course $coursecode in Moodle (Moodle ID is $courseid)");
+            } else if ($recstatus == self::IMSENTERPRISE_DELETE) {
+                if (!$dbcourse) {
+                    $this->log_line("Trying to hide the course $coursecode that does not exist.");
+                } else {
+                    // If course does exist, but recstatus==3 (delete), then set the course as hidden
+                    $courseid = $dbcourse->id;
+                    $dbcourse->visible = 0;
+                    $DB->update_record('course', $dbcourse);
+                    add_to_log(SITEID, "course", "update", "view.php?id=$courseid", "Updated (set to hidden) course $coursecode (Moodle ID is $courseid)");
+                    $this->log_line("Updated (set to hidden) course $coursecode in Moodle (Moodle ID is $courseid)");
+                }
+            } else {
+                $this->log_line("Unknown status (recstatus) for course $coursecode.");
             }
         } // End of foreach(coursecode)
     }
@@ -542,10 +551,10 @@ function process_person_tag($tagcontents){
             $this->log_line("Ignoring deletion request for user '$person->username' (ID number $person->idnumber).");
         }
 
-    } else if ($recstatus == self::IMSENTERPRISE_UPDATE) { // Update user
+    } else if ($recstatus == self::IMSENTERPRISE_UPDATE) {
         if ($imsupdateusers) {
-            if ($id = $DB->get_field('user', 'id', array('idnumber'=>$person->idnumber))) {
-                $person->id = $id;
+            if ($userid = $DB->get_field('user', 'id', array('idnumber'=>$person->idnumber))) {
+                $person->id = $userid;
                 $DB->update_record('user', $person);
                 $this->log_line("Updated user $person->username");
             } else {
@@ -555,7 +564,7 @@ function process_person_tag($tagcontents){
             $this->log_line("Ignoring update request for user $person->username");
         }
 
-    } else { // Add record
+    } else if ($recstatus == self::IMSENTERPRISE_ADD) {
 
 
         // If the user exists (matching sourcedid) then we don't need to do anything.
@@ -589,8 +598,9 @@ function process_person_tag($tagcontents){
         }else{
             $this->log_line("No user record found for '$person->username' (ID number $person->idnumber).");
         }
-
-    } // End of are-we-deleting-or-adding
+    } else {
+        $this->log_line("Unknown status (recstatus) for user $person->username.");
+    }
 
 } // End process_person_tag()
 

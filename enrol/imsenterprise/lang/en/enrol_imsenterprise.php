@@ -75,8 +75,8 @@ $string['sourcedidfallback_desc'] = 'In IMS data, the <sourcedid> field represen
 Some student information systems fail to output the <userid> field. If this is the case, you should enable this setting to allow for using the <sourcedid> as the Moodle user ID. Otherwise, leave this setting disabled.';
 $string['truncatecoursecodes'] = 'Truncate course codes to this length';
 $string['truncatecoursecodes_desc'] = 'In some situations you may have course codes which you wish to truncate to a specified length before processing. If so, enter the number of characters in this box. Otherwise, leave the box blank and no truncation will occur.';
-$string['updatecourses'] = 'Update course full names';
-$string['updatecourses_desc'] = 'If enabled, the IMS Enterprise enrolment plugin can update course full names (if the "recstatus" flag is set to 2, which represents an update).';
+$string['updatecourses'] = 'Update course short and full names';
+$string['updatecourses_desc'] = 'If enabled, the IMS Enterprise enrolment plugin can update course short and full names (if the "recstatus" flag is set to 2, which represents an update).';
 $string['updateusers'] = 'Update user accounts when specified in IMS data';
 $string['updateusers_desc'] = 'If enabled, IMS Enterprise enrolment data can specify changes to user accounts (if the "recstatus" flag is set to 2, which represents an update).';
 $string['usecapitafix'] = 'Tick this box if using &quot;Capita&quot; (their XML format is slightly wrong)';

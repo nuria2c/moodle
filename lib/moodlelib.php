@@ -3169,11 +3169,19 @@ function require_logout() {
 
     // Store info that gets removed during logout.
     $sid = session_id();
+
+    $userid = $USER->id;
+    $loginfo = $userid;
+    if (\core\session\manager::is_loggedinas()) {
+        $loginfo = 'Logged in as userid ' . $userid . ' | ' . $loginfo;
+        $userid = \core\session\manager::get_realuser()->id;
+    }
+
     $event = \core\event\user_loggedout::create(
         array(
-            'userid' => $USER->id,
-            'objectid' => $USER->id,
-            'other' => array('sessionid' => $sid),
+            'userid' => $userid,
+            'objectid' => $userid,
+            'other' => array('sessionid' => $sid, 'loginfo' => $loginfo),
         )
     );
     if ($session = $DB->get_record('sessions', array('sid'=>$sid))) {

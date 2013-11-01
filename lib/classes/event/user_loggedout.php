@@ -96,7 +96,7 @@ class user_loggedout extends base {
      * @return array
      */
     protected function get_legacy_logdata() {
-        return array(SITEID, 'user', 'logout', 'view.php?id='.$this->objectid.'&course='.SITEID, $this->objectid, 0,
+        return array(SITEID, 'user', 'logout', 'view.php?id='.$this->objectid.'&course='.SITEID, $this->other['loginfo'], 0,
             $this->objectid);
     }
 }

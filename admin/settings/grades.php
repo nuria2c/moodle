@@ -62,6 +62,12 @@ if (has_capability('moodle/grade:manage', $systemcontext)
 
         $temp->add(new admin_setting_configtext('grade_export_customprofilefields', new lang_string('gradeexportcustomprofilefields', 'grades'), new lang_string('gradeexportcustomprofilefields_desc', 'grades'), '', PARAM_TEXT));
 
+        $temp->add(new admin_setting_configtext('grade_export_customsorting', new lang_string('gradeexportcustomsorting', 'grades'),
+                new lang_string('gradeexportcustomsorting_desc', 'grades'), '', PARAM_NOTAGS));
+
+        $temp->add(new admin_setting_configtext('grade_import_customsorting', new lang_string('gradeimportcustomsorting', 'grades'),
+                new lang_string('gradeimportcustomsorting_desc', 'grades'), '', PARAM_NOTAGS));
+
         $temp->add(new admin_setting_configcheckbox('recovergradesdefault', new lang_string('recovergradesdefault', 'grades'), new lang_string('recovergradesdefault_help', 'grades'), 0));
 
         $temp->add(new admin_setting_special_gradeexport());

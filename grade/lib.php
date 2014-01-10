@@ -2668,10 +2668,15 @@ abstract class grade_helper {
     /**
      * Get information import plugins
      * @param int $courseid
+     * @param bool $reset Reset the import plugins (used in unit tests)
      * @return array
      */
-    public static function get_plugins_import($courseid) {
+    public static function get_plugins_import($courseid, $reset = false) {
         global $CFG;
+
+        if ($reset) {
+            self::$importplugins = null;
+        }
 
         if (self::$importplugins !== null) {
             return self::$importplugins;
@@ -2697,8 +2702,7 @@ abstract class grade_helper {
         }
 
         if (count($importplugins) > 0) {
-            asort($importplugins);
-            self::$importplugins = $importplugins;
+            self::$importplugins = self::sort_plugins($importplugins, $CFG->grade_import_customsorting);
         } else {
             self::$importplugins = false;
         }
@@ -2707,10 +2711,15 @@ abstract class grade_helper {
     /**
      * Get information export plugins
      * @param int $courseid
+     * @param bool $reset Reset the export plugins (used in unit tests)
      * @return array
      */
-    public static function get_plugins_export($courseid) {
+    public static function get_plugins_export($courseid, $reset = false) {
         global $CFG;
+
+        if ($reset) {
+            self::$exportplugins = null;
+        }
 
         if (self::$exportplugins !== null) {
             return self::$exportplugins;
@@ -2733,12 +2742,34 @@ abstract class grade_helper {
             }
         }
         if (count($exportplugins) > 0) {
-            asort($exportplugins);
-            self::$exportplugins = $exportplugins;
+            self::$exportplugins = self::sort_plugins($exportplugins, $CFG->grade_export_customsorting);
         } else {
             self::$exportplugins = false;
         }
         return self::$exportplugins;
+    }
+
+    /**
+     * Sort the grade plugins. Use admin sort configuration for the current plugin if specified.
+     *
+     * @param array $plugins The list of plugins who need to be sorted.
+     * @param string $config The admin config holding the plugins name to be putted before the others.
+     * @return array $plugins The sorted list of plugins.
+     */
+    private static function sort_plugins($plugins, $config) {
+        asort($plugins);
+        if (!empty($config)) {
+            $customsortpluginsname = array_map('trim', explode(",", $config));
+            $customsortplugins = array();
+            foreach ($customsortpluginsname as $custompluginname) {
+                if (array_key_exists($custompluginname, $plugins)) {
+                    $customsortplugins[$custompluginname] = $plugins[$custompluginname];
+                    unset($plugins[$custompluginname]);
+                }
+            }
+            $plugins = array_merge($customsortplugins, $plugins);
+        }
+        return $plugins;
     }
 
     /**

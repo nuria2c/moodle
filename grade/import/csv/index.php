@@ -52,23 +52,23 @@ $currentgroup = groups_get_course_group($course);
 print_grade_page_head($course->id, 'import', 'csv', get_string('importcsv', 'grades'));
 
 // Set up the grade import mapping form.
-$gradeitems = array();
+$mappinggradeitems = array();
 if ($id) {
-    if ($grade_items = grade_item::fetch_all(array('courseid'=>$id))) {
-        foreach ($grade_items as $grade_item) {
+    if ($gradeitems = grade_item::fetch_all(array('courseid' => $id))) {
+        foreach ($gradeitems as $gradeitem) {
             // Skip course type and category type.
-            if ($grade_item->itemtype == 'course' || $grade_item->itemtype == 'category') {
+            if ($gradeitem->itemtype == 'course' || $gradeitem->itemtype == 'category') {
                 continue;
             }
 
             $displaystring = null;
-            if (!empty($grade_item->itemmodule)) {
-                $displaystring = get_string('modulename', $grade_item->itemmodule).get_string('labelsep', 'langconfig')
-                        .$grade_item->get_name();
+            if (!empty($gradeitem->itemmodule)) {
+                $displaystring = get_string('modulename', $gradeitem->itemmodule).get_string('labelsep', 'langconfig')
+                        .$gradeitem->get_name();
             } else {
-                $displaystring = $grade_item->get_name();
+                $displaystring = $gradeitem->get_name();
             }
-            $gradeitems[$grade_item->id] = $displaystring;
+            $mappinggradeitems[$gradeitem->id] = html_to_text($displaystring, 0, false);
         }
     }
 }
@@ -141,7 +141,7 @@ $csvimport = new csv_import_reader($iid, 'grade');
 $header = $csvimport->get_columns();
 
 // we create a form to handle mapping data from the file to the database.
-$mform2 = new grade_import_mapping_form(null, array('gradeitems'=>$gradeitems, 'header'=>$header));
+$mform2 = new grade_import_mapping_form(null, array('gradeitems' => $mappinggradeitems, 'header' => $header));
 $mform2->set_data(array('iid' => $iid, 'id' => $id, 'importcode'=>$importcode, 'verbosescales' => $verbosescales));
 
 // Here, if we have data, we process the fields and enter the information into the database.

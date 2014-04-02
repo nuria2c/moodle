@@ -22,12 +22,13 @@ require_once 'grade_export_txt.php';
 $id                = required_param('id', PARAM_INT); // course id
 $groupid           = optional_param('groupid', 0, PARAM_INT);
 $itemids           = required_param('itemids', PARAM_RAW);
-$export_feedback   = optional_param('export_feedback', 0, PARAM_BOOL);
+$exportfeedback   = optional_param('export_feedback', 0, PARAM_BOOL);
 $separator         = optional_param('separator', 'comma', PARAM_ALPHA);
 $updatedgradesonly = optional_param('updatedgradesonly', false, PARAM_BOOL);
 $displaytype       = optional_param('displaytype', $CFG->grade_export_displaytype, PARAM_INT);
 $decimalpoints     = optional_param('decimalpoints', $CFG->grade_export_decimalpoints, PARAM_INT);
 $onlyactive        = optional_param('export_onlyactive', 0, PARAM_BOOL);
+$includecoursetotalletter = optional_param('includecoursetotalletter', 0, PARAM_BOOL);
 
 if (!$course = $DB->get_record('course', array('id'=>$id))) {
     print_error('nocourseid');
@@ -45,8 +46,9 @@ if (groups_get_course_groupmode($COURSE) == SEPARATEGROUPS and !has_capability('
     }
 }
 
-// print all the exported data here
-$export = new grade_export_txt($course, $groupid, $itemids, $export_feedback, $updatedgradesonly, $displaytype, $decimalpoints, $separator, $onlyactive, true);
+// Print all the exported data here.
+$export = new grade_export_txt($course, $groupid, $itemids, $exportfeedback, $updatedgradesonly, $displaytype, $decimalpoints,
+        $separator, $onlyactive, true, $includecoursetotalletter);
 $export->print_grades();
 
 

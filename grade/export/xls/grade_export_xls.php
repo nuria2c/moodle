@@ -60,6 +60,10 @@ class grade_export_xls extends grade_export {
             }
         }
 
+        if ($this->includecoursetotalletter) {
+            $myxls->write_string(0, $pos++, get_string('coursetotalletter', 'grades'));
+        }
+
         // Print all the lines of data.
         $i = 0;
         $geub = new grade_export_update_buffer();
@@ -97,6 +101,11 @@ class grade_export_xls extends grade_export {
                 if ($this->export_feedback) {
                     $myxls->write_string($i, $j++, $this->format_feedback($userdata->feedbacks[$itemid]));
                 }
+            }
+
+            if ($this->includecoursetotalletter) {
+                $courseitem = grade_item::fetch_course_item($this->course->id);
+                $myxls->write_string($i, $j++, $this->format_grade($userdata->grades[$courseitem->id], GRADE_DISPLAY_TYPE_LETTER));
             }
         }
         $gui->close();

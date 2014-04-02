@@ -29,15 +29,19 @@ class grade_export_txt extends grade_export {
      * @param object $course
      * @param int $groupid id of selected group, 0 means all
      * @param string $itemlist comma separated list of item ids, empty means all
-     * @param boolean $export_feedback
+     * @param boolean $exportfeedback
      * @param boolean $updatedgradesonly
      * @param string $displaytype
      * @param int $decimalpoints
      * @param boolean $onlyactive
      * @param boolean $usercustomfields include user custom field in export
+     * @param boolean $includecoursetotalletter If we also include the course total in letter.
      */
-    public function __construct($course, $groupid=0, $itemlist='', $export_feedback=false, $updatedgradesonly = false, $displaytype = GRADE_DISPLAY_TYPE_REAL, $decimalpoints = 2, $separator = 'comma', $onlyactive = false, $usercustomfields = false) {
-        parent::__construct($course, $groupid, $itemlist, $export_feedback, $updatedgradesonly, $displaytype, $decimalpoints, $onlyactive, $usercustomfields);
+    public function __construct($course, $groupid=0, $itemlist='', $exportfeedback=false, $updatedgradesonly = false,
+            $displaytype = GRADE_DISPLAY_TYPE_REAL, $decimalpoints = 2, $separator = 'comma', $onlyactive = false,
+            $usercustomfields = false, $includecoursetotalletter = false) {
+        parent::__construct($course, $groupid, $itemlist, $exportfeedback, $updatedgradesonly, $displaytype, $decimalpoints,
+                $onlyactive, $usercustomfields, $includecoursetotalletter);
         $this->separator = $separator;
     }
 
@@ -77,6 +81,11 @@ class grade_export_txt extends grade_export {
                 $exporttitle[] = $this->format_column_name($grade_item, true);
             }
         }
+
+        if ($this->includecoursetotalletter) {
+            $exporttitle[] = get_string('coursetotalletter', 'grades');
+        }
+
         $csvexport->add_data($exporttitle);
 
         // Print all the lines of data.
@@ -109,6 +118,12 @@ class grade_export_txt extends grade_export {
                     $exportdata[] = $this->format_feedback($userdata->feedbacks[$itemid]);
                 }
             }
+
+            if ($this->includecoursetotalletter) {
+                $courseitem = grade_item::fetch_course_item($this->course->id);
+                $exportdata[] = $this->format_grade($userdata->grades[$courseitem->id], GRADE_DISPLAY_TYPE_LETTER);
+            }
+
             $csvexport->add_data($exportdata);
         }
         $gui->close();

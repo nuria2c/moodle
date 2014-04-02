@@ -43,20 +43,33 @@ abstract class grade_export {
     public $usercustomfields; // include users custom fields
 
     /**
+     * @var bool If also include the course total in letter.
+     */
+    public $includecoursetotalletter;
+
+    /**
+     * @var bool If a user grade is updated.
+     */
+    private $usergradeupdated;
+
+    /**
      * Constructor should set up all the private variables ready to be pulled
      * @access public
      * @param object $course
      * @param int $groupid id of selected group, 0 means all
      * @param string $itemlist comma separated list of item ids, empty means all
-     * @param boolean $export_feedback
+     * @param boolean $exportfeedback
      * @param boolean $updatedgradesonly
      * @param string $displaytype
      * @param int $decimalpoints
      * @param boolean $onlyactive
      * @param boolean $usercustomfields include user custom field in export
+     * @param boolean $includecoursetotalletter If we also include the course total in letter.
      * @note Exporting as letters will lead to data loss if that exported set it re-imported.
      */
-    public function grade_export($course, $groupid=0, $itemlist='', $export_feedback=false, $updatedgradesonly = false, $displaytype = GRADE_DISPLAY_TYPE_REAL, $decimalpoints = 2, $onlyactive = false, $usercustomfields = false) {
+    public function __construct($course, $groupid = 0, $itemlist = '', $exportfeedback = false, $updatedgradesonly = false,
+            $displaytype = GRADE_DISPLAY_TYPE_REAL, $decimalpoints = 2, $onlyactive = false, $usercustomfields = false,
+            $includecoursetotalletter = false) {
         $this->course = $course;
         $this->groupid = $groupid;
         $this->grade_items = grade_item::fetch_all(array('courseid'=>$this->course->id));
@@ -83,7 +96,7 @@ abstract class grade_export {
             }
         }
 
-        $this->export_feedback = $export_feedback;
+        $this->export_feedback = $exportfeedback;
         $this->userkey         = '';
         $this->previewrows     = false;
         $this->updatedgradesonly = $updatedgradesonly;
@@ -92,6 +105,7 @@ abstract class grade_export {
         $this->decimalpoints = $decimalpoints;
         $this->onlyactive = $onlyactive;
         $this->usercustomfields = $usercustomfields;
+        $this->includecoursetotalletter = $includecoursetotalletter;
     }
 
     /**
@@ -142,6 +156,9 @@ abstract class grade_export {
             $this->previewrows = $formdata->previewrows;
         }
 
+        if (isset($formdata->includecoursetotalletter)) {
+            $this->includecoursetotalletter = $formdata->includecoursetotalletter;
+        }
     }
 
     /**
@@ -164,12 +181,17 @@ abstract class grade_export {
     }
 
     /**
-     * Returns string representation of final grade
-     * @param $object $grade instance of grade_grade class
-     * @return string
+     * Returns string representation of final grade.
+     * @param grade_grade $grade instance of grade_grade class.
+     * @param string $displaytype The display type of the grade.
+     * @return string The formatted grade.
      */
-    public function format_grade($grade) {
-        return grade_format_gradevalue($grade->finalgrade, $this->grade_items[$grade->itemid], false, $this->displaytype, $this->decimalpoints);
+    public function format_grade($grade, $displaytype = null) {
+        if (empty($displaytype)) {
+            $displaytype = $this->displaytype;
+        }
+        return grade_format_gradevalue($grade->finalgrade, $this->grade_items[$grade->itemid], false, $displaytype,
+                $this->decimalpoints);
     }
 
     /**
@@ -235,9 +257,15 @@ abstract class grade_export {
                 echo '<th>'.$this->format_column_name($grade_item, true).'</th>';
             }
         }
+
+        if ($this->includecoursetotalletter) {
+            echo html_writer::tag('th', get_string('coursetotalletter', 'grades'));
+        }
+
         echo '</tr>';
         /// Print all the lines of data.
         $i = 0;
+        $geub = new grade_export_update_buffer();
         $gui = new graded_users_iterator($this->course, $this->columns, $this->groupid);
         $gui->require_active_enrolment($this->onlyactive);
         $gui->allow_user_custom_fields($this->usercustomfields);
@@ -253,30 +281,27 @@ abstract class grade_export {
                 continue;
             }
 
-            $gradeupdated = false; // if no grade is update at all for this user, do not display this row
+            $this->usergradeupdated = false; // If no grade is update at all for this user, do not display this row.
             $rowstr = '';
             foreach ($this->columns as $itemid=>$unused) {
-                $gradetxt = $this->format_grade($userdata->grades[$itemid]);
-
-                // get the status of this grade, and put it through track to get the status
-                $g = new grade_export_update_buffer();
-                $grade_grade = new grade_grade(array('itemid'=>$itemid, 'userid'=>$user->id));
-                $status = $g->track($grade_grade);
-
-                if ($this->updatedgradesonly && ($status == 'nochange' || $status == 'unknown')) {
-                    $rowstr .= '<td>'.get_string('unchangedgrade', 'grades').'</td>';
-                } else {
-                    $rowstr .= "<td>$gradetxt</td>";
-                    $gradeupdated = true;
-                }
+                $gradeitem = $this->grade_items[$itemid];
+                $gradestr = $this->format_grade($userdata->grades[$itemid]);
+                $rowstr .= $this->generate_preview_user_grade($user, $gradeitem, $gradestr, $geub);
 
                 if ($this->export_feedback) {
                     $rowstr .=  '<td>'.$this->format_feedback($userdata->feedbacks[$itemid]).'</td>';
                 }
             }
 
-            // if we are requesting updated grades only, we are not interested in this user at all
-            if (!$gradeupdated && $this->updatedgradesonly) {
+            // Add a row for the course total in letter requested if the course total exist.
+            if ($this->includecoursetotalletter) {
+                $courseitem = grade_item::fetch_course_item($this->course->id);
+                $gradestr = $this->format_grade($userdata->grades[$courseitem->id], GRADE_DISPLAY_TYPE_LETTER);
+                $rowstr .= $this->generate_preview_user_grade($user, $courseitem, $gradestr, $geub);
+            }
+
+            // If we are requesting updated grades only, we are not interested in this user at all.
+            if (!$this->usergradeupdated && $this->updatedgradesonly) {
                 continue;
             }
 
@@ -300,6 +325,28 @@ abstract class grade_export {
     }
 
     /**
+     * Generate the html cell for a user grade.
+     * @param object $user The current user.
+     * @param grade_item $gradeitem The grade item object.
+     * @param string $gradestr The formatted grade.
+     * @param grade_export_update_buffer $geub The grade export update buffer object.
+     * @return string HTML fragment of the formatted cell.
+     */
+    public function generate_preview_user_grade($user, $gradeitem, $gradestr, $geub) {
+        // Get the status of this grade, and put it through track to get the status.
+        $gradegrade = new grade_grade(array('itemid' => $gradeitem->id, 'userid' => $user->id));
+        $status = $geub->track($gradegrade);
+
+        if ($this->updatedgradesonly && ($status == 'nochange' || $status == 'unknown')) {
+            $content = get_string('unchangedgrade', 'grades');
+        } else {
+            $content = $gradestr;
+            $this->usergradeupdated = true;
+        }
+        return html_writer::tag('td', $content);
+    }
+
+    /**
      * Returns array of parameters used by dump.php and export.php.
      * @return array
      */
@@ -310,16 +357,17 @@ abstract class grade_export {
             $itemidsparam = '-1';
         }
 
-        $params = array('id'                =>$this->course->id,
-                        'groupid'           =>$this->groupid,
-                        'itemids'           =>$itemidsparam,
-                        'export_letters'    =>$this->export_letters,
-                        'export_feedback'   =>$this->export_feedback,
-                        'updatedgradesonly' =>$this->updatedgradesonly,
-                        'displaytype'       =>$this->displaytype,
-                        'decimalpoints'     =>$this->decimalpoints,
-                        'export_onlyactive' =>$this->onlyactive,
-                        'usercustomfields'  =>$this->usercustomfields);
+        $params = array('id' => $this->course->id,
+                        'groupid' => $this->groupid,
+                        'itemids' => $itemidsparam,
+                        'export_letters' => $this->export_letters,
+                        'export_feedback' => $this->export_feedback,
+                        'updatedgradesonly' => $this->updatedgradesonly,
+                        'displaytype' => $this->displaytype,
+                        'decimalpoints' => $this->decimalpoints,
+                        'export_onlyactive' => $this->onlyactive,
+                        'usercustomfields' => $this->usercustomfields,
+                        'includecoursetotalletter' => $this->includecoursetotalletter);
 
         return $params;
     }

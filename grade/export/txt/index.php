@@ -40,7 +40,7 @@ if (!empty($CFG->gradepublishing)) {
     $CFG->gradepublishing = has_capability('gradeexport/txt:publish', $context);
 }
 
-$mform = new grade_export_form(null, array('includeseparator'=>true, 'publishing' => true));
+$mform = new grade_export_form(null, array('includeseparator' => true, 'publishing' => true, 'includecoursetotalletter' => true));
 
 $groupmode    = groups_get_course_groupmode($course);   // Groups are being used
 $currentgroup = groups_get_course_group($course, true);
@@ -53,7 +53,8 @@ if ($groupmode == SEPARATEGROUPS and !$currentgroup and !has_capability('moodle/
 // process post information
 if ($data = $mform->get_data()) {
     $onlyactive = $data->export_onlyactive || !has_capability('moodle/course:viewsuspendedusers', $context);
-    $export = new grade_export_txt($course, $currentgroup, '', false, false, $data->display, $data->decimals, $data->separator, $onlyactive, true);
+    $export = new grade_export_txt($course, $currentgroup, '', false, false, $data->display, $data->decimals, $data->separator,
+            $onlyactive, true, $data->includecoursetotalletter);
 
     // print the grades on screen for feedback
 

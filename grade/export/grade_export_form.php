@@ -76,6 +76,16 @@ class grade_export_form extends moodleform {
         $mform->addElement('select', 'decimals', get_string('gradeexportdecimalpoints', 'grades'), $options);
         $mform->setDefault('decimals', $CFG->grade_export_decimalpoints);
         $mform->disabledIf('decimals', 'display', 'eq', GRADE_DISPLAY_TYPE_LETTER);
+
+        // Add an option to also add the course total in letter if the display type is all but letter.
+        if (!empty($features['includecoursetotalletter'])) {
+            $mform->addElement('advcheckbox', 'includecoursetotalletter', get_string('includecoursetotalletter', 'grades'));
+            $mform->setType('includecoursetotalletter', PARAM_BOOL);
+            $mform->setDefault('includecoursetotalletter', 0);
+            $mform->addHelpButton('includecoursetotalletter', 'includecoursetotalletter', 'grades');
+            $mform->disabledIf('includecoursetotalletter', 'display', 'eq', GRADE_DISPLAY_TYPE_LETTER);
+        }
+
         /*
         if ($default_gradedisplaytype == GRADE_DISPLAY_TYPE_LETTER) {
             $mform->disabledIf('decimals', 'display', "eq", GRADE_DISPLAY_TYPE_DEFAULT);
@@ -128,23 +138,29 @@ class grade_export_form extends moodleform {
         // Grab the grade_seq for this course
         $gseq = new grade_seq($COURSE->id, $switch);
 
-        if ($grade_items = $gseq->items) {
+        if ($gradeitems = $gseq->items) {
             $needs_multiselect = false;
             $canviewhidden = has_capability('moodle/grade:viewhidden', context_course::instance($COURSE->id));
 
-            foreach ($grade_items as $grade_item) {
-                // Is the grade_item hidden? If so, can the user see hidden grade_items?
-                if ($grade_item->is_hidden() && !$canviewhidden) {
+            foreach ($gradeitems as $gradeitem) {
+                // Is the grade item hidden? If so, can the user see hidden grade items?
+                if ($gradeitem->is_hidden() && !$canviewhidden) {
                     continue;
                 }
 
-                if (!empty($features['idnumberrequired']) and empty($grade_item->idnumber)) {
-                    $mform->addElement('advcheckbox', 'itemids['.$grade_item->id.']', $grade_item->get_name(), get_string('noidnumber', 'grades'));
-                    $mform->hardFreeze('itemids['.$grade_item->id.']');
+                if (!empty($features['idnumberrequired']) and empty($gradeitem->idnumber)) {
+                    $mform->addElement('advcheckbox', 'itemids['.$gradeitem->id.']', $gradeitem->get_name(),
+                            get_string('noidnumber', 'grades'));
+                    $mform->hardFreeze('itemids['.$gradeitem->id.']');
                 } else {
-                    $mform->addElement('advcheckbox', 'itemids['.$grade_item->id.']', $grade_item->get_name(), null, array('group' => 1));
-                    $mform->setDefault('itemids['.$grade_item->id.']', 1);
+                    $mform->addElement('advcheckbox', 'itemids['.$gradeitem->id.']', $gradeitem->get_name(), null,
+                            array('group' => 1));
+                    $mform->setDefault('itemids['.$gradeitem->id.']', 1);
                     $needs_multiselect = true;
+                }
+
+                if ($gradeitem->is_course_item()) {
+                    $mform->disabledIf('includecoursetotalletter', 'itemids['.$gradeitem->id.']', 'eq', 0);
                 }
             }
 

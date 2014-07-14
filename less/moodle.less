@@ -1,0 +1,679 @@
+/*
+ * Importation of all rules from parent.
+ */
+@import "../../bootstrapbase/less/moodle.less";
+
+
+/**
+ * Creation of variable related to this theme.
+ */
+@studiumPrimaryColor: #0E79D4;
+@studiumPrimaryColorDark: #00386B;
+@studiumPrimaryColorLight: #1290FF;
+@studiumSecondaryColor: #A2004D;
+@studiumSecondaryColorDark: darken(@studiumSecondaryColor, 15%);
+@studiumFooterBackgroundColor: #1B1B1B;
+@fontAwesome: "FontAwesome";
+
+
+/**
+ * Redefinition of boostrap variables.
+ */
+@sansFontFamily: "PT Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@linkColor: #0049A4;
+@linkColorHover: darken(@linkColor, 15%);
+@navbarInverseBackground: @grayDarker;
+@navbarInverseBackgroundHighlight: @grayDark;
+@navbarInverseLinkBackgroundHover: @navbarInverseLinkBackgroundActive;
+@navbarInverseBorder: average(@grayDarker, @grayDark);
+@navbarInverseText: @white;
+@navbarInverseLinkColor: @white;
+@dropdownLinkBackgroundActive: @studiumPrimaryColor;
+@btnPrimaryBackground: #0d70c4;
+@btnPrimaryBackgroundHighlight: #094d88;
+
+/**
+ * Redefinition of styles related to this theme.
+ */
+
+// General background color.
+html {
+    background: @studiumFooterBackgroundColor;
+}
+
+// Blocks styling.
+.block {
+    padding:0;
+    #region-main & {
+        background: none;
+        box-shadow: none;
+    }
+    .content {
+        padding: 12px 14px;
+        overflow:visible !important;
+    }
+    .header {
+        .title {
+            h2 {
+                border-radius: 4px 4px 0 0;
+                #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+                text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+                color: #FFF;
+                margin: -1px;
+                padding: 6px 8px;
+                #region-main & {
+                    color: #444;
+                    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+                    background: none;
+                    .reset-filter();
+                }
+                .ie9 & {
+                    padding-right: 45px;
+                }
+            }
+            h2:before {
+                font-family: @fontAwesome;
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin-right: .5em;
+                content: "\f03a";
+                font-weight:normal;
+            }
+            .ie9 & {
+                position:relative;
+            }
+        }
+        .block_action {
+            padding: 6px 15px;
+            img {
+                #region-main & {
+                    background: #999;
+                    border-radius: 2px;
+                    padding: 1px;
+                }
+            }
+            .ie9 & {
+                position:absolute;
+                top:0;
+                right:0;
+            }
+        }
+    }
+    &.hidden .title h2 {
+        border-radius: 4px;
+        .editing & {
+            border-radius: 4px 4px 0 0;
+        }
+    }
+    .minicalendar {
+        background: #fff;
+        border-radius: 6px;
+        th {
+            #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+            border-bottom: 1px solid #063963;
+            border-top-color: #0e75cd;
+            color: #fff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
+            abbr {
+                border: none;
+            }
+            &:first-child {
+                border-radius: 6px 0 0;
+            }
+            &:last-child {
+                border-radius: 0 6px 0 0;
+            }
+        }
+        td.weekend {
+            color: @studiumPrimaryColor;
+        }
+        caption {
+            margin-bottom: 0.5em;
+        }
+    }
+}
+
+// Block main-region.
+#region-main {
+    .block_studium_course_overview .course_session {
+        .session_header {
+            #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+            .session_action {
+                .block > .header > .block_action;
+                padding: 0;
+            }
+        }
+        h3.session {
+            color: @white;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+            &:before {
+                font-family: FontAwesome;
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin-right: .5em;
+                content: "\f03a";
+                font-weight: normal;
+                vertical-align: bottom;
+            }
+        }
+        &.winter h3.session:before {
+            font-family: 'icomoon';
+            content: "\e600";
+        }
+        &.fall h3.session:before {
+            content: "\f06c";
+        }
+        &.summer h3.session:before {
+            content: "\f185";
+        }
+    }
+}
+
+#course_list .course_session {
+    &:first-child .session_header {
+        border-radius: 4px 4px 0 0;
+    }
+    &.collapsed:last-child .session_header {
+        border-radius: 0 0 4px 4px;
+    }
+}
+
+// Block settings styling.
+.block_settings .header .title h2 {
+    #gradient > .vertical(@studiumSecondaryColor, @studiumSecondaryColorDark);
+}
+
+// Blocks title icons.
+.header .title h2:before {
+    .block_news_items & {
+        content:"\f0a1";
+    }
+    .block_navigation & {
+        content:"\f0e8";
+    }
+    .block_calendar_upcoming &,
+    .block_calendar_month & {
+        content:"\f073";
+    }
+    .block_course_list & {
+        content:"\f108";
+    }
+    .block_completionstatus &,
+    .block_selfcompletion & {
+        content:"\f0e4";
+    }
+    .block_rss_client & {
+        content:"\f09e";
+    }
+    .block_blog_menu & {
+        content:"\f02d";
+    }
+    .block_quiz_results & {
+        content:"\f080";
+    }
+    .block_quiz_navblock & {
+        content:"\f126";
+    }
+    .block_glossary_random & {
+        content:"\f0eb";
+    }
+    .block_book_toc & {
+        content:"\f02d";
+    }
+    .block_participants &,
+    .block_online_users & {
+        content:"\f0c0";
+    }
+    .block_html & {
+        content:"\f022";
+    }
+    .block_section_links & {
+        content:"\f02e";
+    }
+    .block_activity_modules & {
+        content:"\f12e";
+    }
+    .block_comments & {
+        content:"\f075";
+    }
+    .block_settings & {
+        content:"\f085";
+    }
+    .block_admin_bookmarks & {
+        content:"\f02e";
+    }
+    .block_blog_tags &,
+    .block_tags & {
+        content:"\f02c";
+    }
+    .block_private_files & {
+        content:"\f114";
+    }
+    .block_block_mentees & {
+        content:"\f0c0";
+    }
+    .block_messages & {
+        content:"\f0e0";
+    }
+    .block_community & {
+        content:"\f0ac";
+    }
+    .block_recent_activity & {
+        content:"\f017";
+    }
+    .block_search_forums & {
+        content:"\f0e6";
+    }
+    .block_myprofile & {
+        content:"\f007";
+    }
+    .block_adminblock & {
+        content:"\f009";
+    }
+    .block_feedback & {
+        content:"\f087";
+    }
+    .block_flickr & {
+        content:"\f03e";
+    }
+    .block_youtube & {
+        content:"\f145";
+    }
+    .block_course_badges & {
+        content:"\f091";
+    }
+    .block_twitter_search & {
+        content:"\f099";
+    }
+}
+
+// Calendar styling.
+.minicalendar {
+    td, th {
+        border-color: #fff;
+        border-width: 2px 0;
+        font-size: 0.85em;
+        padding: 2px;
+    }
+}
+
+.calendar_filters td {
+    padding: 2px;
+}
+
+
+// Navbar styling.
+.navbar .nav {
+    li.dropdown > .dropdown-toggle .caret {
+        border-top-color: @white;
+        border-bottom-color: @white;
+    }
+    .dropdown-toggle .caret {
+        margin-top: 10px;
+    }
+}
+
+.navbar-inverse .logininfo a:hover {
+    background:none;
+}
+
+
+// Breadcrumb styling.
+.breadcrumb {
+    background: none !important;
+    font-size: 1.1em;
+    padding-left: 0;
+}
+
+#page-site-index .breadcrumb-nav {
+    display:none;
+}
+
+// Navigation fixes for smaller devices.
+@media (max-width: 979px) {
+    .nav-collapse {
+        .nav > li > a,
+        .nav > li > a:hover,
+        .nav > li > a:focus,
+        .dropdown-menu a:hover,
+        .dropdown-menu a:focus,
+        .dropdown-submenu a:focus,
+        .dropdown-submenu a:hover,
+        .dropdown-submenu a:active,
+        .dropdown-menu > li > a:hover,
+        .dropdown-menu > li > a:focus {
+            color: @white;
+        }
+        &.pull-right {
+            float: none;
+        }
+    }
+    .navbar-inverse .nav-collapse .nav > li > a.dimmed,
+    .navbar-inverse .nav-collapse .dropdown-menu a.dimmed {
+        color: @grayLight;
+    }
+    .pagelayout-maintenance .logobox {
+        margin-top: 30px;
+    }
+}
+
+.navbar-inner {
+    .navbar-fixed-top &, .navbar-static-top & {
+        .box-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+        border-bottom: 2px solid @studiumPrimaryColor;
+    }
+}
+
+// Home page box styling.
+.studium-conteneur {
+    background-color: @white;
+    border: 1px solid #dfdfdf;
+    .border-radius(@baseBorderRadius);
+    .box-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+    padding: 20px 20px 30px;
+}
+
+
+.dimmed img.activityicon,
+.block_studium_course_overview .box.coursebox.dimmed_text .activity_overview img.iconlarge {
+    filter: alpha(opacity=60);
+    opacity: 0.6;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter: url([[pix:theme|grayscale]]#greyscale);
+    filter: gray; /* IE 6-9 */
+}
+
+.pagelayout-login #login #loginbtn {
+    font-size: 0.8em;
+    line-height: 12px;
+    max-width: 138px;
+    padding: 8px 18px 6px;
+    white-space: normal;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 8px 18px;
+}
+
+// Double authentication styling.
+.loginbox.twocolumns {
+    overflow: auto;
+    padding-bottom: 60px;
+    position: relative;
+    form.authselect {
+        position:absolute;
+        bottom: 0;
+        margin-left: -20px;
+        width: 48.618%;
+        @media (max-width: 767px) {
+            position: static;
+            width: auto;
+        }
+        input {
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 18px;
+        }
+        &#frmloginnocas input {
+            .pagelayout-login #login #loginbtn;
+        }
+    }
+    .signuppanel {
+        padding-left: 20px;
+    }
+    .loginpanel {
+        .signuppanel;
+        border-right: 1px solid #ccc;
+        @media (max-width: 767px) {
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+        }
+    }
+}
+
+// Page footer.
+#page-footer {
+    background: none repeat scroll 0 0 @studiumFooterBackgroundColor;
+    border-top: medium none;
+    color: #c3c3c3;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 0;
+    .footer-info {
+        border-top: 2px solid @studiumPrimaryColor;
+        padding: 1em 0;
+    }
+    .footer-nav {
+        background: #f5f5f5;
+        text-align: left;
+        padding: 1em 0;
+        border-top: 1px solid #e3e3e3;
+    }
+    a {
+        color: @studiumPrimaryColorLight;
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+    }
+    .span3 ul {
+        list-style: none outside none;
+        text-align: left;
+        li a {
+            color: @studiumPrimaryColor;
+            text-shadow: none;
+            &.primary {
+                color: @black;
+                display: block;
+                font-size: 1.1em;
+                font-weight: bold;
+                margin-bottom: 8px;
+                padding-top: 20px;
+                text-transform: uppercase;
+            }
+        }
+    }
+}
+
+.logobox {
+    margin:0 0 16px 24px;
+    .editing & {
+        margin-left: 0;
+    }
+    & > * {
+        vertical-align: text-bottom;
+        display: inline-block;
+    }
+    a:hover, a:active, a:focus {
+        outline: 0;
+    }
+    .logo_separator {
+        background-color: #000;
+        border-right: 1px solid #bfbfbf;
+        height: 40px;
+        margin: 10px 18px 2px 20px;
+        width: 1px;
+    }
+    &.white {
+        margin: 0;
+        padding: 7px 0;
+        display: inline-block;
+        .logo_separator {
+            margin: 0 10px 0 12px;
+            height: 15px;
+        }
+        @media (max-width: 979px) {
+            margin-left: -5px;
+        }
+        @media (max-width: 767px) {
+            margin-left: 15px;
+        }
+    }
+}
+
+#id_s_theme_cleanudem_customfontsurl {
+    width: 564px;
+    height: 60px;
+    @media (max-width: 767px) {
+        width:auto;
+    }
+}
+
+.pagelayout-redirect {
+    padding-bottom: 1em;
+}
+
+.pagelayout-maintenance {
+    #page-footer {
+        padding: 20px 0 0;
+        overflow: auto;
+    }
+    .logobox {
+        margin: 0 0 40px 0;
+        @media (max-width: 979px) {
+            margin-top:20px;
+        }
+    }
+    .box.maintenance_message {
+        width: auto;
+    }
+}
+
+
+// User grades styling.
+.user-grade {
+    border:none;
+    font-size: 1em;
+    td.baggt, th.baggt {
+        border-top: none;
+    }
+    td.b1b, td.b2b, th.b1b, th.b2b {
+        border-bottom: 1px solid #ccc;
+    }
+    td.b1t, td.b2t, th.b1t, th.b2t {
+        border-top: 1px solid #ccc;
+    }
+    td.b1l, td.b2l, th.b1l, th.b2l {
+        border-left: 1px solid #ccc;
+    }
+    td.b1r, td.b2r, th.b1r, th.b2r {
+        border-left: 1px solid #ccc;
+    }
+    td.item, th.item {
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+    }
+    thead {
+        border-bottom: none;
+    }
+    tbody {
+        border: 1px solid #ccc;
+    }
+}
+
+// Used for invisible course title.
+.udem_coursehidden {
+    white-space: nowrap;
+}
+h1 .dimmed, .udem_coursehidden {
+    color: #888;
+}
+
+// Custom icomoon fonts.
+@font-face {
+	font-family: 'icomoon';
+	src:url('[[font:theme|icomoon.eot]]?a4g0f9');
+	src:url('[[font:theme|icomoon.eot]]?#iefixa4g0f9') format('embedded-opentype'),
+		url('[[font:theme|icomoon.woff]]?a4g0f9') format('woff'),
+		url('[[font:theme|icomoon.ttf]].?a4g0f9') format('truetype'),
+		url('[[font:theme|icomoon.svg]].?a4g0f9#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-snow:before {
+	content: "\e600";
+}
+
+#site_fullname {
+    color: @studiumPrimaryColorDark;
+    font-size: 26px;
+    line-height: 24px;
+    font-weight: bold;
+    margin: 10px 0 0 10px;
+    .prefixe {
+        position: absolute;
+        text-indent: -3000px;
+    }
+}
+
+@media (min-width: 980px) {
+    .default-device {
+        .dropdown-menu {
+            border-top:2px solid transparent;
+            .sub-menu {
+                left: 100%;
+                position: absolute;
+                top: 0;
+                visibility: hidden;
+                margin-top: -1px;
+            }
+            li:hover .sub-menu {
+                visibility: visible;
+            }
+        }
+        .dropdown:hover .dropdown-menu, .langmenu.dropdown:hover > .dropdown-menu {
+            display: block;
+        }
+        .nav li {
+            &.dropdown, &.dropdown.open, &.dropdown.active, &.dropdown.open.active {
+                & > .dropdown-toggle {
+                    background-color: transparent;
+                }
+                &:hover > .dropdown-toggle {
+                    background-color: @grayDarker;
+                }
+            }
+        }
+        &.nav-tabs .dropdown-menu, &.nav-pills .dropdown-menu, &.navbar .dropdown-menu {
+            margin-top: 0;
+        }
+        &.navbar {
+            .sub-menu:before {
+                border-bottom: 7px solid transparent;
+                border-left: none;
+                border-right: 7px solid rgba(0, 0, 0, 0.2);
+                border-top: 7px solid transparent;
+                left: -7px;
+                top: 10px;
+            }
+            .sub-menu:after {
+                border-top: 6px solid transparent;
+                border-left: none;
+                border-right: 6px solid @white;
+                border-bottom: 6px solid transparent;
+                left: 10px;
+                top: 11px;
+                left: -6px;
+            }
+        }
+        .langmenu.open > .dropdown-menu {
+            display: none;
+            overflow-y: inherit;
+        }
+    }
+}

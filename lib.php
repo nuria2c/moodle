@@ -15,16 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean UdeM theme, an example of how to make a Bootstrap theme
- *
- * DO NOT MODIFY THIS THEME!
- * COPY IT FIRST, THEN RENAME THE COPY AND MODIFY IT INSTEAD.
- *
- * For full information about creating Moodle themes, see:
- * http://docs.moodle.org/dev/Themes_2.0
+ * Moodle's Clean UdeM theme.
  *
  * @package   theme_cleanudem
- * @copyright 2013 Moodle, moodle.org
+ * @copyright 2014 Universite de Montreal
+ * @author    Gilles-Philippe Leblanc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -39,10 +34,6 @@
  */
 function theme_cleanudem_process_css($css, $theme) {
 
-    // Set the background image for the logo.
-    $logo = $theme->setting_file_url('logo', 'logo');
-    $css = theme_cleanudem_set_logo($css, $logo);
-
     // Set custom CSS.
     if (!empty($theme->settings->customcss)) {
         $customcss = $theme->settings->customcss;
@@ -52,46 +43,6 @@ function theme_cleanudem_process_css($css, $theme) {
     $css = theme_cleanudem_set_customcss($css, $customcss);
 
     return $css;
-}
-
-/**
- * Adds the logo to CSS.
- *
- * @param string $css The CSS.
- * @param string $logo The URL of the logo.
- * @return string The parsed CSS
- */
-function theme_cleanudem_set_logo($css, $logo) {
-    $tag = '[[setting:logo]]';
-    $replacement = $logo;
-    if (is_null($replacement)) {
-        $replacement = '';
-    }
-
-    $css = str_replace($tag, $replacement, $css);
-
-    return $css;
-}
-
-/**
- * Serves any files associated with the theme settings.
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param context $context
- * @param string $filearea
- * @param array $args
- * @param bool $forcedownload
- * @param array $options
- * @return bool
- */
-function theme_cleanudem_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
-    if ($context->contextlevel == CONTEXT_SYSTEM and $filearea === 'logo') {
-        $theme = theme_config::load('cleanudem');
-        return $theme->setting_file_serve('logo', $args, $forcedownload, $options);
-    } else {
-        send_file_not_found();
-    }
 }
 
 /**
@@ -119,53 +70,58 @@ function theme_cleanudem_set_customcss($css, $customcss) {
  * @param renderer_base $output Pass in $OUTPUT.
  * @param moodle_page $page Pass in $PAGE.
  * @return stdClass An object with the following properties:
- *      - navbarclass A CSS class to use on the navbar. By default ''.
- *      - heading HTML to use for the heading. A logo if one is selected or the default heading.
+ *      - footernav HTML to use as a footernav. By default ''.
  *      - footnote HTML to use as a footnote. By default ''.
  */
 function theme_cleanudem_get_html_for_settings(renderer_base $output, moodle_page $page) {
-    global $CFG;
     $return = new stdClass;
 
-    $return->navbarclass = '';
-    if (!empty($page->theme->settings->invert)) {
-        $return->navbarclass .= ' navbar-inverse';
-    }
-
-    if (!empty($page->theme->settings->logo)) {
-        $return->heading = html_writer::link($CFG->wwwroot, '', array('title' => get_string('home'), 'class' => 'logo'));
-    } else {
-        $return->heading = $output->page_heading();
+    $return->footernav = '';
+    if (!empty($page->theme->settings->footernav)) {
+        $return->footernav = html_writer::div($page->theme->settings->footernav, 'footer-nav');
     }
 
     $return->footnote = '';
     if (!empty($page->theme->settings->footnote)) {
-        $return->footnote = '<div class="footnote text-center">'.$page->theme->settings->footnote.'</div>';
+        $return->footnote = html_writer::div($page->theme->settings->footnote, 'footnote text-center');
+    }
+
+    $return->fontlinks = '';
+    if (!empty($page->theme->settings->customfontsurl)) {
+        $urls = explode("\n", $page->theme->settings->customfontsurl);
+        foreach ($urls as $url) {
+            $attributes = array('href' => $url, 'rel' => 'stylesheet', 'type' => 'text/css');
+            $return->fontlinks .= html_writer::empty_tag('link', $attributes);
+        }
     }
 
     return $return;
 }
 
 /**
- * All theme functions should start with theme_cleanudem_
- * @deprecated since 2.5.1
+ * Detect if the current devise is a computer.
+ * We check this to add mouseover support to the main menu.
+ *
+ * @return bool if the actual device is a computor or not.
  */
-function cleanudem_process_css() {
-    throw new coding_exception('Please call theme_'.__FUNCTION__.' instead of '.__FUNCTION__);
+function theme_cleanudem_is_default_device_type() {
+    return core_useragent::get_device_type() == core_useragent::DEVICETYPE_DEFAULT;
 }
 
 /**
- * All theme functions should start with theme_cleanudem_
- * @deprecated since 2.5.1
+ * Generate a target attribute of an url. The target
+ * should be "_blank" if the url is not on the current host.
+ *
+ * @param type $url The url to analyse.
+ * @return string The generated target.
  */
-function cleanudem_set_logo() {
-    throw new coding_exception('Please call theme_'.__FUNCTION__.' instead of '.__FUNCTION__);
-}
-
-/**
- * All theme functions should start with theme_cleanudem_
- * @deprecated since 2.5.1
- */
-function cleanudem_set_customcss() {
-    throw new coding_exception('Please call theme_'.__FUNCTION__.' instead of '.__FUNCTION__);
+function theme_cleanudem_get_target($url) {
+    global $CFG;
+    $target = '';
+    $urltempo = explode('#', $url);
+    $url = $urltempo[0];
+    if (!empty($url) && strpos($url, $CFG->wwwroot) === false) {
+        $target = '_blank';
+    }
+    return $target;
 }

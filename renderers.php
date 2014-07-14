@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Layout for embedded content.
+ * Moodle's Clean UdeM theme.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -23,18 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('renderers/helper.php');
+require_once('renderers/core_renderer.php');
+require_once('renderers/maintenance_renderer.php');
 
-// Get the HTML for the settings bits.
-$html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
-?>
-
-<?php echo $OUTPUT->element('head', array('fontlinks' => $html->fontlinks)); ?>
-
-<div id="page">
-    <div id="page-content" class="clearfix">
-        <?php echo $OUTPUT->main_content(); ?>
-    </div>
-</div>
-
-<?php echo $OUTPUT->element('foot');

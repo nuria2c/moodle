@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean UdeM theme.
+ * Head element.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -25,43 +25,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Get the HTML for the settings bits.
-$html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
+if (!isset($vars['additionalclasses'])) {
+    $vars['additionalclasses'] = '';
+}
+if (!isset($vars['fontlinks'])) {
+    $vars['fontlinks'] = '';
+}
 
-echo $OUTPUT->doctype(); ?>
+?>
+
+<?php echo $OUTPUT->doctype(); ?>
 <html <?php echo $OUTPUT->htmlattributes(); ?>>
 <head>
     <title><?php echo $OUTPUT->page_title(); ?></title>
     <?php echo $OUTPUT->favicon_links(); ?>
     <?php echo $OUTPUT->standard_head_html() ?>
-    <?php echo $html->fontlinks ?>
+    <?php echo $vars['fontlinks'] ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php echo $OUTPUT->msapplication_metas(); ?>
 </head>
 
-<body <?php echo $OUTPUT->body_attributes(); ?>>
-<?php echo $OUTPUT->standard_top_of_body_html(); ?>
-
-<div id="page" class="container-fluid">
-
-    <header id="page-header" class="clearfix">
-        <?php echo $OUTPUT->studium_logobox(); ?>
-    </header>
-
-    <div id="page-content" class="row-fluid">
-        <section id="region-main" class="span12">
-            <?php echo $OUTPUT->main_content(); ?>
-        </section>
-    </div>
-
-    <footer id="page-footer">
-        <?php echo $OUTPUT->standard_footer_html(); ?>
-        <?php $a = explode('.', php_uname('n')); ?>
-        <p class="serverinfo">Serveur: <?php echo $a[0]; ?></p>
-    </footer>
-
-    <?php echo $OUTPUT->standard_end_of_body_html() ?>
-
-</div>
-</body>
-</html>
+<body <?php echo $OUTPUT->body_attributes($vars['additionalclasses']); ?>>
+<?php echo $OUTPUT->standard_top_of_body_html();

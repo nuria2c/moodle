@@ -15,16 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean theme, an example of how to make a Bootstrap theme
- *
- * DO NOT MODIFY THIS THEME!
- * COPY IT FIRST, THEN RENAME THE COPY AND MODIFY IT INSTEAD.
- *
- * For full information about creating Moodle themes, see:
- * http://docs.moodle.org/dev/Themes_2.0
+ * Moodle's Clean UdeM theme.
  *
  * @package   theme_cleanudem
- * @copyright 2013 Moodle, moodle.org
+ * @copyright 2014 Universite de Montreal
+ * @author    Gilles-Philippe Leblanc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,28 +27,21 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
 
-    // Invert Navbar to dark background.
-    $name = 'theme_cleanudem/invert';
-    $title = get_string('invert', 'theme_cleanudem');
-    $description = get_string('invertdesc', 'theme_cleanudem');
-    $setting = new admin_setting_configcheckbox($name, $title, $description, 0);
-    $setting->set_updatedcallback('theme_reset_all_caches');
-    $settings->add($setting);
-
-    // Logo file setting.
-    $name = 'theme_cleanudem/logo';
-    $title = get_string('logo','theme_cleanudem');
-    $description = get_string('logodesc', 'theme_cleanudem');
-    $setting = new admin_setting_configstoredfile($name, $title, $description, 'logo');
-    $setting->set_updatedcallback('theme_reset_all_caches');
-    $settings->add($setting);
-
-    // Custom CSS file.
-    $name = 'theme_cleanudem/customcss';
-    $title = get_string('customcss', 'theme_cleanudem');
-    $description = get_string('customcssdesc', 'theme_cleanudem');
+    // Custom Fonts url.
+    $name = 'theme_cleanudem/customfontsurl';
+    $title = get_string('customfontsurl', 'theme_cleanudem');
+    $description = get_string('customfontsurldesc', 'theme_cleanudem');
     $default = '';
-    $setting = new admin_setting_configtextarea($name, $title, $description, $default);
+    $setting = new admin_setting_configtextarea($name, $title, $description, $default, PARAM_RAW, '120', '4');
+    $setting->set_updatedcallback('theme_reset_all_caches');
+    $settings->add($setting);
+
+    // Footer navigation setting.
+    $name = 'theme_cleanudem/footernav';
+    $title = get_string('footernav', 'theme_cleanudem');
+    $description = get_string('footernavdesc', 'theme_cleanudem');
+    $default = '';
+    $setting = new admin_setting_confightmleditor($name, $title, $description, $default);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
 
@@ -63,6 +51,15 @@ if ($ADMIN->fulltree) {
     $description = get_string('footnotedesc', 'theme_cleanudem');
     $default = '';
     $setting = new admin_setting_confightmleditor($name, $title, $description, $default);
+    $setting->set_updatedcallback('theme_reset_all_caches');
+    $settings->add($setting);
+
+    // Custom CSS file.
+    $name = 'theme_cleanudem/customcss';
+    $title = get_string('customcss', 'theme_cleanudem');
+    $description = get_string('customcssdesc', 'theme_cleanudem');
+    $default = '';
+    $setting = new admin_setting_configtextarea($name, $title, $description, $default);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
 }

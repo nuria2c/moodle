@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean UdeM theme.
+ * Header element.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -25,43 +25,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Get the HTML for the settings bits.
-$html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
+if (!isset($vars['footernav'])) {
+    $vars['footernav'] = '';
+}
+if (!isset($vars['footnote'])) {
+    $vars['footnote'] = '';
+}
 
-echo $OUTPUT->doctype(); ?>
-<html <?php echo $OUTPUT->htmlattributes(); ?>>
-<head>
-    <title><?php echo $OUTPUT->page_title(); ?></title>
-    <?php echo $OUTPUT->favicon_links(); ?>
-    <?php echo $OUTPUT->standard_head_html() ?>
-    <?php echo $html->fontlinks ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php echo $OUTPUT->msapplication_metas(); ?>
-</head>
+?>
 
-<body <?php echo $OUTPUT->body_attributes(); ?>>
-<?php echo $OUTPUT->standard_top_of_body_html(); ?>
-
-<div id="page" class="container-fluid">
-
-    <header id="page-header" class="clearfix">
-        <?php echo $OUTPUT->studium_logobox(); ?>
-    </header>
-
-    <div id="page-content" class="row-fluid">
-        <section id="region-main" class="span12">
-            <?php echo $OUTPUT->main_content(); ?>
-        </section>
-    </div>
-
-    <footer id="page-footer">
+<footer id="page-footer">
+    <?php echo $vars['footernav']; ?>
+    <div class="footer-info">
+        <div id="course-footer"><?php echo $OUTPUT->course_footer(); ?></div>
+        <p class="helplink"><?php echo $OUTPUT->page_doc_link(); ?></p>
+        <?php echo $vars['footnote']; ?>
+        <?php echo $OUTPUT->login_info(); ?>
+        <?php echo $OUTPUT->home_link(); ?>
         <?php echo $OUTPUT->standard_footer_html(); ?>
         <?php $a = explode('.', php_uname('n')); ?>
         <p class="serverinfo">Serveur: <?php echo $a[0]; ?></p>
-    </footer>
-
-    <?php echo $OUTPUT->standard_end_of_body_html() ?>
-
-</div>
-</body>
-</html>
+    </div>
+</footer>

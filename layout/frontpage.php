@@ -15,10 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * 1 column layout.
- *
- * Do not add block regions (columns) to this file, instead edit config.php
- * to match the corresponding page types with another layout file.
+ * frontage layout layout.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -30,25 +27,43 @@ defined('MOODLE_INTERNAL') || die();
 
 // Get the HTML for the settings bits.
 $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
+$isediting = $PAGE->user_is_editing();
+
+$left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
+
+$additionalclasses = '';
+$regionmainclasses = 'span12';
+$sidepreblocks = '';
+if ($isediting) {
+    $additionalclasses = 'two-column';
+    $regionmainclasses = 'span9';
+    $classextra = '';
+    if ($left) {
+        $regionmainclasses .= ' pull-right';
+        $classextra = ' desktop-first-column';
+    }
+    $sidepreblocks = $OUTPUT->blocks('side-pre', 'span3' . $classextra);
+}
 ?>
 
-<?php echo $OUTPUT->element('head', array('fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => $additionalclasses, 'fontlinks' => $html->fontlinks)); ?>
 
-<?php echo $OUTPUT->element('header'); ?>
+<?php echo $OUTPUT->element('header', array('brand' => '')); ?>
 
 <div id="page" class="container-fluid">
 
-    <?php $vars = array('heading' => $OUTPUT->page_heading(), 'button' => $OUTPUT->page_heading_button()); ?>
+    <?php $vars = array('heading' => $OUTPUT->studium_logobox(), 'button' => $OUTPUT->frontpage_heading_button()); ?>
     <?php echo $OUTPUT->element('page-header', $vars); ?>
 
     <div id="page-content" class="row-fluid">
-        <section id="region-main" class="span12">
+        <section id="region-main" class="<?php echo $regionmainclasses; ?>">
             <?php
             echo $OUTPUT->course_content_header();
             echo $OUTPUT->main_content();
             echo $OUTPUT->course_content_footer();
             ?>
         </section>
+        <?php echo $sidepreblocks; ?>
     </div>
 
     <?php echo $OUTPUT->element('page-footer', array('footernav' => $html->footernav, 'footnote' => $html->footnote)); ?>

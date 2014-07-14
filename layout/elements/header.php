@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Layout of secured pages (Quiz).
+ * Header element.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -25,48 +25,33 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Get the HTML for the settings bits.
-$html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
+if (!isset($vars['brand'])) {
+    $vars['brand'] = $OUTPUT->studium_logobox('white');
+}
+
+$defaultdeviceclass = '';
+if (theme_cleanudem_is_default_device_type()) {
+    $defaultdeviceclass .= ' default-device';
+}
+
 ?>
-
-<?php echo $OUTPUT->element('head', array('fontlinks' => $html->fontlinks)); ?>
-
-<header role="banner" class="navbar navbar-fixed-top moodle-has-zindex">
+<header role="banner" class="navbar navbar-fixed-top navbar-inverse moodle-has-zindex<?php echo $defaultdeviceclass; ?>">
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo $SITE->shortname; ?></a>
+            <?php echo $vars['brand']; ?>
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
+
             <div class="nav-collapse collapse pull-right">
+                <?php echo $OUTPUT->custom_menu(); ?>
                 <ul class="nav pull-right">
                     <li><?php echo $OUTPUT->page_heading_menu(); ?></li>
+                    <li class="navbar-text"><?php echo $OUTPUT->login_info() ?></li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
-
-<div id="page" class="container-fluid">
-
-    <header id="page-header" class="clearfix">
-        <?php echo $html->heading; ?>
-    </header>
-
-    <div id="page-content" class="row-fluid">
-        <div id="region-bs-main-and-pre" class="span9">
-            <div class="row-fluid">
-                <section id="region-main" class="span8 pull-right">
-                    <?php echo $OUTPUT->main_content(); ?>
-                </section>
-                <?php echo $OUTPUT->blocks('side-pre', 'span4 desktop-first-column'); ?>
-            </div>
-        </div>
-        <?php echo $OUTPUT->blocks('side-post', 'span3'); ?>
-    </div>
-
-</div>
-
-<?php echo $OUTPUT->element('foot');

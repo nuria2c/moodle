@@ -24,23 +24,26 @@
  * http://docs.moodle.org/dev/Themes_2.0
  *
  * @package   theme_cleanudem
- * @copyright 2013 Moodle, moodle.org
+ * @copyright 2014 Universite de Montreal
+ * @author    Gilles-Philippe Leblanc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $THEME->name = 'cleanudem';
 
-/////////////////////////////////
-// The only thing you need to change in this file when copying it to
-// create a new theme is the name above. You also need to change the name
-// in version.php and lang/en/theme_cleanudem.php as well.
-//////////////////////////////////
-//
+/*
+ * The only thing you need to change in this file when copying it to
+ * create a new theme is the name above. You also need to change the name
+ * in version.php and lang/en/theme_cleanudem.php as well.
+ */
 $THEME->doctype = 'html5';
 $THEME->parents = array('bootstrapbase');
-$THEME->sheets = array('custom');
+$THEME->sheets = array('custom', 'moodle');
+$THEME->parents_exclude_sheets = array('bootstrapbase' => array('moodle'));
 $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
+
+$THEME->javascripts = array('blockhider', 'navdropdownbehavior');
 
 $THEME->editor_sheets = array();
 
@@ -50,4 +53,10 @@ $THEME->csspostprocess = 'theme_cleanudem_process_css';
 $THEME->blockrtlmanipulations = array(
     'side-pre' => 'side-post',
     'side-post' => 'side-pre'
+);
+
+$THEME->layouts['frontpage'] = array(
+    'file' => 'frontpage.php',
+    'regions' => array('side-pre'),
+    'defaultregion' => 'side-pre'
 );

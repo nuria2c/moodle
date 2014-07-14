@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Layout for embedded content.
+ * Header element.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -25,16 +25,22 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Get the HTML for the settings bits.
-$html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
+if (!isset($vars['button'])) {
+    $vars['button'] = $OUTPUT->page_heading_button();
+}
+if (!isset($vars['heading'])) {
+    $vars['heading'] = $OUTPUT->page_heading();
+}
+
 ?>
 
-<?php echo $OUTPUT->element('head', array('fontlinks' => $html->fontlinks)); ?>
-
-<div id="page">
-    <div id="page-content" class="clearfix">
-        <?php echo $OUTPUT->main_content(); ?>
+<header id="page-header" class="clearfix">
+    <div id="page-navbar" class="clearfix">
+        <nav class="breadcrumb-nav"><?php echo $OUTPUT->navbar(); ?></nav>
+        <div class="breadcrumb-button"><?php echo $vars['button']; ?></div>
     </div>
-</div>
-
-<?php echo $OUTPUT->element('foot');
+    <?php echo $vars['heading']; ?>
+    <div id="course-header">
+        <?php echo $OUTPUT->course_header(); ?>
+    </div>
+</header>

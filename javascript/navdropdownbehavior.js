@@ -28,10 +28,8 @@ navdropdownbehavior.prototype = {
         mediaQuery = window.matchMedia('all and (max-width: 979px)');
         var dropdowntoggle = Y.all('.default-device .nav li.dropdown > .dropdown-toggle');
         if (mediaQuery.matches) {
-            console.log('Mobile');
             dropdowntoggle.setAttribute('data-toggle', 'dropdown');
         } else {
-            console.log('Desktop');
             dropdowntoggle.setAttribute('data-toggle', '');
         }
     },

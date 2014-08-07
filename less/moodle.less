@@ -3,7 +3,6 @@
  */
 @import "../../bootstrapbase/less/moodle.less";
 
-
 /**
  * Creation of variable related to this theme.
  */
@@ -14,7 +13,6 @@
 @studiumSecondaryColorDark: darken(@studiumSecondaryColor, 15%);
 @studiumFooterBackgroundColor: #1B1B1B;
 @fontAwesome: "FontAwesome";
-
 
 /**
  * Redefinition of boostrap variables.
@@ -33,18 +31,206 @@
 @btnPrimaryBackgroundHighlight: #094d88;
 
 /**
- * Redefinition of styles related to this theme.
+ * StudiUM Mixins for this theme.
  */
 
-// General background color.
-html {
-    background: @studiumFooterBackgroundColor;
+.studium-blue-gradient() {
+    #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
 }
+
+// Dialogue header.
+.studium-dialogue-hd() {
+    .studium-blue-gradient;
+    border-bottom:1px solid #555;
+    border-width:0 0 1px;
+    border-radius:6px 6px 0 0;
+    padding: 3px;
+    padding: 5px 8px 3px;
+    .studium-dialogue-hd-title;
+}
+
+// Dialogue header title.
+.studium-dialogue-hd-title() {
+    color: @white;
+    font-size: 15px;
+    line-height: 20px;
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 0;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+// Dialogue header close button.
+.studium-dialogue-hd-close() {
+    opacity: 1;
+    padding: 0;
+}
+
+.studium-dialogue-hd-close-wrap() {
+    padding: 0;
+    right: 7px;
+    top: 7px;
+}
+
+// Dialogue main div.
+.studium-dialogue() {
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    outline: none;
+}
+
+// Dialogue main container.
+.studium-dialogue-container() {
+    border-radius: 8px 8px 6px 6px;
+    border: none;
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6);
+}
+
+// Dialogue footer.
+.studium-dialogue-footer() {
+    border-radius:0 0 6px 6px;
+}
+
+/**
+ * YUI3 Main dialog boxes :
+ * * Add an activity or ressource dialogue box.
+ * * Help dialogue box.
+ * * File picker dialogue box.
+ * * Confirm dialog box.
+ * * StudiUM quick access block "Open the course" box.
+ */
+.moodle-dialogue-base {
+    .moodle-dialogue {
+        .studium-dialogue;
+        .moodle-dialogue-wrap {
+            .studium-dialogue-container;
+            .moodle-dialogue-hd {
+                &,&.yui3-widget-hd {
+                    .studium-dialogue-hd;
+                }
+                h1 {
+                    .studium-dialogue-hd-title;
+                }
+                .yui3-widget-buttons {
+                    .studium-dialogue-hd-close-wrap;
+                    .closebutton {
+                        .studium-dialogue-hd-close;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Course enrol users dialogue box.
+.user-enroller-panel {
+    .studium-dialogue;
+    .uep-wrap {
+        .studium-dialogue-container;
+        margin: 0;
+        .uep-header {
+            .studium-dialogue-hd;
+            h2 {
+                .studium-dialogue-hd-title;
+            }
+            .close {
+                .studium-dialogue-hd-close-wrap;
+                .studium-dialogue-hd-close;
+            }
+        }
+        .uep-footer {
+            .studium-dialogue-footer;
+            .uep-search input.uep-search-btn {
+                min-width: 90px;
+            }
+        }
+    }
+}
+
+// Course user enrol add roles panel.
+.enrolpanel {
+    .studium-dialogue;
+    .container {
+        .studium-dialogue-container;
+        .header {
+            .studium-dialogue-hd;
+            h2 {
+                .studium-dialogue-hd-title;
+            }
+            .close {
+                .studium-dialogue-hd-close-wrap;
+                .studium-dialogue-hd-close;
+            }
+        }
+    }
+}
+
+// Old YUI dialog boxes.
+.yui-skin-sam {
+    .yui-panel-container {
+        .studium-dialogue;
+        // Add a question quiz dialog box.
+        #qtypechoicecontainer.yui-panel {
+            .studium-dialogue-container;
+            .container-close {
+                .studium-dialogue-hd-close-wrap;
+                .studium-dialogue-hd-close;
+            }
+            .hd {
+                background: none;
+                .studium-dialogue-hd;
+                h3 {
+                    .studium-dialogue-hd-title;
+                }
+            }
+        }
+        // Add a random question quiz dialog box.
+        #randomquestiondialog.yui-panel {
+            .studium-dialogue-container;
+            .container-close {
+                .studium-dialogue-hd-close-wrap;
+                .studium-dialogue-hd-close;
+            }
+            .hd {
+                background : none;
+                .studium-dialogue-hd;
+                h3 {
+                    .studium-dialogue-hd-title;
+                }
+            }
+            .bd {
+                .studium-dialogue-footer;
+                .mform fieldset.collapsible legend a.fheader {
+                    margin-left: 0;
+                }
+            }
+        }
+        &.shadow .underlay {
+            background-color: transparent;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+        }
+        .yui-panel {
+            .hd, .bd, .ft {
+                border: none;
+                margin: 0;
+            }
+        }
+    }
+}
+
+/**
+ * Redefinition of styles related to this theme.
+ */
 
 // Blocks styling.
 .block {
     padding:0;
-    #region-main & {
+    #region-main .block-region & {
         background: none;
         box-shadow: none;
     }
@@ -56,12 +242,12 @@ html {
         .title {
             h2 {
                 border-radius: 4px 4px 0 0;
-                #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+                .studium-blue-gradient;
                 text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
                 color: #FFF;
                 margin: -1px;
                 padding: 6px 8px;
-                #region-main & {
+                #region-main .block-region & {
                     color: #444;
                     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
                     background: none;
@@ -109,7 +295,7 @@ html {
         background: #fff;
         border-radius: 6px;
         th {
-            #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+            .studium-blue-gradient;
             border-bottom: 1px solid #063963;
             border-top-color: #0e75cd;
             color: #fff;
@@ -134,10 +320,10 @@ html {
 }
 
 // Block main-region.
-#region-main {
+#region-main .block-region{
     .block_studium_course_overview .course_session {
         .session_header {
-            #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+            .studium-blue-gradient;
             .session_action {
                 .block > .header > .block_action;
                 padding: 0;
@@ -176,11 +362,21 @@ html {
     &.collapsed:last-child .session_header {
         border-radius: 0 0 4px 4px;
     }
+    &.collapsed:first-child:last-child .session_header {
+        border-radius: 4px;
+    }
 }
 
 // Block settings styling.
 .block_settings .header .title h2 {
     #gradient > .vertical(@studiumSecondaryColor, @studiumSecondaryColorDark);
+}
+
+// Restrict the blocks form elements to go outside the blocks container.
+.block_adminblock select,
+.block_progress input[type=submit],
+.block_private_files input[type=submit] {
+    width: 100%;
 }
 
 // Blocks title icons.
@@ -301,7 +497,6 @@ html {
     padding: 2px;
 }
 
-
 // Navbar styling.
 .navbar .nav {
     li.dropdown > .dropdown-toggle .caret {
@@ -316,7 +511,6 @@ html {
 .navbar-inverse .logininfo a:hover {
     background:none;
 }
-
 
 // Breadcrumb styling.
 .breadcrumb {
@@ -364,15 +558,58 @@ html {
     }
 }
 
-// Home page box styling.
+// Front page box styling.
 .studium-conteneur {
-    background-color: @white;
-    border: 1px solid #dfdfdf;
-    .border-radius(@baseBorderRadius);
-    .box-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
     padding: 20px 20px 30px;
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    .border-radius(@baseBorderRadius);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+    & + & {
+        @media (max-width: 767px) {
+            margin-top: 2em;
+        }
+    }
+    li {
+        line-height: 1.2em;
+        list-style-type: none;
+        margin-bottom: 0.5em;
+        &:before {
+            content: "\f0c8";
+            font-family: @fontAwesome;
+            font-size: 0.6em;
+            line-height: 0.6em;
+            position: relative;
+            top: -1px;
+            left: -14px;
+        }
+        a {
+            margin-left: -8px;
+        }
+    }
+    .lien-aide {
+        font-weight: bold;
+        line-height: 3em;
+    }
 }
 
+// Fixes for the labels used in the front page.
+.pagelayout-frontpage {
+    &.editing .section .activity {
+        .contentwithoutlink, .activityinstance {
+            padding-right: 120px;
+        }
+    }
+    .section .label {
+        .contentwithoutlink, .activityinstance {
+            padding-right: 0;
+        }
+    }
+    // Alert notifications title.
+    .alert h4 {
+        margin-bottom: 0.5em;
+    }
+}
 
 .dimmed img.activityicon,
 .block_studium_course_overview .box.coursebox.dimmed_text .activity_overview img.iconlarge {
@@ -539,7 +776,6 @@ html {
     }
 }
 
-
 // User grades styling.
 .user-grade {
     border:none;
@@ -614,7 +850,7 @@ h1 .dimmed, .udem_coursehidden {
     font-size: 26px;
     line-height: 24px;
     font-weight: bold;
-    margin: 10px 0 0 10px;
+    margin: 10px 0 1px 10px;
     .prefixe {
         position: absolute;
         text-indent: -3000px;
@@ -675,5 +911,78 @@ h1 .dimmed, .udem_coursehidden {
             display: none;
             overflow-y: inherit;
         }
+    }
+}
+
+// Book modules.
+.path-mod-book .block_book_toc li li.clearfix {
+    &:before, &:after {
+        content: normal;
+    }
+}
+
+// Grouping buttons.
+p.arrow_button{
+    padding-right: 1em;
+    margin-left: -1em;
+    min-width: 120px;
+    #remove {
+        margin: 0 0 10px 5px;
+    }
+    input {
+        padding: 4px 4px 4px 0;
+    }
+}
+
+// Add more primary blue buttons where needed.
+.confirmation-dialogue input[id*=yuiconfirmyes],
+#chooseform .submitbutton,
+#chooseqtype_submit,
+#id_newcategory,
+.user-enroller-panel .close-button input{
+    .btn-primary;
+}
+
+// Remove background hover effect on disabled button primary state.
+.btn-primary {
+    &.disabled,
+    &[disabled] {
+      background-image: none;
+    }
+}
+
+// Use all the screen size.
+.container-fluid {
+    max-width: none;
+}
+
+// Fix for course icons positions
+.coursebox > .info > .coursename a {
+    background-position: left center;
+}
+
+// Fix for user enrolment add icons.
+.userenrolment {
+    .col_role .addrole,
+    .col_group .addgroup {
+        background-color: @white;
+        border: 1px solid #dff0d8;
+        margin: 6px 3px;
+        a img {
+            vertical-align: baseline;
+        }
+    }
+}
+
+// Course category title.
+.course_category_tree .category > .info > .categoryname {
+    font-size: 20px;
+}
+
+// Quiz question bank.
+#page-mod-quiz-edit .questionbankwindow.block div.header {
+    .studium-blue-gradient;
+    div.title h2 {
+        text-align: left;
     }
 }

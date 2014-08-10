@@ -53,6 +53,7 @@ $string['footernavdesc'] = 'The content of this textarea will contain a series o
 $string['footnote'] = 'Footnote';
 $string['footnotedesc'] = 'Whatever you add to this textarea will be displayed in the footer throughout your Moodle site.';
 $string['logoof'] = 'Logo of {$a}';
+$string['mygrades'] = 'My grades';
 $string['pluginname'] = 'Clean UdeM';
 $string['region-side-post'] = 'Right';
 $string['region-side-pre'] = 'Left';

@@ -51,6 +51,7 @@ $string['footernavdesc'] = 'Le contenu de ce champ contiendra une série de lien
 $string['footnote'] = 'Pied de page';
 $string['footnotedesc'] = 'Le contenu de ce champ sera affiché dans le pied-de-page de chaque page.';
 $string['logoof'] = 'Logo of {$a}';
+$string['mygrades'] = 'Mes notes';
 $string['pluginname'] = 'Clean UdeM';
 $string['region-side-post'] = 'Droite';
 $string['region-side-pre'] = 'Gauche';

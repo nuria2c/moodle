@@ -12,6 +12,7 @@
 @studiumSecondaryColor: #A2004D;
 @studiumSecondaryColorDark: darken(@studiumSecondaryColor, 15%);
 @studiumFooterBackgroundColor: #1B1B1B;
+@studiumAnimButtonBoxShadow: 0 0 14px #0D70C4, inset 0 0 22px #32afff;
 @fontAwesome: "FontAwesome";
 
 /**
@@ -36,6 +37,17 @@
 
 .studium-blue-gradient() {
     #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+}
+
+// Login buttons.
+.studium-login-btn() {
+    font-size: 0.8em;
+    line-height: 12px;
+    max-width: 138px;
+    white-space: normal;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 8px 18px;
 }
 
 // Dialogue header.
@@ -227,6 +239,20 @@
  * Redefinition of styles related to this theme.
  */
 
+// Fix the web font for Google Chrome.
+body {
+  -webkit-animation-duration: 0.1s;
+  -webkit-animation-name: fontfix;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-delay: 0.1s;
+}
+
+@-webkit-keyframes fontfix {
+  from { opacity: 1; }
+  to { opacity: 1; }
+}
+
 // Blocks styling.
 .block {
     padding:0;
@@ -333,7 +359,7 @@
             color: @white;
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
             &:before {
-                font-family: FontAwesome;
+                font-family: @fontAwesome;
                 font-size: 1.2em;
                 line-height: 1.2em;
                 margin-right: .5em;
@@ -506,10 +532,12 @@
     .dropdown-toggle .caret {
         margin-top: 10px;
     }
-}
-
-.navbar-inverse .logininfo a:hover {
-    background:none;
+    .usermenu img {
+        border-radius: 4px;
+        margin: -10px 0 -8px 5px;
+        width: 30px;
+        height: 30px;
+    }
 }
 
 // Breadcrumb styling.
@@ -525,26 +553,31 @@
 
 // Navigation fixes for smaller devices.
 @media (max-width: 979px) {
-    .nav-collapse {
-        .nav > li > a,
-        .nav > li > a:hover,
-        .nav > li > a:focus,
-        .dropdown-menu a:hover,
-        .dropdown-menu a:focus,
-        .dropdown-submenu a:focus,
-        .dropdown-submenu a:hover,
-        .dropdown-submenu a:active,
-        .dropdown-menu > li > a:hover,
-        .dropdown-menu > li > a:focus {
-            color: @white;
+    .navbar-inverse {
+        .nav-collapse {
+            .nav > li > a,
+            .nav > li > a:hover,
+            .nav > li > a:focus,
+            .dropdown-menu a:hover,
+            .dropdown-menu a:focus,
+            .dropdown-submenu a:focus,
+            .dropdown-submenu a:hover,
+            .dropdown-submenu a:active,
+            .dropdown-menu > li > a:hover,
+            .dropdown-menu > li > a:focus {
+                color: @white;
+            }
+            &.pull-right {
+                float: none;
+            }
+            .nav > li > a.dimmed,
+            .navbar-inverse .nav-collapse .dropdown-menu a.dimmed {
+                color: @grayLight;
+            }
         }
-        &.pull-right {
-            float: none;
+        .logininfo {
+            margin-right: 10px;
         }
-    }
-    .navbar-inverse .nav-collapse .nav > li > a.dimmed,
-    .navbar-inverse .nav-collapse .dropdown-menu a.dimmed {
-        color: @grayLight;
     }
     .pagelayout-maintenance .logobox {
         margin-top: 30px;
@@ -624,15 +657,77 @@
     filter: gray; /* IE 6-9 */
 }
 
+.login-buttons {
+    .login {
+        display: inline-block;
+        input[type=submit] {
+            margin: 5px 0 5px 5px;
+        }
+        &.login-cas input[type=submit] {
+            .studium-login-btn;
+            padding: 8px 14px;
+            font-size: 1.1em;
+        }
+        &.login-nocas {
+            margin-left: 5px;
+            input[type=submit] {
+                white-space: normal;
+                font-size:0.8em;
+                text-transform: none;
+                font-weight: normal;
+                line-height: 10px;
+                max-width: 110px;
+                padding: 3px 14px 4px;
+            }
+        }
+    }
+    .helptooltip a {
+        &:before {
+            font-family: @fontAwesome;
+            content: "\f059";
+            color: @white;
+            font-size: 1.25em;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        img {
+            display: none;
+        }
+    }
+}
+
+ /*Animation to put the emphasis on a button */
+@-webkit-keyframes btnemphasis {
+    from { -webkit-box-shadow: none; }
+    50% { -webkit-box-shadow: @studiumAnimButtonBoxShadow; }
+    to { -webkit-box-shadow: none; }
+}
+@-moz-keyframes btnemphasis {
+    from { box-shadow: none; }
+    50% { box-shadow: @studiumAnimButtonBoxShadow; }
+    to { box-shadow: none; }
+}
+@keyframes btnemphasis {
+    from { box-shadow: none; }
+    50% { box-shadow: @studiumAnimButtonBoxShadow; }
+    to { box-shadow: none; }
+}
+
+.showcoursesection input[type=submit],
+.buttonemphasis input[type=submit] {
+    -webkit-animation-name: btnemphasis;
+    -webkit-animation-duration: 1.5s;
+    -webkit-animation-iteration-count: 5;
+    -moz-animation-name: btnemphasis;
+    -moz-animation-duration: 1.5s;
+    -moz-animation-iteration-count: 5;
+    animation-name: btnemphasis;
+    animation-duration: 1.5s;
+    animation-iteration-count: 5;
+}
+
 .pagelayout-login #login #loginbtn {
-    font-size: 0.8em;
-    line-height: 12px;
-    max-width: 138px;
-    padding: 8px 18px 6px;
-    white-space: normal;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 8px 18px;
+    .studium-login-btn;
 }
 
 // Double authentication styling.
@@ -655,7 +750,7 @@
             padding: 8px 18px;
         }
         &#frmloginnocas input {
-            .pagelayout-login #login #loginbtn;
+            .studium-login-btn;
         }
     }
     .signuppanel {
@@ -939,7 +1034,9 @@ p.arrow_button{
 #chooseform .submitbutton,
 #chooseqtype_submit,
 #id_newcategory,
-.user-enroller-panel .close-button input{
+.user-enroller-panel .close-button input,
+.login-cas input[type=submit],
+.showcoursesection input[type=submit] {
     .btn-primary;
 }
 

@@ -44,13 +44,10 @@ if (theme_cleanudem_is_default_device_type()) {
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-
+            <?php echo $OUTPUT->login_buttons() ?>
             <div class="nav-collapse collapse pull-right">
                 <?php echo $OUTPUT->custom_menu(); ?>
-                <ul class="nav pull-right">
-                    <li><?php echo $OUTPUT->page_heading_menu(); ?></li>
-                    <li class="navbar-text"><?php echo $OUTPUT->login_info() ?></li>
-                </ul>
+                <?php echo $OUTPUT->page_heading_menu(); ?>
             </div>
         </div>
     </nav>

@@ -44,6 +44,7 @@ class theme_cleanudem_renderer_helper {
         $title = '';
         if (!empty($suffix)) {
             $class[] = $suffix;
+            $class[] = 'pull-left';
             $suffix  = "_$suffix";
         } else {
             $title = self::site_fullname();

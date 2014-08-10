@@ -128,8 +128,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
         return parent::custom_menu($custommenuitems);
     }
 
-
-
     /**
      * Renders a custom menu object (located in outputcomponents.php)
      *
@@ -140,6 +138,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the menu.
      */
     protected function render_custom_menu(custom_menu $menu) {
+        global $USER;
 
         $helpstring = get_string('help');
 
@@ -166,10 +165,10 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $branchtitle = get_string('mycourses');
             $branchurl = new moodle_url('/my/index.php');
             $branch = $menu->add($branchtitle, $branchurl, $branchtitle, -3);
-            if (isloggedin() && !isguestuser() && $mycourses = udem_enrol_get_my_courses_sorted_by_session()) {
+            if ($my = udem_enrol_get_my_courses_sorted_by_session()) {
                 static $maxitems = 10;
                 $itemid = 0;
-                foreach ($mycourses as $mycourse) {
+                foreach ($my as $mycourse) {
                     $param = array('id' => $mycourse->id);
                     if (!$mycourse->visible) {
                         $param[self::HIDDEN_COURSE] = 1;
@@ -199,6 +198,51 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             }
             $requestcoursesitestring = get_string('requestcoursesite', 'theme_cleanudem');
             $help->add($requestcoursesitestring, new moodle_url('/course/index.php?categoryid=1'), $requestcoursesitestring);
+
+            // Add The user menu.
+            $fullname = fullname($USER);
+            $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
+
+            // View profile.
+            $viewprofile = get_string('viewprofile');
+            $usermenu->add($viewprofile, new moodle_url('/user/profile.php', array('id' => $USER->id)), $viewprofile);
+
+            // Edit profile.
+            $editmyprofile = get_string('editmyprofile');
+            $usermenu->add($editmyprofile, new moodle_url('/user/edit.php', array('id' => $USER->id)), $editmyprofile);
+
+            $usermenu->add(self::DIVIDER);
+
+            // My home.
+            $my = get_string('myhome');
+            $usermenu->add($my, new moodle_url('/my/index.php'), $my);
+
+            // My grades.
+            $mygrades = get_string('mygrades', 'theme_cleanudem');
+            $usermenu->add($mygrades, new moodle_url('/grade/report/overview/index.php', array('id' => 1, 'userid' => $USER->id)),
+                    $mygrades);
+
+            // Forum posts.
+            $forumpost = get_string('forumposts', 'forum');
+            $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php', array('id' => $USER->id)), $forumpost);
+
+            // Messages.
+            $message = get_string('messages', 'message');
+            $usermenu->add($message, new moodle_url('/message/index.php', array('user1' => $USER->id)), $message);
+
+            // My files.
+            $myfiles = get_string('myfiles');
+            $usermenu->add($myfiles, new moodle_url('/user/files.php'), $myfiles);
+
+            // My badges.
+            $mybadges = get_string('mybadges', 'badges');
+            $usermenu->add($mybadges, new moodle_url('/badges/mybadges.php'), $mybadges);
+
+            $usermenu->add(self::DIVIDER);
+
+            // Logout.
+            $logout = get_string('logout');
+            $usermenu->add($logout, new moodle_url('/login/logout.php', array('sesskey' => sesskey(), 'alt' => 'logout')), $logout);
         }
 
         return parent::render_custom_menu($menu);
@@ -213,6 +257,8 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the menu item.
      */
     protected function render_custom_menu_item(custom_menu_item $menunode, $level = 0) {
+        global $USER;
+
         static $submenucount = 0;
 
         $target = theme_cleanudem_get_target($menunode->get_url());
@@ -221,6 +267,9 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
 
             if ($level == 1) {
                 $class = 'dropdown';
+                if ($isusermenu = $menunode->get_text() == fullname($USER)) {
+                    $class .= ' usermenu';
+                }
             } else {
                 $class = 'dropdown-submenu';
             }
@@ -249,6 +298,13 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $content .= $menunode->get_text();
             if ($level == 1) {
                 $content .= html_writer::tag('b', '', array('class' => 'caret'));
+                if ($isusermenu) {
+                    $size = 30;
+                    if (!theme_cleanudem_is_default_device_type()) {
+                        $size *= 2;
+                    }
+                    $content .= $this->user_picture($USER, array('link' => false, 'size' => $size, 'alttext' => true));
+                }
             }
             $content .= html_writer::end_tag('a');
             $content .= html_writer::start_tag('ul', array('class' => 'dropdown-menu'));
@@ -276,6 +332,36 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             }
             $content .= html_writer::link($url, $title, array('title' => $menunode->get_title(),
                 'target' => $target, 'class' => $class));
+        }
+        return $content;
+    }
+
+    /**
+     * Add the login buttons, CAS and No CAS.
+     */
+    public function login_buttons() {
+        global $OUTPUT;
+        $content = '';
+        if (!isloggedin()) {
+            $loginpage = ((string)$this->page->url === get_login_url());
+            if ($loginpage) {
+                $content .= html_writer::div(get_string('loggedinnot', 'moodle'), 'navbar-text logininfo pull-right');
+            } else {
+                $url = new moodle_url(get_login_url());
+                $method = 'get';
+                $content .= html_writer::start_div('login-buttons pull-right');
+                $url->param('authCAS', 'CAS');
+                $content .= $OUTPUT->single_button($url, get_string('acceslogincas', 'auth_cas'), $method,
+                        array('class' => 'login login-cas buttonemphasis',
+                        'tooltip' => get_string('acceslogincastitle', 'auth_cas')));
+                if (udem_is_multiauth_cas()) {
+                    $url->param('authCAS', 'NOCAS');
+                    $content .= $OUTPUT->single_button($url, get_string('accesloginnocas', 'auth_cas'), $method,
+                            array('class' => 'login login-nocas', 'tooltip' => get_string('accesloginnocastitle', 'auth_cas')));
+                    $content .= $OUTPUT->help_icon('accesloginnocas', 'auth_cas');
+                }
+                $content .= html_writer::end_div();
+            }
         }
         return $content;
     }

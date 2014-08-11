@@ -403,6 +403,14 @@ body {
 .block_progress input[type=submit],
 .block_private_files input[type=submit] {
     width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 250px;
+}
+
+.block .singlebutton > form > div {
+    width: 100%;
 }
 
 // Blocks title icons.

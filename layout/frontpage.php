@@ -31,22 +31,23 @@ $isediting = $PAGE->user_is_editing();
 
 $left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
 
-$additionalclasses = '';
-$regionmainclasses = 'span12';
+$bodyclasses = array();
+$regionmainclasses = array('span12');
 $sidepreblocks = '';
 if ($isediting) {
-    $additionalclasses = 'two-column';
-    $regionmainclasses = 'span9';
-    $classextra = '';
+    $bodyclasses[] = 'two-column';
+    $bodyclasses[] = $html->sideregionsmaxwidthclass;
+    $regionmainclasses[] = 'span9';
+    $sidepreregionclasses = array('span3');
     if ($left) {
-        $regionmainclasses .= ' pull-right';
-        $classextra = ' desktop-first-column';
+        $regionmainclasses[] = 'pull-right';
+        $sidepreregionclasses[] = 'desktop-first-column';
     }
-    $sidepreblocks = $OUTPUT->blocks('side-pre', 'span3' . $classextra);
+    $sidepreblocks = $OUTPUT->blocks('side-pre', implode(' ', $sidepreregionclasses));
 }
 ?>
 
-<?php echo $OUTPUT->element('head', array('additionalclasses' => $additionalclasses, 'fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => implode(' ', $bodyclasses), 'fontlinks' => $html->fontlinks)); ?>
 
 <?php echo $OUTPUT->element('header', array('brand' => '')); ?>
 
@@ -56,7 +57,7 @@ if ($isediting) {
     <?php echo $OUTPUT->element('page-header', $vars); ?>
 
     <div id="page-content" class="row-fluid">
-        <section id="region-main" class="<?php echo $regionmainclasses; ?>">
+        <section id="region-main" class="<?php echo implode(' ', $regionmainclasses); ?>">
             <?php
             echo $OUTPUT->course_content_header();
             echo $OUTPUT->main_content();

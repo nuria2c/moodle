@@ -33,9 +33,13 @@ $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 
 $left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
 
+$bodyclasses = array();
+$bodyclasses[] = 'two-column';
+$bodyclasses[] = $html->sideregionsmaxwidthclass;
+
 ?>
 
-<?php echo $OUTPUT->element('head', array('additionalclasses' => 'two-column', 'fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => implode(' ', $bodyclasses), 'fontlinks' => $html->fontlinks)); ?>
 
 <?php echo $OUTPUT->element('header'); ?>
 
@@ -45,8 +49,8 @@ $left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-firs
     <?php echo $OUTPUT->element('page-header', $vars); ?>
 
     <div id="page-content" class="row-fluid">
-    
-<?php 
+
+<?php
 $classextra = 'span9';
 if ($left) {
     $classextra .= ' pull-right';
@@ -60,7 +64,7 @@ if ($left) {
             echo $OUTPUT->course_content_footer();
             ?>
         </section>
-        
+
 <?php
 $classextra = '';
 if ($left) {

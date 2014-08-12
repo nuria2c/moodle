@@ -95,6 +95,11 @@ function theme_cleanudem_get_html_for_settings(renderer_base $output, moodle_pag
         }
     }
 
+    $return->sideregionsmaxwidthclass = '';
+    if (!empty($page->theme->settings->sideregionsmaxwidth)) {
+        $return->sideregionsmaxwidthclass = 'side-regions-with-max-width';
+    }
+
     return $return;
 }
 

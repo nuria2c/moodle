@@ -62,4 +62,13 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtextarea($name, $title, $description, $default);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
+
+    // Use max width for side regions.
+    $name = 'theme_cleanudem/sideregionsmaxwidth';
+    $title = get_string('sideregionsmaxwidth', 'theme_cleanudem');
+    $description = get_string('sideregionsmaxwidthdesc', 'theme_cleanudem');
+    $default = false;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $setting->set_updatedcallback('theme_reset_all_caches');
+    $settings->add($setting);
 }

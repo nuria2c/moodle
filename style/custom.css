@@ -1,6 +1,38 @@
 /* Custom CSS
 -------------------------*/
 
+/* The CSS for using the side region max width feature.
+ * Inserted here because of an incompatibility with the
+ * used less compilor and the CSS calc method.
+ */
+
+@media screen and (min-width: 1150px) {
+    .two-column.side-regions-with-max-width #block-region-side-pre {
+        width: 255px;
+    }
+
+    .two-column.side-regions-with-max-width #region-main {
+        width: -moz-calc(100% - 2.5641% - 255px);
+        width: -webkit-calc(100% - 2.5641% - 255px);
+        width: calc(100% - 2.5641% - 255px);
+    }
+}
+
+@media screen and (min-width: 1132px) {
+    .three-column.side-regions-with-max-width.empty-region-side-post.used-region-side-pre #block-region-side-pre,
+    .three-column.side-regions-with-max-width #block-region-side-pre,
+    .three-column.side-regions-with-max-width #block-region-side-post {
+        width: 255px;
+    }
+    .three-column.side-regions-with-max-width.empty-region-side-post.used-region-side-pre #region-main,
+    .three-column.side-regions-with-max-width #region-bs-main-and-pre,
+    .three-column.side-regions-with-max-width #region-main {
+        width: -moz-calc(100% - 2.5641% - 255px);
+        width: -webkit-calc(100% - 2.5641% - 255px);
+        width: calc(100% - 2.5641% - 255px);
+    }
+}
+
 
 /* Custom CSS Settings
 -------------------------*/

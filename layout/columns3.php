@@ -36,9 +36,14 @@ if (right_to_left()) {
 } else {
     $regionbsid = 'region-bs-main-and-pre';
 }
+
+$bodyclasses = array();
+$bodyclasses[] = 'three-column';
+$bodyclasses[] = $html->sideregionsmaxwidthclass;
+
 ?>
 
-<?php echo $OUTPUT->element('head', array('fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => implode(' ', $bodyclasses), 'fontlinks' => $html->fontlinks)); ?>
 
 <?php echo $OUTPUT->element('header'); ?>
 

@@ -217,11 +217,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $my = get_string('myhome');
             $usermenu->add($my, new moodle_url('/my/index.php'), $my);
 
-            // My grades.
-            $mygrades = get_string('mygrades', 'theme_cleanudem');
-            $usermenu->add($mygrades, new moodle_url('/grade/report/overview/index.php', array('id' => 1, 'userid' => $USER->id)),
-                    $mygrades);
-
             // Forum posts.
             $forumpost = get_string('forumposts', 'forum');
             $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php', array('id' => $USER->id)), $forumpost);

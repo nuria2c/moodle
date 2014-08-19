@@ -53,7 +53,7 @@
 // Dialogue header.
 .studium-dialogue-hd() {
     .studium-blue-gradient;
-    border-bottom:1px solid #555;
+    border-bottom:1px solid @gray;
     border-width:0 0 1px;
     border-radius:6px 6px 0 0;
     padding: 3px;
@@ -103,6 +103,13 @@
 // Dialogue footer.
 .studium-dialogue-footer() {
     border-radius:0 0 6px 6px;
+}
+
+// White controller on white background.
+.studium-white-controller() {
+    background: @grayLight;
+    border-radius: 2px;
+    padding: 1px;
 }
 
 /**
@@ -287,7 +294,7 @@ body {
                 border-radius: 4px 4px 0 0;
                 .studium-blue-gradient;
                 text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
-                color: #FFF;
+                color: @white;
                 margin: -1px;
                 padding: 6px 8px;
                 #region-main .block-region & {
@@ -314,17 +321,23 @@ body {
         }
         .block_action {
             padding: 6px 15px;
-            img {
+            img, .moveto {
                 #region-main & {
-                    background: #999;
-                    border-radius: 2px;
-                    padding: 1px;
+                    .studium-white-controller();
                 }
             }
             .ie9 & {
                 position:absolute;
                 top:0;
                 right:0;
+            }
+        }
+        .commands {
+            padding-top: 0;
+            padding-bottom: 0;
+            .editing & {
+                padding-top: 3px;
+                padding-bottom: 3px;
             }
         }
     }
@@ -335,13 +348,13 @@ body {
         }
     }
     .minicalendar {
-        background: #fff;
+        background: @white;
         border-radius: 6px;
         th {
             .studium-blue-gradient;
             border-bottom: 1px solid #063963;
             border-top-color: #0e75cd;
-            color: #fff;
+            color: @white;
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
             abbr {
                 border: none;
@@ -537,7 +550,7 @@ body {
 // Calendar styling.
 .minicalendar {
     td, th {
-        border-color: #fff;
+        border-color: @white;
         border-width: 2px 0;
         font-size: 0.85em;
         padding: 2px;
@@ -606,6 +619,12 @@ body {
     }
     .pagelayout-maintenance .logobox {
         margin-top: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .has_dock_left_vertical {
+        padding-left: 0;
     }
 }
 
@@ -799,6 +818,16 @@ body {
     margin-left: -20px;
     margin-right: -20px;
     padding: 0;
+    .has_dock_left_vertical & {
+        margin-left: -62px;
+        .footer-nav {
+            padding-left: 42px;
+        }
+        .footer-info {
+            padding-left: 62px;
+        }
+
+    }
     .footer-info {
         border-top: 2px solid @studiumPrimaryColor;
         padding: 1em 0;
@@ -1106,5 +1135,47 @@ p.arrow_button{
     .studium-blue-gradient;
     div.title h2 {
         text-align: left;
+    }
+}
+
+// Dock and docked blocks.
+#dock {
+    #dockeditempanel {
+        .dockeditempanel_content {
+            .studium-dialogue-container();
+            .dockeditempanel_hd {
+                .studium-dialogue-hd();
+                .commands {
+                    margin-top: -2px;
+                    padding-left: 5px;
+                    .menu li {
+                        font-weight: normal;
+                        text-shadow: none;
+                        font-size:14px;
+                    }
+                    a, span {
+                        white-space: nowrap;
+                    }
+                }
+                h2 {
+                    .studium-dialogue-hd-title();
+                    display: block;
+                    float: left;
+                    padding-right: 0;
+                }
+            }
+            .block_docked .content {
+                padding: 0;
+            }
+        }
+    }
+    .dockedtitle {
+        border-radius: 0 6px 6px 0;
+        background-image: none;
+        margin-left: 0;
+    }
+    .controls img {
+        .studium-white-controller();
+        background-color: @gray;
     }
 }

@@ -42,6 +42,7 @@ $THEME->sheets = array('custom', 'moodle');
 $THEME->parents_exclude_sheets = array('bootstrapbase' => array('moodle'));
 $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
+$THEME->enable_dock = true;
 
 $THEME->javascripts = array('blockhider', 'navdropdownbehavior');
 

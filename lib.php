@@ -117,7 +117,7 @@ function theme_cleanudem_is_default_device_type() {
  * Generate a target attribute of an url. The target
  * should be "_blank" if the url is not on the current host.
  *
- * @param type $url The url to analyse.
+ * @param moodle_url $url The url to analyse.
  * @return string The generated target.
  */
 function theme_cleanudem_get_target($url) {
@@ -129,4 +129,61 @@ function theme_cleanudem_get_target($url) {
         $target = '_blank';
     }
     return $target;
+}
+
+/**
+ * Adds the JavaScript for the fullscreen mode to the page.
+ *
+ * @param moodle_page $page
+ */
+function theme_cleanudem_initialize_fullscreenmode(moodle_page $page) {
+    user_preference_allow_ajax_update('theme_cleanudem_fullscreenmode_state', PARAM_ALPHA);
+    $disableurl = new moodle_url($page->url, array('fullscreenmodestate' => 'true'));
+    $page->requires->yui_module(
+        'moodle-theme_cleanudem-fullscreenmode',
+        'M.theme_cleanudem.initFullscreenMode',
+        array(array('disableurl' => $disableurl))
+    );
+    $strings = array('enablefullscreenmode', 'disablefullscreenmode', 'fullscreenactivated');
+    $page->requires->strings_for_js($strings, 'theme_cleanudem');
+}
+
+/**
+ * Gets fullscreen mode state the user has selected, or the default if they have never changed.
+ *
+ * @param string $default The default colour to use, normally red
+ * @return boolean The fullscreen mode state the user has selected
+ */
+function theme_cleanudem_get_fullscreenmode_state($default = 'false') {
+    return to_strict_boolean(get_user_preferences('theme_cleanudem_fullscreenmode_state', $default));
+}
+
+/**
+ * Check if the value entered is considered to be a true value.
+ *
+ * @param mixed $val The value to consider.
+ * @param array $truevalues The values considered to be true.
+ * @return boolean If the value is true.
+ */
+function to_strict_boolean($val, $truevalues = array('true')) {
+    if (is_string($val)) {
+        return (in_array($val, $truevalues));
+    } else {
+        return (boolean) $val;
+    }
+}
+
+/**
+ * Checks if the user is switching colours with a refresh (JS disabled).
+ * If they are this updates the users preference in the database.
+ *
+ * @return bool if the optionnal param is setted
+ */
+function theme_cleanudem_check_fullscreenmode() {
+    $fullscreenmodestate = optional_param('fullscreenmodestate', null, PARAM_ALPHA);
+    $hasstatechanged = in_array($fullscreenmodestate, array('true', 'false'));
+    if ($hasstatechanged) {
+        return set_user_preference('theme_cleanudem_fullscreenmode_state', $fullscreenmodestate);
+    }
+    return false;
 }

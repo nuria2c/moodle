@@ -37,11 +37,25 @@ $bodyclasses = array();
 $bodyclasses[] = 'two-column';
 $bodyclasses[] = $html->sideregionsmaxwidthclass;
 
+theme_cleanudem_check_fullscreenmode();
+
+$isinfullscreenmode = theme_cleanudem_get_fullscreenmode_state();
+$hassideprefakeblock = $PAGE->blocks->region_has_fakeblock('side-pre');
+
+// Put the fullscreenmode unless we have fakeblock (read: important, unhideable block).
+if ($isinfullscreenmode) {
+    $bodyclasses[] = 'cleanudem-collapsed';
+}
+if ($hassideprefakeblock) {
+    $bodyclasses[] = 'side-pre-fakeblock';
+}
+theme_cleanudem_initialize_fullscreenmode($PAGE);
+
 ?>
 
-<?php echo $OUTPUT->element('head', array('additionalclasses' => implode(' ', $bodyclasses), 'fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => $bodyclasses, 'fontlinks' => $html->fontlinks)); ?>
 
-<?php echo $OUTPUT->element('header'); ?>
+<?php echo $OUTPUT->element('header', array('fullscreenbutton' => $OUTPUT->fullscreen_button($isinfullscreenmode))); ?>
 
 <div id="page" class="container-fluid">
 

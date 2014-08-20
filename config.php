@@ -44,7 +44,7 @@ $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
 $THEME->enable_dock = true;
 
-$THEME->javascripts = array('blockhider', 'navdropdownbehavior');
+$THEME->javascripts = array('blockhider', 'navdropdownbehavior', 'fullscreenmode');
 
 $THEME->editor_sheets = array();
 

@@ -29,6 +29,10 @@ if (!isset($vars['brand'])) {
     $vars['brand'] = $OUTPUT->studium_logobox('white');
 }
 
+if (!isset($vars['fullscreenbutton'])) {
+    $vars['fullscreenbutton'] = '';
+}
+
 $defaultdeviceclass = '';
 if (theme_cleanudem_is_default_device_type()) {
     $defaultdeviceclass .= ' default-device';
@@ -47,6 +51,8 @@ if (theme_cleanudem_is_default_device_type()) {
             <?php echo $OUTPUT->login_buttons() ?>
             <div class="nav-collapse collapse pull-right">
                 <?php echo $OUTPUT->custom_menu(); ?>
+                <?php echo $vars['fullscreenbutton']; ?>
+                <?php echo $OUTPUT->user_menu(); ?>
                 <?php echo $OUTPUT->page_heading_menu(); ?>
             </div>
         </div>

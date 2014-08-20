@@ -198,46 +198,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             }
             $requestcoursesitestring = get_string('requestcoursesite', 'theme_cleanudem');
             $help->add($requestcoursesitestring, new moodle_url('/course/index.php?categoryid=1'), $requestcoursesitestring);
-
-            // Add The user menu.
-            $fullname = fullname($USER);
-            $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
-
-            // View profile.
-            $viewprofile = get_string('viewprofile');
-            $usermenu->add($viewprofile, new moodle_url('/user/profile.php', array('id' => $USER->id)), $viewprofile);
-
-            // Edit profile.
-            $editmyprofile = get_string('editmyprofile');
-            $usermenu->add($editmyprofile, new moodle_url('/user/edit.php', array('id' => $USER->id)), $editmyprofile);
-
-            $usermenu->add(self::DIVIDER);
-
-            // My home.
-            $my = get_string('myhome');
-            $usermenu->add($my, new moodle_url('/my/index.php'), $my);
-
-            // Forum posts.
-            $forumpost = get_string('forumposts', 'forum');
-            $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php', array('id' => $USER->id)), $forumpost);
-
-            // Messages.
-            $message = get_string('messages', 'message');
-            $usermenu->add($message, new moodle_url('/message/index.php', array('user1' => $USER->id)), $message);
-
-            // My files.
-            $myfiles = get_string('myfiles');
-            $usermenu->add($myfiles, new moodle_url('/user/files.php'), $myfiles);
-
-            // My badges.
-            $mybadges = get_string('mybadges', 'badges');
-            $usermenu->add($mybadges, new moodle_url('/badges/mybadges.php'), $mybadges);
-
-            $usermenu->add(self::DIVIDER);
-
-            // Logout.
-            $logout = get_string('logout');
-            $usermenu->add($logout, new moodle_url('/login/logout.php', array('sesskey' => sesskey(), 'alt' => 'logout')), $logout);
         }
 
         return parent::render_custom_menu($menu);
@@ -332,6 +292,76 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     }
 
     /**
+     * Add a user menu.
+     *
+     * @return string The html fragment of the user menu.
+     */
+    public function user_menu() {
+        $usermenu = new custom_menu('', current_language());
+        return $this->render_user_menu($usermenu);
+    }
+
+    /**
+     * Renders a custom menu object for the user menu.
+     *
+     * @param custom_menu $menu The custom menu used for adding items.
+     * @return string The html fragment of the user menu.
+     */
+    protected function render_user_menu(custom_menu $menu) {
+        global $USER;
+        $content = '';
+        if (isloggedin() && !isguestuser()) {
+            // Add The user menu.
+            $fullname = fullname($USER);
+            $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
+
+            // View profile.
+            $viewprofile = get_string('viewprofile');
+            $usermenu->add($viewprofile, new moodle_url('/user/profile.php', array('id' => $USER->id)), $viewprofile);
+
+            // Edit profile.
+            $editmyprofile = get_string('editmyprofile');
+            $usermenu->add($editmyprofile, new moodle_url('/user/edit.php', array('id' => $USER->id)), $editmyprofile);
+
+            $usermenu->add(self::DIVIDER);
+
+            // My home.
+            $my = get_string('myhome');
+            $usermenu->add($my, new moodle_url('/my/index.php'), $my);
+
+            // Forum posts.
+            $forumpost = get_string('forumposts', 'forum');
+            $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php', array('id' => $USER->id)), $forumpost);
+
+            // Messages.
+            $message = get_string('messages', 'message');
+            $usermenu->add($message, new moodle_url('/message/index.php', array('user1' => $USER->id)), $message);
+
+            // My files.
+            $myfiles = get_string('myfiles');
+            $usermenu->add($myfiles, new moodle_url('/user/files.php'), $myfiles);
+
+            // My badges.
+            $mybadges = get_string('mybadges', 'badges');
+            $usermenu->add($mybadges, new moodle_url('/badges/mybadges.php'), $mybadges);
+
+            $usermenu->add(self::DIVIDER);
+
+            // Logout.
+            $logout = get_string('logout');
+            $usermenu->add($logout, new moodle_url('/login/logout.php', array('sesskey' => sesskey(), 'alt' => 'logout')), $logout);
+
+            $content .= html_writer::start_tag('ul', array('class' => 'nav'));
+            foreach ($menu->get_children() as $item) {
+                $content .= $this->render_custom_menu_item($item, 1);
+            }
+
+            return $content . html_writer::end_tag('ul');
+        }
+        return $content;
+    }
+
+    /**
      * Add the login buttons, CAS and No CAS.
      */
     public function login_buttons() {
@@ -357,6 +387,30 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                 }
                 $content .= html_writer::end_div();
             }
+        }
+        return $content;
+    }
+
+    /**
+     * Add a fullscreen button.
+     *
+     * @param boolean $state The state of the fullscreen button.
+     * @return string $content The html fragment of the button.
+     */
+    public function fullscreen_button($state = false) {
+        $content = '';
+        if (isloggedin() && !isguestuser()) {
+            $string = 'enablefullscreenmode';
+            $statestring = 'true';
+            if ($state) {
+                $string = 'disablefullscreenmode';
+                $statestring = 'false';
+            }
+            $enable = html_writer::span('', 'fa fa-compress');
+            $disable = html_writer::span('', 'fa fa-expand');
+            $url = new moodle_url($this->page->url, array('fullscreenmodestate' => $statestring));
+            $content = html_writer::link($url, $enable . $disable, array('title' => get_string($string, 'theme_cleanudem'),
+                'class' => 'navbar-text fullscreen-toggle-btn'));
         }
         return $content;
     }

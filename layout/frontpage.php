@@ -34,6 +34,7 @@ $left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-firs
 $bodyclasses = array();
 $regionmainclasses = array('span12');
 $sidepreblocks = '';
+$fullscreenbutton = '';
 if ($isediting) {
     $bodyclasses[] = 'two-column';
     $bodyclasses[] = $html->sideregionsmaxwidthclass;
@@ -44,12 +45,23 @@ if ($isediting) {
         $sidepreregionclasses[] = 'desktop-first-column';
     }
     $sidepreblocks = $OUTPUT->blocks('side-pre', implode(' ', $sidepreregionclasses));
+
+    theme_cleanudem_check_fullscreenmode();
+
+    $isinfullscreenmode = theme_cleanudem_get_fullscreenmode_state();
+    $fullscreenbutton = $OUTPUT->fullscreen_button($isinfullscreenmode);
+
+    // Put the fullscreenmode if necessary.
+    if ($isinfullscreenmode) {
+        $bodyclasses[] = 'cleanudem-collapsed';
+    }
+    theme_cleanudem_initialize_fullscreenmode($PAGE);
 }
 ?>
 
-<?php echo $OUTPUT->element('head', array('additionalclasses' => implode(' ', $bodyclasses), 'fontlinks' => $html->fontlinks)); ?>
+<?php echo $OUTPUT->element('head', array('additionalclasses' => $bodyclasses, 'fontlinks' => $html->fontlinks)); ?>
 
-<?php echo $OUTPUT->element('header', array('brand' => '')); ?>
+<?php echo $OUTPUT->element('header', array('brand' => '', 'fullscreenbutton' => $fullscreenbutton)); ?>
 
 <div id="page" class="container-fluid">
 

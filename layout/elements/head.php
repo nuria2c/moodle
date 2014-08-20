@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 if (!isset($vars['additionalclasses'])) {
-    $vars['additionalclasses'] = '';
+    $vars['additionalclasses'] = array();
 }
 if (!isset($vars['fontlinks'])) {
     $vars['fontlinks'] = '';

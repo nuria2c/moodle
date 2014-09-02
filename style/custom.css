@@ -33,6 +33,37 @@
     }
 }
 
+/* Code to compute the width of the input field.
+ * Inserted here because of an incompatibility with the
+ * used less compilor and the CSS calc method.
+ */
+
+.blogsearchform input[type=text],
+.adminsearchform input[type=text],
+.block_search_forums .searchform #searchform_search {
+    width: calc(100% - 38px);
+    max-width: none;
+}
+
+#enrolusersearch,
+#personsearch input[type=text],
+#tag-search-box input[type=text],
+#coursesearch2 .coursesearchbox input[type=text],
+.searchform input[type=text] {
+    width: calc(100% - 100px);
+    max-width: 300px;
+}
+
+#personsearch input[type=text] {
+    width: calc(100% - 105px);
+}
+
+.lang-fr #coursesearch2 .coursesearchbox input[type=text] {
+    width: calc(100% - 80px);
+}
+.lang-en #coursesearch2 .coursesearchbox input[type=text] {
+    width: calc(100% - 55px);
+}
 
 /* Custom CSS Settings
 -------------------------*/

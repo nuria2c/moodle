@@ -39,6 +39,12 @@
     #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
 }
 
+// White filter for images. Useful to transform gray images to white images. Currently only for webkit and firefox.
+.studium-white-filter() {
+    -webkit-filter: brightness(1.7);
+    filter: url([[pix:theme|white]]#white);
+}
+
 // Login buttons.
 .studium-login-btn() {
     font-size: 0.8em;
@@ -55,7 +61,7 @@
     .studium-blue-gradient;
     border-bottom:1px solid @gray;
     border-width:0 0 1px;
-    border-radius:6px 6px 0 0;
+    .border-top-radius(@borderRadiusLarge);
     padding: 3px;
     padding: 5px 8px 3px;
     .studium-dialogue-hd-title;
@@ -66,6 +72,7 @@
     color: @white;
     font-size: 15px;
     line-height: 20px;
+    min-height: 20px;
     margin: 0;
     font-weight: bold;
     text-align: center;
@@ -89,7 +96,7 @@
 .studium-dialogue() {
     border: none;
     background: transparent;
-    border-radius: 8px;
+    .border-radius(8px);
     outline: none;
 }
 
@@ -102,13 +109,13 @@
 
 // Dialogue footer.
 .studium-dialogue-footer() {
-    border-radius:0 0 6px 6px;
+    .border-bottom-radius(5px);
 }
 
 // White controller on white background.
 .studium-white-controller() {
     background: @grayLight;
-    border-radius: 2px;
+    .border-radius(2px);
     padding: 1px;
 }
 
@@ -138,6 +145,15 @@
                         .studium-dialogue-hd-close;
                     }
                 }
+            }
+        }
+        &.moodle-dialogue-fullscreen .moodle-dialogue-wrap {
+            .border-radius(0);
+            .moodle-dialogue-hd {
+                .border-radius(0);
+            }
+            .filemanager.fp-dlg .fp-dlg-text {
+                max-width: 100%;
             }
         }
     }
@@ -291,7 +307,7 @@ body {
     .header {
         .title {
             h2 {
-                border-radius: 4px 4px 0 0;
+                .border-top-radius(@baseBorderRadius);
                 .studium-blue-gradient;
                 text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
                 color: @white;
@@ -320,7 +336,7 @@ body {
             }
         }
         .block_action {
-            padding: 6px 15px;
+            padding: 6px 15px 6px 5px;
             img, .moveto {
                 #region-main & {
                     .studium-white-controller();
@@ -342,14 +358,14 @@ body {
         }
     }
     &.hidden .title h2 {
-        border-radius: 4px;
+        .border-radius(@baseBorderRadius);
         .editing & {
-            border-radius: 4px 4px 0 0;
+            .border-top-radius(@baseBorderRadius);
         }
     }
     .minicalendar {
         background: @white;
-        border-radius: 6px;
+        .border-radius(@borderRadiusLarge);
         th {
             .studium-blue-gradient;
             border-bottom: 1px solid #063963;
@@ -360,10 +376,10 @@ body {
                 border: none;
             }
             &:first-child {
-                border-radius: 6px 0 0;
+                .border-top-left-radius(@borderRadiusLarge);
             }
             &:last-child {
-                border-radius: 0 6px 0 0;
+                .border-top-right-radius(@borderRadiusLarge);
             }
         }
         td.weekend {
@@ -376,13 +392,14 @@ body {
 }
 
 // Block main-region.
-#region-main .block-region{
+#region-main .block-region {
     .block_studium_course_overview .course_session {
         .session_header {
             .studium-blue-gradient;
             .session_action {
                 .block > .header > .block_action;
                 padding: 0;
+                margin-top: 2px;
             }
         }
         h3.session {
@@ -411,15 +428,42 @@ body {
     }
 }
 
-#course_list .course_session {
-    &:first-child .session_header {
-        border-radius: 4px 4px 0 0;
+// Styles for the studium studium_course_overview block.
+.block_studium_course_overview .course_session {
+    margin-bottom: 10px;
+    .session_header {
+        .border-top-radius(@baseBorderRadius);
     }
-    &.collapsed:last-child .session_header {
-        border-radius: 0 0 4px 4px;
+    &.collapsed .session_header {
+        .border-bottom-radius(@baseBorderRadius);
     }
-    &.collapsed:first-child:last-child .session_header {
-        border-radius: 4px;
+    .box.coursebox:last-child {
+        .border-bottom-radius(@baseBorderRadius);
+    }
+
+    .content {
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-top: none;
+        .border-bottom-radius(@baseBorderRadius);
+        @media (max-width: 979px) {
+            .collapsibleregioncaption {
+                box-sizing: border-box;
+                max-width: 425px;
+                overflow: hidden;
+                padding-right: 50px;
+                position: relative;
+                text-overflow: ellipsis;
+                width: 100%;
+                .hideshowlink {
+                    position: absolute;
+                    right: 0;
+                    top: 5px;
+                }
+            }
+        }
+    }
+    &:last-child {
+        margin-bottom: 0;
     }
 }
 
@@ -439,8 +483,27 @@ body {
     max-width: 250px;
 }
 
+.block_progress input[type=submit] {
+    margin-left: 0;
+}
+
 .block .singlebutton > form > div {
     width: 100%;
+    margin-left: 0;
+    input[type="submit"] {
+        margin-left: 0;
+    }
+}
+
+// Block My Profile styling.
+.block_myprofile {
+    .myprofileitem.fullname {
+        font-size: 1.2em;
+        margin-top: 10px;
+    }
+    img.profilepicture {
+        .border-radius(@borderRadiusLarge);
+    }
 }
 
 // Blocks title icons.
@@ -545,6 +608,9 @@ body {
     .block_twitter_search & {
         content:"\f099";
     }
+    .block_bibliotheques & {
+        content:"\f02d";
+    }
 }
 
 // Calendar styling.
@@ -571,19 +637,34 @@ body {
     .dropdown-toggle .caret {
         margin-top: 10px;
     }
-    .usermenu img {
-        border-radius: 4px;
-        margin: -10px 0 -8px 5px;
-        width: 30px;
-        height: 30px;
+    .usermenu {
+        img {
+            .border-radius(@baseBorderRadius);
+            margin: -10px 0 -8px 5px;
+            width: 30px;
+            height: 30px;
+        }
+        & > a {
+            min-width: 120px;
+        }
     }
 }
 
 // Breadcrumb styling.
-.breadcrumb {
-    background: none !important;
-    font-size: 1.1em;
-    padding-left: 0;
+.breadcrumb-nav {
+    margin-bottom: 0;
+    .breadcrumb {
+        background: none !important;
+        font-size: 1.1em;
+        padding-left: 0;
+    }
+}
+
+.breadcrumb-button {
+    margin-top: 2px;
+    .singlebutton input[type="submit"] {
+        margin-bottom: 0;
+    }
 }
 
 #page-site-index .breadcrumb-nav {
@@ -604,6 +685,7 @@ body {
             .dropdown-submenu a:active,
             .dropdown-menu > li > a:hover,
             .dropdown-menu > li > a:focus {
+
                 color: @white;
             }
             &.pull-right {
@@ -883,6 +965,7 @@ body {
         height: 40px;
         margin: 10px 18px 2px 20px;
         width: 1px;
+
     }
     &.white {
         margin: 0;
@@ -899,6 +982,30 @@ body {
             margin-left: 15px;
         }
     }
+    .logo_studium {
+        margin-right: 10px;
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+    // Small logos for mobile devices.
+    &:not(.white) {
+        @media (max-width: 480px) {
+            .logo_udem img {
+                width: 102px;
+                height: auto;
+            }
+            .logo_separator {
+                height: 24px;
+                margin: 8px 15px 1px 14px;
+            }
+            .logo_studium img {
+                width: 103px;
+                height: auto;
+            }
+        }
+    }
+
 }
 
 #id_s_theme_cleanudem_customfontsurl {
@@ -1003,7 +1110,7 @@ h1 .dimmed, .udem_coursehidden {
     font-size: 26px;
     line-height: 24px;
     font-weight: bold;
-    margin: 10px 0 1px 10px;
+    margin: 10px 0 1px;
     .prefixe {
         position: absolute;
         text-indent: -3000px;
@@ -1094,8 +1201,16 @@ p.arrow_button{
 #id_newcategory,
 .user-enroller-panel .close-button input,
 .login-cas input[type=submit],
-.showcoursesection input[type=submit] {
+.showcoursesection input[type=submit],
+#gradetreesubmit input[type=submit] {
     .btn-primary;
+}
+
+#page-grade-edit-tree-index .buttons.mdl-align {
+    margin-top: 10px;
+    .singlebutton {
+        display: inline-block;
+    }
 }
 
 // Remove background hover effect on disabled button primary state.
@@ -1116,7 +1231,7 @@ p.arrow_button{
     background-position: left center;
 }
 
-// Fix for user enrolment add icons.
+// Fixes for user enrolment add icons.
 .userenrolment {
     .col_role .addrole,
     .col_group .addgroup {
@@ -1160,6 +1275,9 @@ p.arrow_button{
                     a, span {
                         white-space: nowrap;
                     }
+                    .menubar img {
+                        .studium-white-filter();
+                    }
                 }
                 h2 {
                     .studium-dialogue-hd-title();
@@ -1174,7 +1292,8 @@ p.arrow_button{
         }
     }
     .dockedtitle {
-        border-radius: 0 6px 6px 0;
+        .border-left-radius(0);
+        .border-right-radius(@borderRadiusLarge);
         background-image: none;
         margin-left: 0;
     }
@@ -1206,7 +1325,7 @@ p.arrow_button{
         }
         .fa {
             border: 2px solid @gray;
-            border-radius: 4px;
+            .border-radius(@baseBorderRadius);
             line-height: 0.85em;
             padding: 1px;
             &:before {
@@ -1275,6 +1394,298 @@ p.arrow_button{
         a {
             margin-left: 0.5em;
             white-space: nowrap;
+        }
+    }
+}
+
+// Action menu (in blocks header and after courses activities).
+.moodle-actionmenu[data-enhanced].show  {
+    .menu {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        li {
+            a {
+                &:hover {
+                    text-decoration: none;
+                    color: @dropdownLinkColorHover;
+                    #gradient > .vertical(@dropdownLinkBackgroundHover, darken(@dropdownLinkBackgroundHover, 5%));
+                    img {
+                        .studium-white-filter();
+                    }
+                }
+                &:first-child, &:last-child {
+                    .border-radius(0);
+                }
+            }
+            &:first-child a {
+                .border-top-radius(@baseBorderRadius);
+            }
+            &:last-child a {
+                .border-bottom-radius(@baseBorderRadius);
+            }
+        }
+    }
+}
+
+// Assignment comment edit box.
+.comment-message-meta {
+    margin-right: 12px;
+}
+
+// Question bank general settings export option checkboxes group.
+#fgroup_id_categorygroup .fgroup span {
+    margin-right: 10px;
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+// Course content.
+.course-content {
+    ul {
+        &.topics, &.weeks {
+            li.section {
+                padding-bottom: 0;
+                .content {
+                    margin: 0;
+                }
+                .left, .right {
+                    width: 34px;
+                }
+            }
+        }
+        &.section {
+            margin: 0 0 0.5em;
+        }
+    }
+    .section-modchooser-link {
+        margin-right: 5px;
+    }
+    li.section {
+        margin: 0;
+        &.current {
+            background-color: lighten(@infoBackground, 2%);
+            border-bottom-color: darken(@infoBackground, 1%) !important;
+        }
+        &#section-0 {
+            background-color: lighten(#F5F5F5, 0.5%);
+        }
+        &.hidden {
+            position: relative;
+            z-index: 1;
+        }
+    }
+}
+
+// UI Overlays.
+#page-group-overview .yui3-overlay,
+.path-grade-report-grader .yui3-overlay {
+    background: @white;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.6);
+    border: 1px solid #CCC;
+    .border-radius(@baseBorderRadius);
+    font-size: 0.8em;
+    padding: 2px 5px;
+    p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// Grades overlays.
+.path-grade-report-grader .yui3-overlay {
+    .fullname {
+        color: @grayDark;
+    }
+    .itemname {
+        color: @studiumPrimaryColorDark;
+    }
+}
+
+// Maintenance warning overlay.
+.maintenancewarning {
+    padding: 3px 1em;
+    text-align: center;
+    position: fixed;
+    bottom:0;
+    right:0;
+    overflow: hidden;
+    z-index: 1;
+    color: @warningText;
+    background-color: @warningBackground;
+    border: 1px solid @warningBorder;
+    box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.4);
+    .border-top-left-radius(@baseBorderRadius);
+    margin:0;
+}
+
+// New message overlay.
+#newmessageoverlay {
+    color: @infoText;
+    background-color: @infoBackground;
+    border: 1px solid @infoBorder;
+    box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.4);
+    .border-top-left-radius(@baseBorderRadius);
+}
+
+/* Inputs and buttons for the search forms. */
+
+.blogsearchform,
+.searchform,
+.adminsearchform {
+    padding: 10px 0 0;
+}
+
+// Text input search field.
+#enrolusersearch,
+#personsearch input[type=text],
+.coursesearchbox input[type=text],
+#tag-search-box input[type=text],
+.searchform input[type=text],
+.blogsearchform input[type=text],
+.adminsearchform input[type=text] {
+    .border-right-radius(0) !important;
+    padding-left: 4px;
+    box-sizing: border-box;
+    height: 28px;
+}
+
+// Submit button for the search.
+#searchbtn,
+#personsearch input[type=submit],
+.coursesearchbox input[type=submit],
+#tag-search-box button,
+.searchform input[type=submit],
+.searchform button,
+.blogsearchform input[type=submit],
+.adminsearchform input[type=submit] {
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    padding: 1px;
+    height: 28px;
+    vertical-align: top;
+    text-indent: -9999px;
+    width: 38px;
+    outline: none;
+    background: @btnPrimaryBackground url([[pix:theme|search]]) center center no-repeat;
+    .border-left-radius(0) !important;
+    margin-left: 0 !important;
+    color: @white !important;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25) !important;
+}
+
+.adminsearchform input[type=submit] {
+    background-color: @studiumSecondaryColor;
+}
+
+#searchbtn:hover,
+#personsearch input[type=submit]:hover,
+.coursesearchbox input[type=submit]:hover,
+#tag-search-box button:hover,
+.searchform input[type=submit]:hover,
+.searchform button:hover,
+.blogsearchform input[type=submit]:hover {
+    background-color: @btnPrimaryBackgroundHighlight;
+}
+
+.adminsearchform input[type=submit]:hover {
+    background-color: @studiumSecondaryColorDark;
+}
+
+#searchbtn,
+#personsearch input[type=submit],
+#tag-search-box button,
+.coursesearchbox input[type=submit],
+.searchform input[type=submit] {
+    background: @btnPrimaryBackground url([[pix:theme|searchreverse]]) 8px center no-repeat;
+    padding-left: 28px;
+    padding-right: 8px;
+    text-indent: 0;
+    width: 100px;
+}
+
+// Fix the white space between text input and the submit button.
+.searchform input[type=submit],
+#personsearch input[type=submit] {
+    position: relative;
+    left: -4px;
+}
+
+// Specific adjustment for some search forms.
+.message_form {
+    width: 100%;
+}
+.coursesearchbox {
+    width: 100%;
+    white-space: nowrap;
+    input[type=submit] {
+        .lang-fr & {
+            width: 80px;
+        }
+        .lang-en & {
+            width: 55px;
+        }
+    }
+    label {
+        #coursesearch2 & {
+            display: block !important;
+        }
+    }
+}
+
+// Layout for the messages.
+#page-message-index .box.message {
+    & > * {
+        float: none;
+        display: inline-block;
+        width: auto;
+        vertical-align: top;
+    }
+    .contactselector {
+        min-width: 220px;
+        border-right: 1px solid #d3d3d3;
+        padding-right: 15px;
+        box-sizing: border-box;
+        margin-right: 10px;
+    }
+    .messagearea {
+        min-height: 0;
+        padding: 21px 0 0;
+        border-left: none;
+    }
+}
+
+// Fixes for choice group table width with iphones;
+.path-mod-choicegroup table {
+    min-width: 980px;
+}
+
+// Fixes for mobiles.
+@media (max-width: 767px) {
+     .loginbox.twocolumns .loginpanel,
+     .loginbox.twocolumns .signuppanel {
+         display: block;
+         float: none;
+         width: 100%;
+         margin-left: 0;
+         .box-sizing(border-box);
+     }
+     #page-mod-quiz-edit div.quizcontents,
+    .questionbankwindow.block {
+        width: 100%;
+        float: none;
+    }
+    #page-mod-quiz-edit #block-region-side-pre,
+    #page-mod-quiz-edit #block-region-side-post {
+        clear: both;
+    }
+ }
+
+// Fix the width of the forum subjects table.
+@media (max-width: 480px) {
+    .path-mod-forum .forumheaderlist .picture {
+        display: table-cell;
+        width: 0;
+        a {
+            display: none;
         }
     }
 }

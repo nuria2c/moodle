@@ -73,7 +73,7 @@ class theme_cleanudem_renderer_helper {
         $logo = html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url('logos/logo_' . $type . $suffix, 'theme'),
             'alt' => get_string('logoof', 'theme_cleanudem', $title)));
         $target = theme_cleanudem_get_target($url);
-        $html = html_writer::link($url, $logo, array('title' => $title, 'target' => $target));
+        $html = html_writer::link($url, $logo, array('title' => $title, 'target' => $target, 'class' => 'logo_' . $type));
         return $html;
     }
 

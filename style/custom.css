@@ -33,6 +33,15 @@
     }
 }
 
+/* Fixes for the page footer. */
+#page.container-fluid {
+    min-height: calc(100vh - 60px);
+}
+
+#page.container-fluid #page-content {
+    -webkit-flex: 1 1 auto;
+}
+
 /* Code to compute the width of the input field.
  * Inserted here because of an incompatibility with the
  * used less compilor and the CSS calc method.

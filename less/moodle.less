@@ -281,11 +281,11 @@ h3 { line-height: @baseLineHeight * 1.5; }
 
 // Fix the web font for Google Chrome.
 body {
-  -webkit-animation-duration: 0.1s;
-  -webkit-animation-name: fontfix;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-timing-function: linear;
-  -webkit-animation-delay: 0.1s;
+    -webkit-animation-duration: 0.1s;
+    -webkit-animation-name: fontfix;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-delay: 0.1s;
 }
 
 @-webkit-keyframes fontfix {
@@ -1395,6 +1395,23 @@ p.arrow_button{
             margin-left: 0.5em;
             white-space: nowrap;
         }
+    }
+}
+
+// Fixes to put the footer on the bottom.
+#page.container-fluid {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    #page-content {
+        flex: 1 1 auto;
     }
 }
 

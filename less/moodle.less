@@ -613,6 +613,43 @@ body {
     }
 }
 
+// "Bibliotheque" Block.
+.block_bibliotheques {
+    // Fixes for the arrows in the tab menu.
+    .EXLTabs li a {
+        padding-left: 5px;
+        &, &.EXLSearchTabSelected {
+            background-image: none;
+            span:before {
+                font-family: @fontAwesome;
+                content: "\f0da";
+                color: @black;
+                font-size: 8px;
+                line-height: 8px;
+                margin-right: 5px;
+                position: relative;
+                top: -1px;
+            }
+        }
+        &.EXLSearchTabSelected span:before {
+            color: #e11837;
+        }
+    }
+    // Fixes for the arrow in "My folder".
+    .bib-nav {
+        &:before {
+            font-family: "FontAwesome";
+            font-size: 1em;
+        }
+        &.up::before {
+            content: "\f0da";
+        }
+        &.down::before {
+            content: "\f0d7";
+        }
+    }
+}
+
 // Calendar styling.
 .minicalendar {
     td, th {

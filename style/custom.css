@@ -63,10 +63,6 @@
     max-width: 300px;
 }
 
-#personsearch input[type=text] {
-    width: calc(100% - 105px);
-}
-
 .lang-fr #coursesearch2 .coursesearchbox input[type=text] {
     width: calc(100% - 80px);
 }

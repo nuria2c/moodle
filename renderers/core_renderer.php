@@ -435,6 +435,108 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     }
 
     /**
+     * Generate the frontpage slide show.
+     *
+     * @return string The generated html fragment.
+     */
+    protected function slideshow() {
+        $numberofslides = $this->page->theme->settings->numberofslides;
+        $slideinterval = $this->page->theme->settings->slideinterval;
+        $html = '';
+        if (!empty($numberofslides)) {
+            $html .= html_writer::start_tag('ol', array('class' => 'carousel-indicators'));
+            for ($s = 0; $s < $numberofslides; $s++) {
+                $class = '';
+                if ($s == 0) {
+                    $class = 'active';
+                }
+                $html .= html_writer::tag('li', '', array('data-target' => '#cleanudemCarousel', 'data-slide-to' => $s,
+                        'class' => $class));
+            }
+            $html .= html_writer::end_tag('ol');
+            $html .= html_writer::start_div('carousel-inner');
+            for ($s = 1; $s <= $numberofslides; $s++) {
+                $html .= $this->slide($s);
+            }
+            $html .= html_writer::end_div();
+
+            $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-left')),
+                    array('class' => 'left carousel-control', 'data-slide' => 'prev',
+                    'title' => get_string('previousslide', 'theme_cleanudem')));
+            $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-right')),
+                    array('class' => 'right carousel-control', 'data-slide' => 'next',
+                    'title' => get_string('nextslide', 'theme_cleanudem')));
+            $attributes = array('id' => 'cleanudemCarousel');
+            if (!empty($slideinterval)) {
+                $attributes['data-interval'] = $slideinterval;
+            }
+            $html = $this->theme_edit_button('theme_cleanudem_slideshow') . html_writer::div($html, 'carousel slide', $attributes);
+            $html = html_writer::div($html, 'span12');
+            $html = html_writer::div($html, 'row-fluid');
+            $html = html_writer::tag('section', $html, array('class' => 'slideshow'));
+        }
+        return $html;
+    }
+
+    /**
+     * Generate the output for a particular slide.
+     *
+     * @param int $id The id of the current slide.
+     * @return string The generated html fragment for one slide.
+     */
+    private function slide($id) {
+        $slideurl = theme_cleanudem_get_setting('slide' . $id .'url');
+        $slideurltarget = theme_cleanudem_get_setting('slide' . $id .'target');
+        $slidetitle = theme_cleanudem_get_setting('slide'.$id, true);
+        $slideclasses = array('item');
+        if ($id === 1) {
+            $slideclasses[] = 'active';
+        }
+
+        $slide = '';
+        // Output if at least the title is present.
+        if ($slidetitle) {
+            $label = '';
+            if ($slidetitle) {
+                $label = $slidetitle;
+                $slide .= $this->heading($slidetitle, 4);
+            }
+            if ($slideurl) {
+                $playicon = html_writer::tag('i', '', array('class' => 'fa fa-play'));
+                $label = get_string('playclip', 'theme_cleanudem', $label);
+                $slide .= html_writer::link($slideurl, $playicon, array('target' => $slideurltarget, 'title' => $label));
+            }
+
+            $slide = html_writer::div($slide, 'carousel-caption-inner');
+            $slide = html_writer::div($slide, 'carousel-caption');
+        }
+
+        $params = array();
+        if (theme_cleanudem_get_setting('slide' . $id .'image')) {
+            $slideimage = $this->page->theme->setting_file_url('slide' . $id .'image', 'slide' . $id . 'image');
+            $params['style'] = 'background-image: url(' . $slideimage . ')';
+        }
+        $slide = html_writer::div($slide, 'slider-size', $params);
+        $slide = html_writer::div($slide, implode(' ', $slideclasses));
+        return $slide;
+    }
+
+    /**
+     * Add a button to edit the settings for a partocular section of the theme.
+     *
+     * @param string $section The section name to open.
+     * @return string The generated html fragment for one slide.
+     */
+    protected function theme_edit_button($section) {
+        global $CFG;
+        if ($this->page->user_is_editing() && is_siteadmin()) {
+            $edit = get_string('edit');
+            return html_writer::link($CFG->wwwroot . '/admin/settings.php?section=' . $section, $edit,
+                    array('class' => 'pull-right editsection', 'title' => $edit));
+        }
+    }
+
+    /**
      * Layout elements.
      *
      * This renderer does not override any existing renderer but provides a way of including

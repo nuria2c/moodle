@@ -25,9 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+theme_cleanudem_initialize_slideshow($PAGE);
+
 // Get the HTML for the settings bits.
 $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 $isediting = $PAGE->user_is_editing();
+$displayslideshow = $PAGE->theme->settings->displayslideshow;
 
 $left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
 
@@ -72,6 +75,9 @@ if ($isediting) {
         <section id="region-main" class="<?php echo implode(' ', $regionmainclasses); ?>">
             <?php
             echo $OUTPUT->course_content_header();
+            if ($displayslideshow) {
+                echo $OUTPUT->slideshow();
+            }
             echo $OUTPUT->main_content();
             echo $OUTPUT->course_content_footer();
             ?>
@@ -82,5 +88,11 @@ if ($isediting) {
     <?php echo $OUTPUT->element('page-footer', array('footernav' => $html->footernav, 'footnote' => $html->footnote)); ?>
 
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        $('.carousel').carousel();
+    });
+</script>
 
 <?php echo $OUTPUT->element('foot');

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>jquery/bootstrap.min.js</location>
+        <name>Bootstrap Carousel required libraries</name>
+        <license>GPL</license>
+        <version>2.3.2</version>
+        <licenseversion>2.0</licenseversion>
+    </library>
+    <library>
+        <location>javascript/blockhider.js</location>
+        <name>Block hider script</name>
+        <license>GPL</license>
+        <version></version>
+        <licenseversion>2.0</licenseversion>
+    </library>
+    <library>
+        <location>javascript/fullscreenmode.js</location>
+        <name>Full screen mode script</name>
+        <license>GPL</license>
+        <version></version>
+        <licenseversion>2.0</licenseversion>
+    </library>
+    <library>
+        <location>javascript/navdropdownbehavior.js</location>
+        <name>Navigation dropdown device detection script</name>
+        <license>GPL</license>
+        <version></version>
+        <licenseversion>2.0</licenseversion>
+    </library>
+</libraries>

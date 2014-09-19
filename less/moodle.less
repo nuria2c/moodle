@@ -119,6 +119,11 @@
     padding: 1px;
 }
 
+/*
+ * Importation of custom less files related to this theme.
+ */
+@import "cleanudem/carousel.less";
+
 /**
  * YUI3 Main dialog boxes :
  * * Add an activity or ressource dialogue box.
@@ -704,8 +709,24 @@ body {
     }
 }
 
-#page-site-index .breadcrumb-nav {
-    display:none;
+// Front page elements.
+#page-site-index {
+    .breadcrumb-nav {
+        display:none;
+    }
+    &:not(.editing) {
+        @media (max-width: 767px) {
+            .section .label .mod-indent-outer {
+                padding-left: 0;
+            }
+            .path-site li.activity > div, .path-course-view li.activity > div {
+                padding: 0;
+            }
+            .logobox {
+                margin-left: 0;
+            }
+        }
+    }
 }
 
 // Navigation fixes for smaller devices.

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean UdeM theme.
+ * This is built using the bootstrapbase template to add jQuery plugins.
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -23,11 +23,24 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+/**
+ * This file describes jQuery plugins available in the moodle
+ * core component. These can be included in page using:
+ *   $PAGE->requires->jquery();
+ *   $PAGE->requires->jquery_plugin('migrate', 'core');
+ *   $PAGE->requires->jquery_plugin('ui', 'core');
+ *   $PAGE->requires->jquery_plugin('ui-css', 'core');
+ *
+ * Please note that other moodle plugins can not use the sample
+ * jquery plugin names, only one is loaded if collision detected.
+ *
+ * Any Moodle plugin may add jquery/plugins.php and include extra
+ * jQuery plugins.
+ *
+ * Themes or other plugin may blacklist any jquery plugin,
+ * for example to override default jQueryUI theme.
+ */
 
-$plugin->version   = 2014091800;
-$plugin->requires  = 2013110500;
-$plugin->component = 'theme_cleanudem';
-$plugin->dependencies = array(
-    'theme_bootstrapbase'  => 2013110500,
+$plugins = array(
+    'bootstrap' => array('files' => array('bootstrap.min.js'))
 );

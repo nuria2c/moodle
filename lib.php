@@ -149,6 +149,16 @@ function theme_cleanudem_initialize_fullscreenmode(moodle_page $page) {
 }
 
 /**
+ * Adds the JavaScript for front page slide show.
+ *
+ * @param moodle_page $page
+ */
+function theme_cleanudem_initialize_slideshow(moodle_page $page) {
+    $page->requires->jquery();
+    $page->requires->jquery_plugin('bootstrap', 'theme_cleanudem');
+}
+
+/**
  * Gets fullscreen mode state the user has selected, or the default if they have never changed.
  *
  * @param string $default The default colour to use, normally red
@@ -186,4 +196,45 @@ function theme_cleanudem_check_fullscreenmode() {
         return set_user_preference('theme_cleanudem_fullscreenmode_state', $fullscreenmodestate);
     }
     return false;
+}
+
+/**
+ * Get the admin setting of the current theme.
+ *
+ * @param string $setting The setting name.
+ * @param string $format The setting format.
+ * @return boolean|string The formatted setting or false if not exist.
+ */
+function theme_cleanudem_get_setting($setting, $format = '') {
+    $theme = theme_config::load('cleanudem');
+    if (empty($theme->settings->$setting)) {
+        return false;
+    } else if (empty($format)) {
+        return $theme->settings->$setting;
+    } else if ($format === 'format_text') {
+        return format_text($theme->settings->$setting);
+    } else {
+        return format_string($theme->settings->$setting);
+    }
+}
+
+/**
+ * Serves any files associated with the theme settings.
+ *
+ * @param stdClass $course
+ * @param stdClass $cm
+ * @param context $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @param array $options
+ * @return bool
+ */
+function theme_cleanudem_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+    if ($context->contextlevel == CONTEXT_SYSTEM && preg_match("/slide[1-9][0-9]*image/", $filearea) !== false) {
+        $theme = theme_config::load('cleanudem');
+        return $theme->setting_file_serve($filearea, $args, $forcedownload, $options);
+    } else {
+        send_file_not_found();
+    }
 }

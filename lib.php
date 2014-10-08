@@ -238,3 +238,21 @@ function theme_cleanudem_pluginfile($course, $cm, $context, $filearea, $args, $f
         send_file_not_found();
     }
 }
+
+/**
+ * Simple function returning a boolean true if user has roles
+ * in any context, otherwise false.
+ * This is the cached and simplified version of the user_has_role_assignment() method.
+ *
+ * @param int $userid The id of the user.
+ * @param int $roleid The role id to retrieve.
+ * @return bool If the user has the specified role in any context.
+ */
+function theme_cleanudem_user_has_role_assignment($userid, $roleid) {
+    $cache = cache::make('theme_cleanudem', 'cachedisstudent');
+    if (!$cachedisstudent = $cache->get('cachedisstudent')) {
+        $cachedisstudent = user_has_role_assignment($userid, $roleid);
+        $cache->set('cachedisstudent', $cachedisstudent);
+    }
+    return $cachedisstudent;
+}

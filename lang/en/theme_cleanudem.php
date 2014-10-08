@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['cachedef_cachedisstudent'] = 'Clean UdeM theme user is student cache';
 $string['choosereadme'] = '
 <div class="clearfix">
 <div class="well">
@@ -57,6 +58,7 @@ $string['footnote'] = 'Footnote';
 $string['footnotedesc'] = 'Whatever you add to this textarea will be displayed in the footer throughout your Moodle site.';
 $string['fullscreenactivated'] = 'The sidebar are currently hidden.';
 $string['logoof'] = 'Logo of {$a}';
+$string['mygrades'] = 'My grades';
 $string['nextslide'] = 'Next slide';
 $string['noslidetitle'] = 'No title for slide {$a->slide}';
 $string['numberofslides'] = 'Number of slides';

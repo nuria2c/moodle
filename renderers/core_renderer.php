@@ -310,6 +310,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     protected function render_user_menu(custom_menu $menu) {
         global $USER;
         $content = '';
+        define('STUDENT_ROLE_ID', 5);
         if (isloggedin() && !isguestuser()) {
             // Add The user menu.
             $fullname = fullname($USER);
@@ -328,6 +329,13 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             // My home.
             $my = get_string('myhome');
             $usermenu->add($my, new moodle_url('/my/index.php'), $my);
+
+            // My grades (only if the user is a student in at least one course).
+            if (theme_cleanudem_user_has_role_assignment($USER->id, STUDENT_ROLE_ID)) {
+                $mygrades = get_string('mygrades', 'theme_cleanudem');
+                $usermenu->add($mygrades, new moodle_url('/grade/report/overview/index.php', array('id' => SITEID,
+                        'userid' => $USER->id)), $mygrades);
+            }
 
             // Forum posts.
             $forumpost = get_string('forumposts', 'forum');

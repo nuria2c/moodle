@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle's Clean UdeM theme.
+ * Theme Clean UdeM cache setup
  *
  * @package   theme_cleanudem
  * @copyright 2014 Universite de Montreal
@@ -23,11 +23,15 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') or die();
 
-$plugin->version   = 2014100900;
-$plugin->requires  = 2013110500;
-$plugin->component = 'theme_cleanudem';
-$plugin->dependencies = array(
-    'theme_bootstrapbase'  => 2013110500,
+$definitions = array(
+
+    // Used to store results of queries about views from the logs.
+    'cachedisstudent' => array(
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true
+    ),
 );

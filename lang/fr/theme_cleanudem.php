@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['cachedef_cachedisstudent'] = 'Cache du thème Clean UdeM déterminant si l\'utilisateur est un étudiant';
 $string['choosereadme'] = '<div class="clearfix">
 <div class="well">
 <h2>Clean UdeM</h2>
@@ -56,6 +57,7 @@ $string['footnote'] = 'Pied de page';
 $string['footnotedesc'] = 'Le contenu de ce champ sera affiché dans le pied-de-page de chaque page.';
 $string['fullscreenactivated'] = 'Les colonnes latérales sont présentement cachées.';
 $string['logoof'] = 'Logo of {$a}';
+$string['mygrades'] = 'Mes notes';
 $string['nextslide'] = 'Diapositive suivante';
 $string['noslidetitle'] = 'Pas de titre pour la diapositive {$a->slide}';
 $string['numberofslides'] = 'Nombre de diapositives';

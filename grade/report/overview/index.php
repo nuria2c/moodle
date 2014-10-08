@@ -40,7 +40,10 @@ require_login($course);
 
 $context = context_course::instance($course->id);
 $systemcontext = context_system::instance();
-require_capability('gradereport/overview:view', $context);
+
+if ($courseid != SITEID) {
+    require_capability('gradereport/overview:view', $context);
+}
 
 if (empty($userid)) {
     require_capability('moodle/grade:viewall', $systemcontext);
@@ -52,6 +55,7 @@ if (empty($userid)) {
 }
 
 $access = false;
+$canviewcoursegrades = (has_capability('moodle/grade:view', $context) && $course->showgrades);
 if (has_capability('moodle/grade:viewall', $systemcontext)) {
     //ok - can view all course grades
     $access = true;
@@ -60,8 +64,8 @@ if (has_capability('moodle/grade:viewall', $systemcontext)) {
     //ok - can view any own grades
     $access = true;
 
-} else if ($userid == $USER->id and has_capability('moodle/grade:view', $context) and $course->showgrades) {
-    //ok - can view own course grades
+} else if ($userid == $USER->id && ($canviewcoursegrades || $courseid == SITEID)) {
+    // Ok - can view own course grades at course level or at site level.
     $access = true;
 
 } else if (has_capability('moodle/grade:viewall', context_user::instance($userid)) and $course->showgrades) {

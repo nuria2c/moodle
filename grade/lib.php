@@ -2626,7 +2626,8 @@ abstract class grade_helper {
             }
 
             // Remove ones we can't see
-            if (!has_capability('gradereport/'.$plugin.':view', $context)) {
+            $issitereportoverview = ($courseid == $SITE->id && $plugin == 'overview');
+            if (!has_capability('gradereport/'.$plugin.':view', $context) && !$issitereportoverview) {
                 continue;
             }
 

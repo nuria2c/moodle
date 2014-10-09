@@ -1763,3 +1763,22 @@ p.arrow_button{
         }
     }
 }
+
+// Quiz module alert boxes.
+#page-mod-quiz-attempt {
+    #connection-error, #connection-ok {
+        .alert;
+        .border-top-radius(0);
+        .border-bottom-radius(8px);
+        border-top-width: 0;
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+    #connection-error {
+        .alert-error;
+    }
+    #connection-ok {
+        .alert-success;
+    }
+}

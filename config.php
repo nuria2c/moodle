@@ -39,14 +39,14 @@ $THEME->name = 'cleanudem';
 $THEME->doctype = 'html5';
 $THEME->parents = array('bootstrapbase');
 $THEME->sheets = array('custom', 'moodle');
-$THEME->parents_exclude_sheets = array('bootstrapbase' => array('moodle'));
+$THEME->parents_exclude_sheets = array('bootstrapbase' => array('moodle', 'editor'));
 $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
 $THEME->enable_dock = true;
 
 $THEME->javascripts = array('blockhider', 'navdropdownbehavior', 'fullscreenmode');
 
-$THEME->editor_sheets = array();
+$THEME->editor_sheets = array('editor');
 
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
 $THEME->csspostprocess = 'theme_cleanudem_process_css';

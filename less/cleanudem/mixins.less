@@ -1,0 +1,87 @@
+/**
+ * StudiUM Mixins for this theme.
+ */
+
+.studium-blue-gradient() {
+    #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
+}
+
+// White filter for images. Useful to transform gray images to white images. Currently only for webkit and firefox.
+.studium-white-filter() {
+    -webkit-filter: brightness(1.7);
+    filter: url([[pix:theme|white]]#white);
+}
+
+// Login buttons.
+.studium-login-btn() {
+    font-size: 0.8em;
+    line-height: 12px;
+    max-width: 138px;
+    white-space: normal;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 8px 18px;
+}
+
+// Dialogue header.
+.studium-dialogue-hd() {
+    .studium-blue-gradient;
+    border-bottom:1px solid @gray;
+    border-width:0 0 1px;
+    .border-top-radius(@borderRadiusLarge);
+    padding: 3px;
+    padding: 5px 8px 3px;
+    .studium-dialogue-hd-title;
+}
+
+// Dialogue header title.
+.studium-dialogue-hd-title() {
+    color: @white;
+    font-size: 15px;
+    line-height: 20px;
+    min-height: 20px;
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 0;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+// Dialogue header close button.
+.studium-dialogue-hd-close() {
+    opacity: 1;
+    padding: 0;
+}
+
+.studium-dialogue-hd-close-wrap() {
+    padding: 0;
+    right: 7px;
+    top: 7px;
+}
+
+// Dialogue main div.
+.studium-dialogue() {
+    border: none;
+    background: transparent;
+    .border-radius(8px);
+    outline: none;
+}
+
+// Dialogue main container.
+.studium-dialogue-container() {
+    border-radius: 8px 8px 6px 6px;
+    border: none;
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6);
+}
+
+// Dialogue footer.
+.studium-dialogue-footer() {
+    .border-bottom-radius(5px);
+}
+
+// White controller on white background.
+.studium-white-controller() {
+    background: @grayLight;
+    .border-radius(2px);
+    padding: 1px;
+}

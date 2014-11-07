@@ -138,7 +138,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the menu.
      */
     protected function render_custom_menu(custom_menu $menu) {
-        global $USER;
+        global $DB;
 
         $helpstring = get_string('help');
 
@@ -188,7 +188,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             }
 
             // Add "Help StudiUM" items in the menu.
-            if (get_course(self::HELP_STUDIUM_COURSE_ID)) {
+            if ($DB->record_exists('course', array('id' => self::HELP_STUDIUM_COURSE_ID))) {
                 $examplesstring = get_string('examples', 'theme_cleanudem');
                 $teacherforumstring = get_string('teacher_forum', 'theme_cleanudem');
                 $studentforumstring = get_string('student_forum', 'theme_cleanudem');

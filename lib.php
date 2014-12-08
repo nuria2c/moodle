@@ -83,7 +83,7 @@ function theme_cleanudem_get_html_for_settings(renderer_base $output, moodle_pag
 
     $return->footnote = '';
     if (!empty($page->theme->settings->footnote)) {
-        $return->footnote = html_writer::div($page->theme->settings->footnote, 'footnote text-center');
+        $return->footnote = html_writer::div(format_text($page->theme->settings->footnote), 'footnote text-center');
     }
 
     $return->fontlinks = '';

@@ -191,6 +191,10 @@
                 .ie9 & {
                     padding-right: 45px;
                 }
+                .invisible& {
+                    #gradient > .vertical(#d4d4d4, #b3b3b3);
+                    text-shadow: none;
+                }
             }
             h2:before {
                 font-family: @fontAwesome;
@@ -256,6 +260,14 @@
         }
         caption {
             margin-bottom: 0.5em;
+        }
+    }
+    &.invisible {
+        opacity: 1;
+        background-color: #fafafa;
+        border-color: #f1f1f1;
+        .menubar img {
+            opacity: 0.5;
         }
     }
 }
@@ -1400,6 +1412,19 @@ p.arrow_button{
         &.section {
             margin: 0 0 0.5em;
         }
+        li.section.hidden {
+            opacity: 1;
+            color: #999;
+            a {
+                color: #999;
+            }
+            img {
+                opacity: 0.5;
+            }
+            .moodle-actionmenu img {
+                opacity: 1;
+            }
+        }
     }
     .section-modchooser-link {
         margin-right: 5px;
@@ -1412,10 +1437,6 @@ p.arrow_button{
         }
         &#section-0 {
             background-color: lighten(#F5F5F5, 0.5%);
-        }
-        &.hidden {
-            position: relative;
-            z-index: 1;
         }
     }
 }

@@ -84,20 +84,21 @@ class theme_cleanudem_renderer_helper {
      */
     private static function site_fullname() {
         global $CFG, $SITE;
-        $default = 'studium';
+        $prefix = get_string('studium', 'theme_cleanudem');
         $fullname = '';
+
+        // If the site is not in production.
         if (!empty($CFG->udemlevel) && $CFG->udemlevel == UdeMLevel::Prod) {
             return $fullname;
         }
-        $separator = ' ';
-        $fullnameparts = explode($separator, $SITE->fullname);
-        if (count($fullnameparts) > 1 && strtolower($fullnameparts[0]) == $default) {
-            $fullnameparts[0] = html_writer::tag('span', $fullnameparts[0], array('class' => 'prefixe'));
-            $fullname = implode($separator, $fullnameparts);
+
+        // If the site name begin with the prefix.
+        if (strpos($SITE->fullname, $prefix) === 0) {
+            $fullname = str_replace($prefix, html_writer::tag('span', $prefix, array('class' => 'prefix')), $SITE->fullname);
         } else {
             $fullname = $SITE->fullname;
         }
-        return html_writer::tag('span', $fullname, array('id' => 'site_fullname'));
+        return html_writer::tag('h1', $fullname, array('id' => 'site_fullname'));
     }
 
     /**

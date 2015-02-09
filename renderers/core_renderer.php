@@ -452,28 +452,32 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
         $slideinterval = $this->page->theme->settings->slideinterval;
         $html = '';
         if (!empty($numberofslides)) {
-            $html .= html_writer::start_tag('ol', array('class' => 'carousel-indicators'));
-            for ($s = 0; $s < $numberofslides; $s++) {
-                $class = '';
-                if ($s == 0) {
-                    $class = 'active';
+            if ($numberofslides > 1) {
+                $html .= html_writer::start_tag('ol', array('class' => 'carousel-indicators'));
+                for ($s = 0; $s < $numberofslides; $s++) {
+                    $class = '';
+                    if ($s == 0) {
+                        $class = 'active';
+                    }
+                    $html .= html_writer::tag('li', '', array('data-target' => '#cleanudemCarousel', 'data-slide-to' => $s,
+                            'class' => $class));
                 }
-                $html .= html_writer::tag('li', '', array('data-target' => '#cleanudemCarousel', 'data-slide-to' => $s,
-                        'class' => $class));
+                $html .= html_writer::end_tag('ol');
             }
-            $html .= html_writer::end_tag('ol');
             $html .= html_writer::start_div('carousel-inner');
             for ($s = 1; $s <= $numberofslides; $s++) {
                 $html .= $this->slide($s);
             }
             $html .= html_writer::end_div();
 
-            $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-left')),
-                    array('class' => 'left carousel-control', 'data-slide' => 'prev',
-                    'title' => get_string('previousslide', 'theme_cleanudem')));
-            $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-right')),
-                    array('class' => 'right carousel-control', 'data-slide' => 'next',
-                    'title' => get_string('nextslide', 'theme_cleanudem')));
+            if ($numberofslides > 1) {
+                $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-left')),
+                        array('class' => 'left carousel-control', 'data-slide' => 'prev',
+                        'title' => get_string('previousslide', 'theme_cleanudem')));
+                $html .= html_writer::link('#cleanudemCarousel', html_writer::tag('i', '', array('class' => 'fa fa-chevron-right')),
+                        array('class' => 'right carousel-control', 'data-slide' => 'next',
+                        'title' => get_string('nextslide', 'theme_cleanudem')));
+            }
             $attributes = array('id' => 'cleanudemCarousel');
             if (!empty($slideinterval)) {
                 $attributes['data-interval'] = $slideinterval;

@@ -384,14 +384,14 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                 $method = 'get';
                 $content .= html_writer::start_div('login-buttons pull-right');
                 $url->param('authCAS', 'CAS');
-                $content .= $OUTPUT->single_button($url, get_string('acceslogincas', 'auth_cas'), $method,
+                $content .= $OUTPUT->single_button($url, get_string('acceslogincas', 'local_custompages'), $method,
                         array('class' => 'login login-cas buttonemphasis',
-                        'tooltip' => get_string('acceslogincastitle', 'auth_cas')));
+                        'tooltip' => get_string('acceslogincastitle', 'local_custompages')));
                 if (udem_is_multiauth_cas()) {
                     $url->param('authCAS', 'NOCAS');
-                    $content .= $OUTPUT->single_button($url, get_string('accesloginnocas', 'auth_cas'), $method,
-                            array('class' => 'login login-nocas', 'tooltip' => get_string('accesloginnocastitle', 'auth_cas')));
-                    $content .= $OUTPUT->help_icon('accesloginnocas', 'auth_cas');
+                    $content .= $OUTPUT->single_button($url, get_string('accesloginnocas', 'local_custompages'), $method,
+                            array('class' => 'login login-nocas', 'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
+                    $content .= $OUTPUT->help_icon('accesloginnocas', 'local_custompages');
                 }
                 $content .= html_writer::end_div();
             }

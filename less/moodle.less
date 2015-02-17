@@ -1140,7 +1140,9 @@ p.arrow_button{
 .user-enroller-panel .close-button input,
 .login-cas input[type=submit],
 .showcoursesection input[type=submit],
-#gradetreesubmit input[type=submit] {
+#gradetreesubmit input[type=submit],
+#udem_enrol_confirm input.enrol,
+#page-enrol-unenroluser #notice .buttons .singlebutton:first-child input[type=submit] {
     .btn-primary;
 }
 
@@ -1167,19 +1169,6 @@ p.arrow_button{
 // Fix for course icons positions
 .coursebox > .info > .coursename a {
     background-position: left center;
-}
-
-// Fixes for user enrolment add icons.
-.userenrolment {
-    .col_role .addrole,
-    .col_group .addgroup {
-        background-color: @white;
-        border: 1px solid #dff0d8;
-        margin: 6px 3px;
-        a img {
-            vertical-align: baseline;
-        }
-    }
 }
 
 // Course category title.
@@ -1642,7 +1631,7 @@ p.arrow_button{
     }
  }
 
-// Fix the width of the forum subjects table.
+// Fixes for portable devices.
 @media (max-width: 480px) {
     .path-mod-forum .forumheaderlist .picture {
         display: table-cell;
@@ -1650,6 +1639,48 @@ p.arrow_button{
         a {
             display: none;
         }
+    }
+    #page-mod-forum-discuss {
+        .discussioncontrols {
+            .discussioncontrol {
+                .singleselect {
+                    display: block;
+                    select {
+                        display: inline-block;
+                    }
+                }
+                select {
+                    max-width: 100%;
+                }
+                &.displaymode, &.movediscussion {
+                    margin: 0 0 7px;
+                    width: 100%;
+                    text-align: right;
+                }
+                .urlselect {
+                    select, input[type="submit"] {
+                        margin-bottom: 2px;
+                    }
+                }
+            }
+        }
+        .forum-post-rating select.postratingmenu {
+            display: block;
+            max-width: 75px;
+        }
+    }
+    #page-mod-quiz-edit #id_movetocategory,
+    .que.match .answer .control select,
+    .que.gapselect .qtext .control select {
+         text-overflow: ellipsis;
+         overflow: hidden;
+    }
+    #page-mod-quiz-edit #id_movetocategory,
+    .que.gapselect .qtext .control select {
+         max-width: 266px;
+    }
+    .que.match .answer .control select {
+        max-width: 190px;
     }
 }
 

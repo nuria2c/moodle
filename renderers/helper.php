@@ -115,31 +115,32 @@ class theme_cleanudem_renderer_helper {
             'href' => $OUTPUT->pix_url('favicon', 'theme')
         ));
 
-        // Ipad.
+        // Ipad 2 and Ipad mini.
         $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon-precomposed',
-            'sizes' => '72x72',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-72x72-precomposed', 'theme')
+            'rel' => 'apple-touch-icon',
+            'sizes' => '76x76',
+            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-76x76', 'theme')
         ));
 
-        // Iphone with retina display.
+        // Iphone with 2x retina display.
         $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon-precomposed',
-            'sizes' => '114x114',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-114x114-precomposed', 'theme')
+            'rel' => 'apple-touch-icon',
+            'sizes' => '120x120',
+            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-120x120', 'theme')
         ));
 
-        // Ipad with retina display.
+        // Ipad with 2x retina display.
         $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon-precomposed',
-            'sizes' => '144x144',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-144x144-precomposed', 'theme')
+            'rel' => 'apple-touch-icon',
+            'sizes' => '152x152',
+            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-152x152', 'theme')
         ));
 
-        // Apple and Android default.
+        // Iphone with 3x retina display.
         $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon-precomposed',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-precomposed', 'theme')
+            'rel' => 'apple-touch-icon',
+            'sizes' => '180x180',
+            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-180x180', 'theme')
         ));
 
         // Apple default.

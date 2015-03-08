@@ -87,6 +87,15 @@ if (is_siteadmin()) {
     $setting->set_updatedcallback('theme_reset_all_caches');
     $pagesettings->add($setting);
 
+    // User logged in help menu.
+    $name = 'theme_cleanudem/loggedhelpmenuitems';
+    $title = new lang_string('loggedhelpmenuitems', 'theme_cleanudem');
+    $description = new lang_string('loggedhelpmenuitems_desc', 'theme_cleanudem');
+    $default = '';
+    $setting = new admin_setting_configtextarea($name, $title, $description, $default, PARAM_TEXT, '50', '10');
+    $setting->set_updatedcallback('theme_reset_all_caches');
+    $pagesettings->add($setting);
+
     // Use max width for side regions.
     $name = 'theme_cleanudem/sideregionsmaxwidth';
     $title = get_string('sideregionsmaxwidth', 'theme_cleanudem');

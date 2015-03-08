@@ -38,11 +38,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     const HIDDEN_COURSE = 'hiddencourse';
 
     /**
-     * The identifier of the course Help StudiUM.
-     */
-    const HELP_STUDIUM_COURSE_ID = 11;
-
-    /**
      * The key word and the name of the class divider for adding a divider in the menu.
      */
     const DIVIDER = 'divider';
@@ -115,17 +110,80 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     }
 
     /**
+     * Output the custom menu.
      * Add the javascript who control the behavior of an item who have a dropdown menu.
+     * Add logged in help menu items.
      *
      * @param string $custommenuitems The menu items definition in syntax required by {@link convert_text_to_menu_nodes()}
      * @return string the rendered custom menu.
      */
     public function custom_menu($custommenuitems = '') {
+        global $CFG;
         $this->page->requires->yui_module(
             'moodle-theme_cleanudem-navdropdownbehavior',
             'M.theme_cleanudem.init_nav_dropdown_behavior'
         );
-        return parent::custom_menu($custommenuitems);
+
+        if (empty($custommenuitems) && !empty($CFG->custommenuitems)) {
+            $custommenuitems = $CFG->custommenuitems;
+        }
+
+        $custommenu = new custom_menu($custommenuitems, current_language());
+
+        // Add logged in help menu items.
+        $loggedhelpmenuitems = $this->page->theme->settings->loggedhelpmenuitems;
+        if (!empty($loggedhelpmenuitems) && isloggedin() && !isguestuser()) {
+            $helpmenu = new custom_menu($loggedhelpmenuitems, current_language());
+            self::add_help_menu_items($custommenu, $helpmenu);
+        }
+
+        return $this->render_custom_menu($custommenu);
+    }
+
+    /**
+     * Add items to an help menu.
+     *
+     * @param custom_menu $menu The menu containing the help menu item.
+     * @param custom_menu $helpmenu The help menu who contains help items to add.
+     */
+    private static function add_help_menu_items(custom_menu $menu, custom_menu $helpmenu) {
+
+        // Do nothing if there is no help menu items.
+        if (!$helpmenu->has_children()) {
+            return;
+        }
+
+        // Find "Help" menu and add it if not exists.
+        $helpstring = get_string('help');
+        foreach ($menu->get_children() as $child) {
+            if ($child->get_text() == $helpstring) {
+                $help = $child;
+                break;
+            }
+        }
+
+        // If the help menu is not defined in the standard custom menu, create one.
+        if (empty($help)) {
+            $help = $menu->add($helpstring, new moodle_url('#'), $helpstring, 0);
+        }
+
+        // Add each logged in help item in the menu.
+        foreach ($helpmenu->get_children() as $child) {
+            self::add_custom_menu_item($help, $child);
+        }
+    }
+
+    /**
+     * Add recursively an item to a custom menu item.
+     *
+     * @param custom_menu_item $menu The menu who will contains the item to add.
+     * @param custom_menu_item $item The item to add in the menu.
+     */
+    private static function add_custom_menu_item(custom_menu_item $menu, custom_menu_item $item) {
+        $newitem = $menu->add($item->get_text(), $item->get_url(), $item->get_title());
+        foreach ($item->get_children() as $child) {
+            self::add_custom_menu_item($newitem, $child);
+        }
     }
 
     /**
@@ -138,21 +196,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the menu.
      */
     protected function render_custom_menu(custom_menu $menu) {
-        global $DB;
-
-        $helpstring = get_string('help');
-
-        // Find "Help" menu and add it if not exists.
-        foreach ($menu->get_children() as $child) {
-            if ($child->get_text() == $helpstring) {
-                $help = $child;
-                break;
-            }
-        }
-
-        if (!isset($help)) {
-            $help = $menu->add($helpstring, new moodle_url('#'), $helpstring, 0);
-        }
 
         // Add "Home" in the menu.
         $menu->add(get_string('home'), new moodle_url('/?redirect=0'), get_string('home'), -5);
@@ -186,18 +229,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                     $menu->add(get_string('myhome'), new moodle_url('/my/index.php'), get_string('myhome'), -3);
                 }
             }
-
-            // Add "Help StudiUM" items in the menu.
-            if ($DB->record_exists('course', array('id' => self::HELP_STUDIUM_COURSE_ID))) {
-                $examplesstring = get_string('examples', 'theme_cleanudem');
-                $teacherforumstring = get_string('teacher_forum', 'theme_cleanudem');
-                $studentforumstring = get_string('student_forum', 'theme_cleanudem');
-                $help->add($examplesstring, new moodle_url('/mod/page/view.php?id=30870'), $examplesstring);
-                $help->add($teacherforumstring, new moodle_url('/mod/forum/view.php?id=249'), $teacherforumstring);
-                $help->add($studentforumstring, new moodle_url('/mod/forum/view.php?id=250'), $studentforumstring);
-            }
-            $requestcoursesitestring = get_string('requestcoursesite', 'theme_cleanudem');
-            $help->add($requestcoursesitestring, new moodle_url('/course/index.php?categoryid=1'), $requestcoursesitestring);
         }
 
         return parent::render_custom_menu($menu);
@@ -390,7 +421,8 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                 if (udem_is_multiauth_cas()) {
                     $url->param('authCAS', 'NOCAS');
                     $content .= $OUTPUT->single_button($url, get_string('accesloginnocas', 'local_custompages'), $method,
-                            array('class' => 'login login-nocas', 'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
+                            array('class' => 'login login-nocas',
+                                'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
                     $content .= $OUTPUT->help_icon('accesloginnocas', 'local_custompages');
                 }
                 $content .= html_writer::end_div();

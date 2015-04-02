@@ -529,6 +529,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The generated html fragment for one slide.
      */
     private function slide($id) {
+        $slideuseplaybuttonaslink = theme_cleanudem_get_setting('slideuseplaybuttonaslink' . $id );
         $slideurl = theme_cleanudem_get_setting('slide' . $id .'url');
         $slideurltarget = theme_cleanudem_get_setting('slide' . $id .'target');
         $slidetitle = theme_cleanudem_get_setting('slide'.$id, true);
@@ -543,12 +544,16 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $label = '';
             if ($slidetitle) {
                 $label = $slidetitle;
-                $slide .= $this->heading($slidetitle, 4);
+                if ($slideurl && empty($slideuseplaybuttonaslink)) {
+                    $label = html_writer::link($slideurl, $label, array('target' => $slideurltarget, 'title' => $label));
+                }
+                $slide .= $this->heading($label, 4);
             }
-            if ($slideurl) {
+            if ($slideurl && !empty($slideuseplaybuttonaslink)) {
                 $playicon = html_writer::tag('i', '', array('class' => 'fa fa-play'));
                 $label = get_string('playclip', 'theme_cleanudem', $label);
-                $slide .= html_writer::link($slideurl, $playicon, array('target' => $slideurltarget, 'title' => $label));
+                $slide .= html_writer::link($slideurl, $playicon, array('class' => 'play-button', 'target' => $slideurltarget,
+                        'title' => $label));
             }
 
             $slide = html_writer::div($slide, 'carousel-caption-inner');

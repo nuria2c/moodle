@@ -171,6 +171,14 @@ if (is_siteadmin()) {
         $setting->set_updatedcallback('theme_reset_all_caches');
         $pagesettings->add($setting);
 
+        // Use play button as link.
+        $name = 'theme_cleanudem/slideuseplaybuttonaslink' . $i;
+        $title = get_string('useplaybuttonaslink', 'theme_cleanudem');
+        $description = get_string('useplaybuttonaslinkdesc', 'theme_cleanudem');
+        $setting = new admin_setting_configcheckbox($name, $title, $description, '1');
+        $setting->set_updatedcallback('theme_reset_all_caches');
+        $pagesettings->add($setting);
+
         // URL.
         $name = 'theme_cleanudem/slide' . $i . 'url';
         $title = get_string('slideurl', 'theme_cleanudem');

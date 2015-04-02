@@ -33,7 +33,7 @@
                     line-height: 2em * @size;
                     font-size: 26px * @size;
                 }
-                a {
+                a.play-button {
                     .studium-carousel-play-button-radius(38px * @size);
                 }
             }
@@ -66,7 +66,7 @@
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1;
+            z-index: 0;
             .carousel-caption-inner {
                 margin: 0 auto;
             }
@@ -79,8 +79,16 @@
                 padding: 0.5% 15%;
                 background-color: rgba(0,0,0,0.35);
                 margin: 0;
+                a {
+                    height: auto;
+                    text-decoration: underline;
+                    color: @white;
+                    &:hover {
+                        text-decoration: none;
+                    }
+                }
             }
-            a {
+            a.play-button {
                 position: absolute;
                 left: 50%;
                 top: 50%;

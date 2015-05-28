@@ -27,6 +27,9 @@ if (!isset ($config->logoutcas)) {
 if (!isset ($config->multiauth)) {
     $config->multiauth = '';
 }
+if (!isset($config->multiauthalternateurl)) {
+    $config->multiauthalternateurl = '';
+}
 if (!isset ($config->certificate_check)) {
     $config->certificate_check = '';
 }
@@ -195,6 +198,16 @@ if (!ldap_paged_results_supported($config->ldap_version)) {
     </td>
     <td>
         <?php print_string('auth_cas_multiauth', 'auth_cas') ?>
+    </td>
+</tr>
+<tr valign="top" class="required">
+    <td align="right"><?php print_string('auth_cas_multiauthalternateurl_key', 'auth_cas') ?>:</td>
+    <td>
+       <input name="multiauthalternateurl" type="text" size="30" value="<?php echo $config->multiauthalternateurl ?>" />
+       <?php if (isset($err['multiauthalternateurl'])) { echo $OUTPUT->error_text($err['multiauthalternateurl']); } ?>
+    </td>
+    <td>
+        <?php print_string('auth_cas_multiauthalternateurl', 'auth_cas') ?>
     </td>
 </tr>
 <tr valign="top"  class="required">

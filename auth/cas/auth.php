@@ -94,7 +94,7 @@ class auth_plugin_cas extends auth_plugin_ldap {
         global $SESSION, $OUTPUT, $PAGE;
 
         $site = get_site();
-        $CASform = get_string('CASform', 'auth_cas');
+        $casform = get_string('CASform', 'auth_cas');
         $username = optional_param('username', '', PARAM_RAW);
         $courseid = optional_param('courseid', 0, PARAM_INT);
 
@@ -126,14 +126,19 @@ class auth_plugin_cas extends auth_plugin_ldap {
             // Show authentication form for multi-authentication.
             // Test pgtIou parameter for proxy mode (https connection in background from CAS server to the php server).
             if ($authCAS != 'CAS' && !isset($_GET['pgtIou'])) {
-                $PAGE->set_url('/login/index.php');
-                $PAGE->navbar->add($CASform);
-                $PAGE->set_title("$site->fullname: $CASform");
-                $PAGE->set_heading($site->fullname);
-                echo $OUTPUT->header();
-                include($CFG->dirroot.'/auth/cas/cas_form.html');
-                echo $OUTPUT->footer();
-                exit();
+                // Use alternate multi-authentication URL.
+                if (empty($this->config->multiauthalternateurl)) {
+                    $PAGE->set_url('/login/index.php');
+                    $PAGE->navbar->add($casform);
+                    $PAGE->set_title("$site->fullname: $casform");
+                    $PAGE->set_heading($site->fullname);
+                    echo $OUTPUT->header();
+                    include($CFG->dirroot.'/auth/cas/cas_form.html');
+                    echo $OUTPUT->footer();
+                    exit();
+                } else {
+                    redirect($this->config->multiauthalternateurl);
+                }
             }
         }
 
@@ -254,6 +259,9 @@ class auth_plugin_cas extends auth_plugin_ldap {
         if ($form->certificate_check && empty($certificate_path)) {
             $err['certificate_path'] = get_string('auth_cas_certificate_path_empty', 'auth_cas');
         }
+        if (!$form->multiauth && $form->multiauthalternateurl != '') {
+            $err['multiauthalternateurl'] = get_string('auth_cas_multiauthalternateurl_validation', 'auth_cas');
+        }
     }
 
     /**
@@ -295,6 +303,9 @@ class auth_plugin_cas extends auth_plugin_ldap {
         }
         if (!isset($config->multiauth)) {
             $config->multiauth = '';
+        }
+        if (!isset($config->multiauthalternateurl)) {
+            $config->multiauthalternateurl = '';
         }
         if (!isset($config->certificate_check)) {
             $config->certificate_check = '';
@@ -372,6 +383,7 @@ class auth_plugin_cas extends auth_plugin_ldap {
         set_config('proxycas', $config->proxycas, $this->pluginconfig);
         set_config('logoutcas', $config->logoutcas, $this->pluginconfig);
         set_config('multiauth', $config->multiauth, $this->pluginconfig);
+        set_config('multiauthalternateurl', $config->multiauthalternateurl, $this->pluginconfig);
         set_config('certificate_check', $config->certificate_check, $this->pluginconfig);
         set_config('certificate_path', $config->certificate_path, $this->pluginconfig);
         set_config('logout_return_url', $config->logout_return_url, $this->pluginconfig);

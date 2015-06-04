@@ -13,14 +13,32 @@ blockhider.prototype = {
         var b = this.get('block'),
             c = b.one('.content'),
             t = b.one('.title'),
-            a = null;
+            a = null,
+            hide,
+            show;
         if (t && (a = t.one('.block_action')) && !a.one('img') && !t.hasClass('ui-mobile-title')) {
-            var hide = Y.Node.create('<img class="block-hider-hide" tabindex="0" alt="' + config.tooltipVisible + '" title="' + config.tooltipVisible + '" />');
-            hide.setAttribute('src', this.get('iconVisible')).on('click', this.updateState, this, true);
+            hide = Y.Node.create('<img />')
+                .addClass('block-hider-hide')
+                .setAttrs({
+                    alt:        config.tooltipVisible,
+                    src:        this.get('iconVisible'),
+                    tabindex:   0,
+                    'title':    config.tooltipVisible
+                });
             hide.on('keypress', this.updateStateKey, this, true);
-            var show = Y.Node.create('<img class="block-hider-show" tabindex="0" alt="' + config.tooltipHidden + '" title="' + config.tooltipHidden + '" />');
-            show.setAttribute('src', this.get('iconHidden')).on('click', this.updateState, this, false);
+            hide.on('click', this.updateState, this, true);
+
+            show = Y.Node.create('<img />')
+                .addClass('block-hider-show')
+                .setAttrs({
+                    alt:        config.tooltipHidden,
+                    src:        this.get('iconHidden'),
+                    tabindex:   0,
+                    'title':    config.tooltipHidden
+                });
             show.on('keypress', this.updateStateKey, this, false);
+            show.on('click', this.updateState, this, false);
+
             t.on('dblclick', this.updateState, this);
             a.insert(show, 0).insert(hide, 0);
         }

@@ -233,6 +233,10 @@ function theme_cleanudem_get_setting($setting, $format = '') {
 function theme_cleanudem_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
     if ($context->contextlevel == CONTEXT_SYSTEM && preg_match("/slide[1-9][0-9]*image/", $filearea) !== false) {
         $theme = theme_config::load('cleanudem');
+        // By default, theme files must be cache-able by both browsers and proxies.
+        if (!array_key_exists('cacheability', $options)) {
+            $options['cacheability'] = 'public';
+        }
         return $theme->setting_file_serve($filearea, $args, $forcedownload, $options);
     } else {
         send_file_not_found();

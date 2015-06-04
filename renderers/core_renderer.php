@@ -323,11 +323,14 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     }
 
     /**
-     * Add a user menu.
+     * Construct a user menu, returning HTML that can be echoed out by a
+     * layout file.
      *
+     * @param stdClass $user A user object, usually $USER.
+     * @param bool $withlinks true if a dropdown should be built.
      * @return string The html fragment of the user menu.
      */
-    public function user_menu() {
+    public function user_menu($user = null, $withlinks = null) {
         $usermenu = new custom_menu('', current_language());
         return $this->render_user_menu($usermenu);
     }

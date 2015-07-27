@@ -525,9 +525,16 @@ table.quizreviewsummary td.cell {
 #page-mod-quiz-edit .maxgrade,
 #page-mod-quiz-edit .totalpoints {
     display: block;
-    float: right;
-    margin: -2.5em 1em 0em 1em;
     padding: .2em;
+}
+#page-mod-quiz-edit .maxgrade {
+    float: left;
+}
+#page-mod-quiz-edit .totalpoints {
+    float: right;
+}
+#page-mod-quiz-edit #repaginatecommand {
+    margin: 0.2em 0 0.6em 0.4em;
 }
 #page-mod-quiz-edit .maxgrade label {
     display: inline;

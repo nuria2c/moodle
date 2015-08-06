@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2015040200;
+$plugin->version   = 2015080700;
 $plugin->requires  = 2014110400;
 $plugin->component = 'theme_cleanudem';
 $plugin->dependencies = array(

@@ -244,4 +244,80 @@ class backup_cron_helper_testcase extends advanced_testcase {
         $next = backup_cron_automated_helper::calculate_next_automated_backup($timezone, $now);
         $this->assertEquals(date('w-20:00'), date('w-H:i', $next));
     }
+
+    /**
+     * Test {@link backup_cron_automated_helper::get_backups_to_remove}.
+     */
+    public function test_get_backups_to_remove() {
+        $this->resetAfterTest();
+        // Active only backup_auto_keep config to 2 days.
+        set_config('backup_auto_keep', '2', 'backup');
+        set_config('backup_auto_remove_days', '0', 'backup');
+        set_config('backup_auto_num_never_remove', '0', 'backup');
+
+        // No backups to remove.
+        $backupfiles = array(
+            '1000000000' => 'file1.mbz',
+            '1000432000' => 'file3.mbz'
+        );
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1000432000);
+        $this->assertFalse($removedbackups);
+
+        // Older backup to remove.
+        $backupfiles['1000172800'] = 'file2.mbz';
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1000432000);
+        $this->assertEquals(1, count($removedbackups));
+        $this->assertArrayHasKey('1000000000', $backupfiles);
+        $this->assertEquals('file1.mbz', $backupfiles['1000000000']);
+
+        // Activate backup_auto_keep to 5 days and backup_auto_remove_days to 10 days.
+        set_config('backup_auto_keep', '5', 'backup');
+        set_config('backup_auto_remove_days', '10', 'backup');
+        set_config('backup_auto_num_never_remove', '0', 'backup');
+
+        // No backups to remove. Timestamp is 1000000000 + 10 days.
+        $backupfiles['1000432001'] = 'file4.mbz';
+        $backupfiles['1000864000'] = 'file5.mbz';
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1000864000);
+        $this->assertFalse($removedbackups);
+
+        // One old backup to remove. Timestamp is 1000000000 + 10 days + 1 second.
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1000864001);
+        $this->assertEquals(1, count($removedbackups));
+        $this->assertArrayHasKey('1000000000', $backupfiles);
+        $this->assertEquals('file1.mbz', $backupfiles['1000000000']);
+
+        // Two old backups to remove. Timestamp is 1000000000 + 12 days + 1 second.
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1001036801);
+        $this->assertEquals(2, count($removedbackups));
+        $this->assertArrayHasKey('1000000000', $backupfiles);
+        $this->assertEquals('file1.mbz', $backupfiles['1000000000']);
+        $this->assertArrayHasKey('1000172800', $backupfiles);
+        $this->assertEquals('file2.mbz', $backupfiles['1000172800']);
+
+        // Activate backup_auto_keep to 5 days, backup_auto_remove_days to 10 days and backup_auto_num_never_remove to 2.
+        set_config('backup_auto_keep', '5', 'backup');
+        set_config('backup_auto_remove_days', '10', 'backup');
+        set_config('backup_auto_num_never_remove', '2', 'backup');
+
+        // Three instead of four old backups are removed. Timestamp is 1000000000 + 16 days.
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1001382400);
+        $this->assertEquals(3, count($removedbackups));
+        $this->assertArrayHasKey('1000000000', $backupfiles);
+        $this->assertEquals('file1.mbz', $backupfiles['1000000000']);
+        $this->assertArrayHasKey('1000172800', $backupfiles);
+        $this->assertEquals('file2.mbz', $backupfiles['1000172800']);
+        $this->assertArrayHasKey('1000432000', $backupfiles);
+        $this->assertEquals('file3.mbz', $backupfiles['1000432000']);
+
+        // Three instead of all five backups are removed. Timestamp is 1000000000 + 60 days.
+        $removedbackups = backup_cron_automated_helper::get_backups_to_remove($backupfiles, 1005184000);
+        $this->assertEquals(3, count($removedbackups));
+        $this->assertArrayHasKey('1000000000', $backupfiles);
+        $this->assertEquals('file1.mbz', $backupfiles['1000000000']);
+        $this->assertArrayHasKey('1000172800', $backupfiles);
+        $this->assertEquals('file2.mbz', $backupfiles['1000172800']);
+        $this->assertArrayHasKey('1000432000', $backupfiles);
+        $this->assertEquals('file3.mbz', $backupfiles['1000432000']);
+    }
 }

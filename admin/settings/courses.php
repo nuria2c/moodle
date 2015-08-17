@@ -226,21 +226,6 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
     );
     $temp->add(new admin_setting_configselect('backup/backup_auto_storage', new lang_string('automatedstorage', 'backup'), new lang_string('automatedstoragehelp', 'backup'), 0, $storageoptions));
     $temp->add(new admin_setting_special_backup_auto_destination());
-    $keepoptoins = array(
-        0 => new lang_string('all'), 1 => '1',
-        2 => '2',
-        5 => '5',
-        10 => '10',
-        20 => '20',
-        30 => '30',
-        40 => '40',
-        50 => '50',
-        100 => '100',
-        200 => '200',
-        300 => '300',
-        400 => '400',
-        500 => '500');
-    $temp->add(new admin_setting_configselect('backup/backup_auto_keep', new lang_string('keep'), new lang_string('backupkeephelp'), 1, $keepoptoins));
     $temp->add(new admin_setting_configcheckbox('backup/backup_shortname', new lang_string('backup_shortname', 'admin'), new lang_string('backup_shortnamehelp', 'admin'), 0));
     $temp->add(new admin_setting_configcheckbox('backup/backup_auto_skip_hidden', new lang_string('skiphidden', 'backup'), new lang_string('skiphiddenhelp', 'backup'), 1));
     $temp->add(new admin_setting_configselect('backup/backup_auto_skip_modif_days', new lang_string('skipmodifdays', 'backup'), new lang_string('skipmodifdayshelp', 'backup'), 30, array(
@@ -263,11 +248,27 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
     $temp->add(new admin_setting_configcheckbox('backup/backup_auto_skip_modif_prev', new lang_string('skipmodifprev', 'backup'), new lang_string('skipmodifprevhelp', 'backup'), 0));
 
     // Automated backup removal section.
-    $temp->add(new admin_setting_heading('automatedbackupremovalsettings',
-            new lang_string('automatedbackupremovalsettings', 'backup'), ''));
+    $temp->add(new admin_setting_heading('automatedremovalsettings',
+            new lang_string('automatedremovalsettings', 'backup'), ''));
 
-    $temp->add(new admin_setting_configselect('backup/backup_auto_keep_days', new lang_string('automatedbackupkeepdays', 'backup'),
-            new lang_string('automatedbackupkeepdayshelp', 'backup'), 0, array(
+    $keepoptoins = array(
+        0 => new lang_string('all'), 1 => '1',
+        2 => '2',
+        5 => '5',
+        10 => '10',
+        20 => '20',
+        30 => '30',
+        40 => '40',
+        50 => '50',
+        100 => '100',
+        200 => '200',
+        300 => '300',
+        400 => '400',
+        500 => '500');
+    $temp->add(new admin_setting_configselect('backup/backup_auto_keep', new lang_string('keep'),
+            new lang_string('backupkeephelp'), 1, $keepoptoins));
+
+    $automatedremovedaysoptions = array(
         0 => new lang_string('never'),
         1000 => new lang_string('numdays', '', 1000),
         365  => new lang_string('numdays', '', 365),
@@ -280,11 +281,11 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
         10   => new lang_string('numdays', '', 10),
         5    => new lang_string('numdays', '', 5),
         2    => new lang_string('numdays', '', 2)
-    )));
+    );
+    $temp->add(new admin_setting_configselect('backup/backup_auto_remove_days', new lang_string('automatedremovedays', 'backup'),
+            new lang_string('automatedremovedayshelp', 'backup'), 0, $automatedremovedaysoptions));
 
-    $temp->add(new admin_setting_configselect('backup/backup_auto_keep_copies',
-            new lang_string('automatedbackupkeepcopies', 'backup'), new lang_string('automatedbackupkeepcopieshelp', 'backup'),
-            0, array(
+    $automatednumneverremoveoptions = array(
         0 => new lang_string('none'),
         1 => '1',
         2 => '2',
@@ -297,9 +298,11 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
         100 => '100',
         200 => '200',
         300 => '300',
-        400 => '400',
-        500 => '500'
-    )));
+        400 => '400'
+    );
+    $temp->add(new admin_setting_configselect('backup/backup_auto_num_never_remove',
+            new lang_string('automatednumneverremove', 'backup'), new lang_string('automatednumneverremovehelp', 'backup'), 0,
+            $automatednumneverremoveoptions));
 
     // Automated defaults section.
     $temp->add(new admin_setting_heading('automatedsettings', new lang_string('automatedsettings','backup'), ''));

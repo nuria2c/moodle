@@ -687,5 +687,39 @@ abstract class persistent {
         globaL $DB;
         return $DB->record_exists(static::TABLE, array('id' => $id));
     }
+    
+    /**
+     * Calculate the correct idnumber to avoid dupes
+     */
+    public function calculate_entity_names() {
+        global $DB;
+
+        $def = static::define_properties();
+        if (!array_key_exists('shortname', $def) || !array_key_exists('idnumber', $def)) {
+            return array();
+        }
+        $currentshortname = '';
+        $currentidnumber = '';
+        $counter = 0;
+        // Iteratere while the name exists.
+        do {
+            if ($counter) {
+                $suffixfull  = ' ' . get_string('copyasnoun') . ' ' . $counter;
+                $suffixshort = '_' . $counter;
+            } else {
+                $suffixfull  = '';
+                $suffixshort = '';
+            }
+            $currentshortname = $this->get_shortname().$suffixfull;
+            $currentidnumber = substr($this->get_idnumber(), 0, 100 - strlen($suffixshort)).$suffixshort; // < 100cc
+            $entityshortname  = $DB->get_record_select(static::TABLE, 'shortname = ?',
+                    array($currentshortname), '*', IGNORE_MULTIPLE);
+            $entityidnumber = $DB->get_record_select(static::TABLE, 'idnumber = ?', array($currentidnumber));
+            $counter++;
+        } while ($entityshortname || $entityidnumber);
+
+        // Return results.
+        return array($currentshortname, $currentidnumber);
+    }
 
 }

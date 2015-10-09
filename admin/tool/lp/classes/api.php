@@ -338,6 +338,55 @@ class api {
     }
 
     /**
+     * Duplicate a competency framework by id.
+     *
+     * Requires tool/lp:competencymanage capability at the system context.
+     *
+     * @param int $id The record to duplicate. All competencies associated will be duplicated.
+     * @return boolean
+     */
+    public static function duplicate_framework($id) {
+        $framework = new competency_framework($id);
+        require_capability('tool/lp:competencymanage', $framework->get_context());
+        $competencies = self::search_competencies('', $framework->get_id());
+
+        // Get a uniq shortname and idnumber based on the origin framework.
+        list($shortname, $idnumber) = $framework->calculate_entity_names();
+        $framework->set_idnumber($idnumber);
+        $framework->set_shortname($shortname);
+        $framework->create();
+
+        // Array that match the old compenticy ids with the new one to use when duplicate related competencies.
+        $matcholdnewcompetencies = array();
+
+        foreach ($competencies as $competency) {
+            if ($competency->get_parentid() == 0) {
+                // Get a uniq idnumber based on the origin competency.
+                list($shortname, $idnumber) = $competency->calculate_entity_names();
+
+                $oldparentid = $competency->get_id();
+                $competency->set_competencyframeworkid($framework->get_id());
+                $competency->set_idnumber($idnumber);
+                $record = $competency->to_record();
+                unset($record->id);
+                $duplicatedcompetency = new competency(null, $record);
+                $duplicatedcompetency->create();
+
+                // Match the old id with the new one.
+                $matcholdnewcompetencies[$oldparentid] = $duplicatedcompetency->get_id();
+
+                $matcholdnewcompetencies = self::duplicate_competency_children( $competencies,
+                                                                                $oldparentid,
+                                                                                $framework->get_id(),
+                                                                                $duplicatedcompetency->get_id(),
+                                                                                $matcholdnewcompetencies
+                                                                                );
+            }
+        }
+        return true;
+    }
+
+    /**
      * Delete a competency framework by id.
      *
      * Requires tool/lp:competencymanage capability at the system context.
@@ -1252,5 +1301,40 @@ class api {
         }
 
         return $plan->delete();
+    }
+
+    /**
+     * Recursively duplicate competencies.
+     *
+     * @param stdClass $parent - the exported parent node
+     * @param array $all - List of all competency classes.
+     */
+    private static function duplicate_competency_children($all, $oldparentid, $frameworkid, $newparentid, $matchids) {
+        foreach ($all as $one) {
+            if ($one->get_parentid() == $oldparentid) {
+                // Get a uniq idnumber based on the origin competency.
+                list($shortname, $idnumber) = $one->calculate_entity_names();
+
+                $parentid = $one->get_id();
+                $one->set_competencyframeworkid($frameworkid);
+                $one->set_idnumber($idnumber);
+                $one->set_parentid($newparentid);
+                $record = $one->to_record();
+                unset($record->id);
+                $duplicatedcompetency = new competency(null, $record);
+                $duplicatedcompetency->create();
+
+                // Match the old id with the new one.
+                $matchids[$parentid] = $duplicatedcompetency->get_id();
+
+                $matchids = self::duplicate_competency_children($all,
+                                                                $parentid,
+                                                                $frameworkid,
+                                                                $duplicatedcompetency->get_id(),
+                                                                $matchids
+                                                                );
+            }
+        }
+        return $matchids;
     }
 }

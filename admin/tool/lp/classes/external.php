@@ -384,6 +384,56 @@ class external extends external_api {
     }
 
     /**
+     * Returns description of duplicate_competency_framework() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function duplicate_competency_framework_parameters() {
+        $id = new external_value(
+            PARAM_INT,
+            'Data base record id for the framework',
+            VALUE_REQUIRED
+        );
+
+        $params = array(
+            'id' => $id,
+        );
+        return new external_function_parameters($params);
+    }
+
+    /**
+     * Expose to AJAX
+     * @return boolean
+     */
+    public static function duplicate_competency_framework_is_allowed_from_ajax() {
+        return true;
+    }
+
+    /**
+     * Duplicate a competency framework
+     *
+     * @param int $id The competency framework id
+     * @return boolean
+     */
+    public static function duplicate_competency_framework($id) {
+        $params = self::validate_parameters(self::delete_competency_framework_parameters(),
+                                            array(
+                                                'id' => $id,
+                                            ));
+
+        return api::duplicate_framework($params['id']);
+    }
+
+    /**
+     * Returns description of duplicate_competency_framework() result value.
+     *
+     * @return \external_description
+     */
+    public static function duplicate_competency_framework_returns() {
+        return new external_value(PARAM_BOOL, 'True if the duplicate was successful');
+    }
+
+    /**
      * Returns description of delete_competency_framework() parameters.
      *
      * @return \external_function_parameters
@@ -2548,6 +2598,57 @@ class external extends external_api {
      */
     public static function update_template_returns() {
         return new external_value(PARAM_BOOL, 'True if the update was successful');
+    }
+
+    /**
+     * Returns description of duplicate_template() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function duplicate_template_parameters() {
+        $templateid = new external_value(
+            PARAM_INT,
+            'The template id',
+            VALUE_REQUIRED
+        );
+
+        $params = array(
+            'id' => $templateid
+        );
+        return new external_function_parameters($params);
+    }
+
+    /**
+     * Expose to AJAX.
+     * @return boolean
+     */
+    public static function duplicate_template_is_allowed_from_ajax() {
+        return true;
+    }
+
+    /**
+     * Duplicate a learning plan template.
+     *
+     * @param int $id the id of the learning plan template to duplicate
+     * @return boolean Record of new template.
+     */
+    public static function duplicate_template($id) {
+        $params = self::validate_parameters(self::duplicate_template_parameters(),
+                                            array(
+                                                'id' => $id,
+                                            ));
+
+        $result = api::duplicate_template($params['id']);
+        return $result->to_record();
+    }
+
+    /**
+     * Returns description of duplicate_template() result value.
+     *
+     * @return \external_description
+     */
+    public static function duplicate_template_returns() {
+        return self::get_template_external_structure();
     }
 
     /**

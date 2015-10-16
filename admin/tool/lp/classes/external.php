@@ -2201,10 +2201,6 @@ class external extends external_api {
             PARAM_TEXT,
             'Short name for the learning plan template'
         );
-        $idnumber = new external_value(
-            PARAM_TEXT,
-            'If provided, must be a unique string to identify this learning plan template'
-        );
         $duedate = new external_value(
             PARAM_INT,
             'The default due date for instances of this plan.'
@@ -2248,7 +2244,6 @@ class external extends external_api {
         $returns = array(
             'id' => $id,
             'shortname' => $shortname,
-            'idnumber' => $idnumber,
             'duedate' => $duedate,
             'duedateformatted' => $duedateformatted,
             'description' => $description,
@@ -2273,12 +2268,6 @@ class external extends external_api {
             PARAM_TEXT,
             'Short name for the learning plan template.',
             VALUE_REQUIRED
-        );
-        $idnumber = new external_value(
-            PARAM_TEXT,
-            'If provided, must be a unique string to identify this learning plan template.',
-            VALUE_DEFAULT,
-            ''
         );
         $duedate = new external_value(
             PARAM_INT,
@@ -2306,7 +2295,6 @@ class external extends external_api {
 
         $params = array(
             'shortname' => $shortname,
-            'idnumber' => $idnumber,
             'duedate' => $duedate,
             'description' => $description,
             'descriptionformat' => $descriptionformat,
@@ -2336,11 +2324,10 @@ class external extends external_api {
      * @param array $context The context info.
      * @return \stdClass Record of new template.
      */
-    public static function create_template($shortname, $idnumber, $duedate, $description, $descriptionformat, $visible, $context) {
+    public static function create_template($shortname, $duedate, $description, $descriptionformat, $visible, $context) {
         $params = self::validate_parameters(self::create_template_parameters(),
                                             array(
                                                 'shortname' => $shortname,
-                                                'idnumber' => $idnumber,
                                                 'duedate' => $duedate,
                                                 'description' => $description,
                                                 'descriptionformat' => $descriptionformat,
@@ -2492,11 +2479,6 @@ class external extends external_api {
             'Short name for the learning plan template.',
             VALUE_REQUIRED
         );
-        $idnumber = new external_value(
-            PARAM_TEXT,
-            'If provided, must be a unique string to identify this learning plan template.',
-            VALUE_REQUIRED
-        );
         $duedate = new external_value(
             PARAM_INT,
             'Default due date for instances of this plan',
@@ -2520,7 +2502,6 @@ class external extends external_api {
         $params = array(
             'id' => $id,
             'shortname' => $shortname,
-            'idnumber' => $idnumber,
             'duedate' => $duedate,
             'description' => $description,
             'descriptionformat' => $descriptionformat,
@@ -2551,7 +2532,6 @@ class external extends external_api {
      */
     public static function update_template($id,
                                                        $shortname,
-                                                       $idnumber,
                                                        $duedate,
                                                        $description,
                                                        $descriptionformat,
@@ -2561,7 +2541,6 @@ class external extends external_api {
                                             array(
                                                 'id' => $id,
                                                 'shortname' => $shortname,
-                                                'idnumber' => $idnumber,
                                                 'duedate' => $duedate,
                                                 'description' => $description,
                                                 'descriptionformat' => $descriptionformat,

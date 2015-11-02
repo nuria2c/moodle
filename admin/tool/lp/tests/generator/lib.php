@@ -26,8 +26,10 @@
 use tool_lp\competency;
 use tool_lp\competency_framework;
 use tool_lp\external;
+use tool_lp\plan;
 use tool_lp\related_competency;
 use tool_lp\user_competency;
+use tool_lp\plan_competency;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,6 +48,9 @@ class tool_lp_generator extends component_generator_base {
 
     /** @var int Number of created frameworks. */
     protected $frameworkcount = 0;
+
+    /** @var int Number of created plans. */
+    protected $plancount = 0;
 
     /** @var stdClass Scale that we might need. */
     protected $scale;
@@ -184,6 +189,34 @@ class tool_lp_generator extends component_generator_base {
     }
 
     /**
+     * Create a plan.
+     *
+     * @param array|stdClass $record
+     * @return plan
+     */
+    public function create_plan($record = null) {
+        $this->plancount++;
+        $i = $this->plancount;
+        $record = (object) $record;
+
+        if (!isset($record->userid)) {
+            throw new coding_exception('Property userid is required.');
+        }
+
+        if (!isset($record->name)) {
+            $record->name = "Plan shortname $i";
+        }
+        if (!isset($record->description)) {
+            $record->description = "Plan $i description ";
+        }
+
+        $plan = new plan(0, $record);
+        $plan->create();
+
+        return $plan;
+    }
+
+    /**
      * Create a new user competency.
      *
      * @param array|stdClass $record
@@ -203,6 +236,28 @@ class tool_lp_generator extends component_generator_base {
         $usercompetency->create();
 
         return $usercompetency;
+    }
+
+    /**
+     * Create a new plan competency.
+     *
+     * @param array|stdClass $record
+     * @return plan_competency
+     */
+    public function create_plan_competency($record = null) {
+        $record = (object) $record;
+
+        if (!isset($record->planid)) {
+            throw new coding_exception('The planid value is required.');
+        }
+        if (!isset($record->competencyid)) {
+            throw new coding_exception('The competencyid value is required.');
+        }
+
+        $plancompetency = new plan_competency(0, $record);
+        $plancompetency->create();
+
+        return $plancompetency;
     }
 
 }

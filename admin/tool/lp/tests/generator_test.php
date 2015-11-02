@@ -27,6 +27,7 @@ use tool_lp\competency;
 use tool_lp\competency_framework;
 use tool_lp\related_competency;
 use tool_lp\user_competency;
+use tool_lp\plan_competency;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -92,6 +93,27 @@ class tool_lp_generator_testcase extends advanced_testcase {
         $rc = $lpg->create_user_competency(array('userid' => $user->id, 'competencyid' => $c2->get_id()));
         $this->assertEquals(2, user_competency::count_records());
         $this->assertInstanceOf('\tool_lp\user_competency', $rc);
+    }
+
+    public function test_create_plan_competency() {
+        $this->resetAfterTest(true);
+        $user = $this->getDataGenerator()->create_user();
+        $lpg = $this->getDataGenerator()->get_plugin_generator('tool_lp');
+
+        $framework = $lpg->create_framework();
+        $c1 = $lpg->create_competency(array('competencyframeworkid' => $framework->get_id()));
+        $c2 = $lpg->create_competency(array('competencyframeworkid' => $framework->get_id()));
+
+        $plan = $lpg->create_plan(array('userid' => $user->id));
+
+        $pc1 = $lpg->create_plan_competency(array('planid' => $plan->get_id(), 'competencyid' => $c1->get_id()));
+        $pc2 = $lpg->create_plan_competency(array('planid' => $plan->get_id(), 'competencyid' => $c2->get_id()));
+
+        $this->assertEquals(2, plan_competency::count_records());
+        $this->assertEquals(2, plan_competency::count_competencies($plan->get_id()));
+        $this->assertEquals(1, plan_competency::count_plans($c1->get_id()));
+        $this->assertInstanceOf('\tool_lp\plan_competency', $pc1);
+        $this->assertInstanceOf('\tool_lp\plan_competency', $pc2);
     }
 
 }

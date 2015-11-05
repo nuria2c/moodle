@@ -46,6 +46,9 @@ class plan extends persistent {
     /** Complete status */
     const STATUS_COMPLETE = 2;
 
+    /** @var plan Object before update. */
+    protected $beforeupdate = null;
+
     /**
      * Return the definition of the properties of this model.
      *
@@ -83,6 +86,45 @@ class plan extends persistent {
                 'default' => 0,
             ),
         );
+    }
+
+    /**
+     * Hook to execute before an update.
+     *
+     * @param bool $result Whether or not the update was successful.
+     * @return void
+     */
+    protected function before_update() {
+        $this->beforeupdate = new self($this->get_id());
+    }
+
+    /**
+     * Hook to execute after an update.
+     *
+     * @param bool $result Whether or not the update was successful.
+     * @return void
+     */
+    protected function after_update($result) {
+        if ($result) {
+            // Archive user competencies if the status of the plan is changed to complete.
+            $mustarchivecompetencies = $this->get_status() == self::STATUS_COMPLETE
+                    && $this->beforeupdate->get_status() != $this->get_status();
+            if ($mustarchivecompetencies) {
+                $competencies = $this->get_competencies();
+                $usercompetencies = user_competency::get_multiple($this->get_userid(), $competencies);
+
+                // Copy all user competencies to user_competency_plan table.
+                foreach ($usercompetencies as $uckey => $uc) {
+                    $ucprecord = $uc->to_record();
+                    $ucprecord->planid = $this->get_id();
+                    unset($ucprecord->id);
+
+                    $usercompetencyplan = new user_competency_plan(0, $ucprecord);
+                    $usercompetencyplan->create();
+                }
+            }
+        }
+        $this->beforeupdate = null;
     }
 
     /**

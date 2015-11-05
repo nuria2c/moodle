@@ -1260,6 +1260,8 @@ class api {
         if (isset($record->userid) && $plan->get_userid() != $record->userid) {
             throw new coding_exception('A plan cannot be transfered to another user');
         }
+
+        $beforestatus = $plan->get_status();
         $plan->from_record($record);
 
         // Revalidate after the data has be injected. This handles status change, etc...
@@ -1269,6 +1271,24 @@ class api {
         }
 
         $plan->update();
+
+         // Archive user competencies if the status of the plan is changed to complete.
+        $mustarchivecompetencies = $plan->get_status() == plan::STATUS_COMPLETE && $beforestatus != $plan->get_status();
+        if($mustarchivecompetencies) {
+            $competencies = $plan->get_competencies();
+            $usercompetencies = user_competency::get_multiple($plan->get_userid(), $competencies);
+
+            // Copy all user competencies to user_competency_plan table.
+            foreach ($usercompetencies as $uckey => $uc) {
+                $ucprecord = $uc->to_record();
+                $ucprecord->planid = $plan->get_id();
+                unset($ucprecord->id);
+
+                $usercompetencyplan = new user_competency_plan(0, $ucprecord);
+                $usercompetencyplan->create();
+            }
+        }
+
         return $plan;
     }
 

@@ -31,8 +31,9 @@ define(['core/yui'], function(Y) {
      * @param {String} title Title for the window.
      * @param {String} content The content for the window.
      * @param {function} afterShow Callback executed after the window is opened.
+     * @param {Object} options Array of options to pass to dialogue.
      */
-    var dialogue = function(title, content, afterShow) {
+    var dialogue = function(title, content, afterShow, options) {
         this.yuiDialogue = null;
         var parent = this;
 
@@ -41,19 +42,21 @@ define(['core/yui'], function(Y) {
             parent.yuiDialogue = new M.core.dialogue({
                 headerContent: title,
                 bodyContent: content,
-                draggable: true,
-                visible: false,
-                center: true,
-                modal: true
+                draggable: (options && 'draggable' in options) ? options.draggable : true,
+                visible: (options && 'visible' in options) ? options.visible : false,
+                center: (options && 'center' in options) ? options.center : true,
+                modal: (options && 'modal' in options) ? options.modal : true
             });
 
             parent.yuiDialogue.after('visibleChange', function(e) {
                 if (e.newVal) {
                     // Delay the callback call to the next tick, otherwise it can happen that it is
                     // executed before the dialogue constructor returns.
-                    Y.soon(function() {
-                        afterShow(parent);
-                    });
+                    if ((typeof afterShow !== 'undefined')) {
+                        Y.soon(function() {
+                            afterShow(parent);
+                        });
+                    }
                 }
             });
 

@@ -37,7 +37,7 @@
                     {{#canmanage}}
                     <span class="drag-handlecontainer pull-left"></span>
                     {{/canmanage}}
-                    {{shortname}}
+                    <a href="#" data-action="competency-dialogue" data-id="{{id}}">{{shortname}}</a>
                 </td>
                 {{#iscompleted}}
                     <td>{{usercompetencyplan.gradename}}</td>
@@ -77,3 +77,8 @@ require(['tool_lp/competencies'], function(mod) {
 });
 {{/js}}
 {{/canmanage}}
+{{#js}}
+require(['jquery','tool_lp/competencydialogue'], function($, Compdialogue) {
+    Compdialogue.enhance('[data-region="plancompetenciespage"]', {includerelated : true});
+});
+{{/js}}

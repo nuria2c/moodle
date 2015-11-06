@@ -47,6 +47,10 @@ $competencyframework = \tool_lp\api::read_framework($competencyframeworkid);
 if (!empty($id)) {
     $competency = \tool_lp\api::read_competency($id);
 }
+$pageC = new \tool_lp\output\competency_summary($competency, $competencyframework, true, true);
+$renderer = $PAGE->get_renderer('tool_lp');
+$data = $pageC->export_for_template($renderer);
+var_dump($data); die; 
 
 $parent = null;
 if ($competency) {

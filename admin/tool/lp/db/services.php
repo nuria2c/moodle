@@ -397,6 +397,15 @@ $functions = array(
         'capabilities' => 'tool/lp:planmanage',
         'ajax'         => true,
     ),
+    'tool_lp_update_plan_status' => array(
+        'classname'    => 'tool_lp\external',
+        'methodname'   => 'update_plan_status',
+        'classpath'    => '',
+        'description'  => 'Updates status of learning plan.',
+        'type'         => 'write',
+        'capabilities' => 'tool/lp:planmanage',
+        'ajax'         => true,
+    ),
     'tool_lp_read_plan' => array(
         'classname'    => 'tool_lp\external',
         'methodname'   => 'read_plan',

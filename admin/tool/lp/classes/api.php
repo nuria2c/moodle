@@ -1466,7 +1466,6 @@ class api {
      * @return \tool_lp\plan
      */
     public static function update_plan(stdClass $record) {
-        global $DB;
 
         $plan = new plan($record->id);
 
@@ -1487,40 +1486,45 @@ class api {
         $beforestatus = $plan->get_status();
         $plan->from_record($record);
 
+        if ($beforestatus == plan::STATUS_COMPLETE) {
+            throw new coding_exception('Completed plan can not be edited');
+        }
+
+        if ($plan->get_status() == plan::STATUS_COMPLETE && $beforestatus != plan::STATUS_COMPLETE) {
+            throw new coding_exception('Completing plan is not allowed in api::update_status (use update_plan_status instead)');
+        }
+
+        if ($plan->get_status() == plan::STATUS_ACTIVE && $beforestatus == plan::STATUS_COMPLETE) {
+            throw new coding_exception('Re-opening plan is not allowed in api::update_status (use update_plan_status instead)');
+        }
+
         // Revalidate after the data has be injected. This handles status change, etc...
         if (!$plan->can_manage()) {
             $context = context_user::instance($plan->get_userid());
             throw new required_capability_exception($context, 'tool/lp:planmanage', 'nopermissions', '');
-
-        // Prevent a plan to be updated to use a template.
-        } else if ($plan->is_based_on_template()) {
-            throw new coding_exception('Cannot update a plan to be based on a template.');
-        }
-
-        // Are we trying to set the plan as complete?
-        if ($plan->get_status() == plan::STATUS_COMPLETE && $beforestatus != plan::STATUS_COMPLETE) {
-            throw new coding_exception('To set a plan as complete api::complete_plan() must be used.');
-        }
-
-        // Are we trying to set the plan as complete?
-        if ($plan->get_status() == plan::STATUS_COMPLETE && $beforestatus != plan::STATUS_COMPLETE) {
-            throw new coding_exception('To set a plan as complete api::complete_plan() must be used.');
-        }
-
-        // Wrap the updates in a DB transaction.
-        $transaction = $DB->start_delegated_transaction();
-
-        // Delete archived user competencies if the status of the plan is changed from complete to another status.
-        $mustremovearchivedcompetencies = ($beforestatus == plan::STATUS_COMPLETE && $plan->get_status() != plan::STATUS_COMPLETE);
-        if ($mustremovearchivedcompetencies) {
-            self::remove_archived_user_competencies_in_plan($plan);
         }
 
         $plan->update();
 
-        $transaction->allow_commit();
-
         return $plan;
+    }
+
+    /**
+     * Updates a plan status.
+     *
+     * @param int $planid
+     * @param int $status
+     *
+     * @return bool return if update Success
+     */
+    public static function update_plan_status($planid, $status) {
+
+        if ($status == plan::STATUS_COMPLETE) {
+            return self::complete_plan($planid);
+        }
+        if ($status == plan::STATUS_ACTIVE) {
+            return self::reopen_plan($planid);
+        }
     }
 
     /**
@@ -1619,6 +1623,55 @@ class api {
     }
 
     /**
+     * Reopen a plan.
+     *
+     * @param int|plan $planorid The plan, or its ID.
+     * @return bool
+     */
+    public static function reopen_plan($planorid) {
+        global $DB;
+
+        $plan = $planorid;
+        if (!is_object($planorid)) {
+            $plan = new plan($planorid);
+        }
+
+        // Validate that the plan as it is can be managed.
+        if (!$plan->can_manage()) {
+            $context = context_user::instance($plan->get_userid());
+            throw new required_capability_exception($context, 'tool/lp:planmanage', 'nopermissions', '');
+        }
+
+        $beforestatus = $plan->get_status();
+        $plan->set_status(plan::STATUS_ACTIVE);
+
+        // Validate if status can be changed.
+        if (!$plan->can_manage()) {
+            $context = context_user::instance($plan->get_userid());
+            throw new required_capability_exception($context, 'tool/lp:planmanage', 'nopermissions', '');
+        }
+
+        // Wrap the updates in a DB transaction.
+        $transaction = $DB->start_delegated_transaction();
+
+        // Delete archived user competencies if the status of the plan is changed from complete to another status.
+        $mustremovearchivedcompetencies = ($beforestatus == plan::STATUS_COMPLETE && $plan->get_status() != plan::STATUS_COMPLETE);
+        if ($mustremovearchivedcompetencies) {
+            self::remove_archived_user_competencies_in_plan($plan);
+        }
+
+        $success = $plan->update();
+
+        if (!$success) {
+            $transaction->rollback(new moodle_exception('The plan could not be updated.'));
+            return $success;
+        }
+
+        $transaction->allow_commit();
+        return $success;
+    }
+
+    /**
      * List the competencies in a user plan.
      *
      * @param  int $planorid The plan, or its ID.
@@ -1703,6 +1756,10 @@ class api {
             throw new coding_exception('A competency can not be added to a learning plan based on a template');
         }
 
+        if (!$plan->can_be_edited()) {
+            throw new coding_exception('A competency can not be added to a learning plan completed');
+        }
+
         $exists = plan_competency::get_record(array('planid' => $planid, 'competencyid' => $competencyid));
         if (!$exists) {
             $record = new stdClass();
@@ -1734,6 +1791,10 @@ class api {
             throw new coding_exception('A competency can not be removed from a learning plan based on a template');
         }
 
+        if (!$plan->can_be_edited()) {
+            throw new coding_exception('A competency can not be removed from a learning plan completed');
+        }
+
         $link = plan_competency::get_record(array('planid' => $planid, 'competencyid' => $competencyid));
         if ($link) {
             return $link->delete();
@@ -1761,6 +1822,10 @@ class api {
 
         } else if ($plan->is_based_on_template()) {
             throw new coding_exception('A competency can not be reordered in a learning plan based on a template');
+        }
+
+        if (!$plan->can_be_edited()) {
+            throw new coding_exception('A competency can not be reordered in a learning plan completed');
         }
 
         $down = true;

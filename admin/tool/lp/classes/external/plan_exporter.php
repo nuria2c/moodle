@@ -38,9 +38,18 @@ class plan_exporter extends persistent_exporter {
     }
 
     protected function get_values(renderer_base $output) {
+        $classname = static::define_class();
         return array(
             'statusname' => $this->persistent->get_statusname(),
             'usercanupdate' => $this->persistent->can_manage(),
+            'canbeedited' => $this->persistent->can_be_edited(),
+            'usercanreopen' => $this->persistent->can_manage() &&
+                intval($this->persistent->get_status()) === $classname::STATUS_COMPLETE,
+            'usercancomplete' => $this->persistent->can_manage() &&
+                intval($this->persistent->get_status()) === $classname::STATUS_ACTIVE,
+            'statusactive' => $classname::STATUS_ACTIVE,
+            'statuscomplete' => $classname::STATUS_COMPLETE,
+            'statusdraft' => $classname::STATUS_DRAFT,
         );
     }
 
@@ -52,6 +61,24 @@ class plan_exporter extends persistent_exporter {
             'usercanupdate' => array(
                 'type' => PARAM_BOOL,
             ),
+            'canbeedited' => array(
+                'type' => PARAM_BOOL,
+            ),
+            'usercanreopen' => array(
+                'type' => PARAM_BOOL,
+            ),
+            'usercancomplete' => array(
+                'type' => PARAM_BOOL,
+            ),
+            'statusactive' => array(
+                'type' => PARAM_INT,
+            ),
+            'statuscomplete' => array(
+                'type' => PARAM_INT,
+            ),
+            'statusdraft' => array(
+                'type' => PARAM_INT,
+            )
         );
     }
 }

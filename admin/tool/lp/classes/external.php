@@ -667,7 +667,6 @@ class external extends external_api {
                                                 'id' => $id,
                                             ));
 
-
         $competency = api::read_competency($params['id']);
         $context = $competency->get_context();
         self::validate_context($context);
@@ -2791,6 +2790,52 @@ class external extends external_api {
      */
     public static function update_plan_returns() {
         return plan_exporter::get_read_structure();
+    }
+
+    /**
+     * Returns description of update_plan_status() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function update_plan_status_parameters() {
+        $planid = new external_value(
+            PARAM_INT,
+            'The plan id',
+            VALUE_REQUIRED
+        );
+        $status = new external_value(
+            PARAM_INT,
+            'The plan status',
+            VALUE_REQUIRED
+        );
+        $params = array('planid' => $planid, 'status' => $status);
+        return new external_function_parameters($params);
+    }
+
+    /**
+     * Update Learning plan status.
+     *
+     * @param int $planid plan id (id is required)
+     * @param int $status plan status (active=1/complete=2) (status is required)
+     * @return boolean
+     */
+    public static function update_plan_status($planid, $status) {
+        $params = self::validate_parameters(self::update_plan_status_parameters(),
+                                            array(
+                                                'planid' => $planid,
+                                                'status' => $status
+                                            ));
+
+        return api::update_plan_status($params['planid'], $params['status']);
+    }
+
+    /**
+     * Returns description of update_plan_status() result value.
+     *
+     * @return \external_description
+     */
+    public static function update_plan_status_returns() {
+        return new external_value(PARAM_BOOL, 'True if the update was successful');
     }
 
     /**

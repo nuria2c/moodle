@@ -1502,6 +1502,11 @@ class api {
             throw new coding_exception('To set a plan as complete api::complete_plan() must be used.');
         }
 
+        // Are we trying to set the plan as complete?
+        if ($plan->get_status() == plan::STATUS_COMPLETE && $beforestatus != plan::STATUS_COMPLETE) {
+            throw new coding_exception('To set a plan as complete api::complete_plan() must be used.');
+        }
+
         // Wrap the updates in a DB transaction.
         $transaction = $DB->start_delegated_transaction();
 

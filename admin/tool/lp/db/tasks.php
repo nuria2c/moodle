@@ -28,8 +28,8 @@ $tasks = array(
     array(
         'classname' => 'tool_lp\task\complete_plans_task',
         'blocking' => 0,
-        'minute' => 'R',
-        'hour' => '*',
+        'minute' => '45',
+        'hour' => '4',
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'

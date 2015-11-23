@@ -31,9 +31,6 @@ use tool_lp\plan;
 /**
  * Complete plans task class.
  *
- * This task should run relatively often because the plans due dates can be set at
- * any time of the day in any timezone.
- *
  * @package    tool_lp
  * @copyright  2015 Frédéric Massart - FMCorz.net
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -53,12 +50,18 @@ class complete_plans_task extends \core\task\scheduled_task {
      * Do the job.
      */
     public function execute() {
-        $records = plan::get_recordset_for_due_and_incomplete();
+        global $DB;
+
+        // We are not fetching the plan using a method on the model because we need
+        // a recordset otherwise a lot of plans could be loaded in memory which is not advised.
+        $sql = "duedate > 0 AND duedate < :now AND status != :status";
+        $params = array('now' => time(), 'status' => plan::STATUS_COMPLETE);
+        $records = $DB->get_recordset_select(plan::TABLE, $sql, $params);
+
         foreach ($records as $record) {
             $plan = new plan(0, $record);
             api::complete_plan($plan);
         }
-        $records->close();
     }
 
 }

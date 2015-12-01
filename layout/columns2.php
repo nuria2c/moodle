@@ -31,7 +31,14 @@ defined('MOODLE_INTERNAL') || die();
 // Get the HTML for the settings bits.
 $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 
-$left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
+// Set default (LTR) layout mark-up for a two column page (side-pre-only).
+$regionmain = 'span9 pull-right';
+$sidepre = 'span3 desktop-first-column';
+// Reset layout mark-up for RTL languages.
+if (right_to_left()) {
+    $regionmain = 'span9';
+    $sidepre = 'span3 pull-right';
+}
 
 $bodyclasses = array();
 $bodyclasses[] = 'two-column';
@@ -59,19 +66,11 @@ theme_cleanudem_initialize_fullscreenmode($PAGE);
 
 <div id="page" class="container-fluid">
 
-    <?php $vars = array('heading' => $OUTPUT->page_heading(), 'button' => $OUTPUT->page_heading_button()); ?>
-    <?php echo $OUTPUT->element('page-header', $vars); ?>
+    <?php echo $OUTPUT->element('page-header'); ?>
 
     <div id="page-content" class="row-fluid">
 
-<?php
-$classextra = 'span9';
-if ($left) {
-    $classextra .= ' pull-right';
-}
-?>
-
-        <section id="region-main" class="<?php echo $classextra; ?>">
+        <section id="region-main" class="<?php echo $regionmain; ?>">
             <?php
             echo $OUTPUT->course_content_header();
             echo $OUTPUT->main_content();
@@ -79,14 +78,7 @@ if ($left) {
             ?>
         </section>
 
-<?php
-$classextra = '';
-if ($left) {
-    $classextra = ' desktop-first-column';
-}
-echo $OUTPUT->blocks('side-pre', 'span3'.$classextra);
-?>
-
+<?php echo $OUTPUT->blocks('side-pre', $sidepre); ?>
     </div>
 
     <?php echo $OUTPUT->element('page-footer', array('footernav' => $html->footernav, 'footnote' => $html->footnote)); ?>

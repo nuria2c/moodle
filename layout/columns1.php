@@ -38,8 +38,7 @@ $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 
 <div id="page" class="container-fluid">
 
-    <?php $vars = array('heading' => $OUTPUT->page_heading(), 'button' => $OUTPUT->page_heading_button()); ?>
-    <?php echo $OUTPUT->element('page-header', $vars); ?>
+    <?php echo $OUTPUT->element('page-header'); ?>
 
     <div id="page-content" class="row-fluid">
         <section id="region-main" class="span12">

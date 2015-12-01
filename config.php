@@ -51,11 +51,6 @@ $THEME->editor_sheets = array('editor');
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
 $THEME->csspostprocess = 'theme_cleanudem_process_css';
 
-$THEME->blockrtlmanipulations = array(
-    'side-pre' => 'side-post',
-    'side-post' => 'side-pre'
-);
-
 $THEME->layouts['frontpage'] = array(
     'file' => 'frontpage.php',
     'regions' => array('side-pre'),

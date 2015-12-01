@@ -25,6 +25,18 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Set default (LTR) layout mark-up for a three column page.
+$regionmainbox = 'span9';
+$regionmain = 'span8 pull-right';
+$sidepre = 'span4 desktop-first-column';
+$sidepost = 'span3 pull-right';
+// Reset layout mark-up for RTL languages.
+if (right_to_left()) {
+    $regionmainbox = 'span9 pull-right';
+    $regionmain = 'span8';
+    $sidepre = 'span4 pull-right';
+    $sidepost = 'span3 desktop-first-column';
+}
 // Get the HTML for the settings bits.
 $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 ?>
@@ -34,9 +46,9 @@ $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
 <header role="banner" class="navbar navbar-fixed-top moodle-has-zindex">
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo
+            <span class="brand"><?php echo
                 format_string($SITE->shortname, true, array('context' => context_course::instance(SITEID)));
-                ?></a>
+                ?></span>
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -45,6 +57,7 @@ $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
             <div class="nav-collapse collapse pull-right">
                 <ul class="nav pull-right">
                     <li><?php echo $OUTPUT->page_heading_menu(); ?></li>
+                    <li class="navbar-text"><?php echo $OUTPUT->login_info(false) ?></li>
                 </ul>
             </div>
         </div>
@@ -58,15 +71,15 @@ $html = theme_cleanudem_get_html_for_settings($OUTPUT, $PAGE);
     </header>
 
     <div id="page-content" class="row-fluid">
-        <div id="region-bs-main-and-pre" class="span9">
+        <div id="region-main-box" class="<?php echo $regionmainbox; ?>">
             <div class="row-fluid">
-                <section id="region-main" class="span8 pull-right">
+                <section id="region-main" class="<?php echo $regionmain; ?>">
                     <?php echo $OUTPUT->main_content(); ?>
                 </section>
-                <?php echo $OUTPUT->blocks('side-pre', 'span4 desktop-first-column'); ?>
+                <?php echo $OUTPUT->blocks('side-pre', $sidepre); ?>
             </div>
         </div>
-        <?php echo $OUTPUT->blocks('side-post', 'span3'); ?>
+        <?php echo $OUTPUT->blocks('side-post', $sidepost); ?>
     </div>
 
 </div>

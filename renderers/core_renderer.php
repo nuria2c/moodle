@@ -43,6 +43,34 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     const DIVIDER = 'divider';
 
     /**
+     * Either returns the parent version of the header bar, or a version with the logo replacing the header.
+     *
+     * @since Moodle 2.9
+     * @param array $headerinfo An array of header information, dependant on what type of header is being displayed. The following
+     *                          array example is user specific.
+     *                          heading => Override the page heading.
+     *                          user => User object.
+     *                          usercontext => user context.
+     * @param int $headinglevel What level the 'h' tag will be.
+     * @return string HTML for the header bar.
+     */
+    public function context_header($headerinfo = null, $headinglevel = 1) {
+        global $COURSE, $USER;
+        $iscoursehomepage = strpos($this->page->pagetype, 'course') === 0;
+        if ($iscoursehomepage && empty($COURSE->visible)) {
+            $heading = $this->page->heading;
+            if (!isset($headerinfo)) {
+                $headerinfo = array();
+            } else if (isset($headerinfo['heading'])) {
+                $heading = $headerinfo['heading'];
+            }
+            $headerinfo['heading'] = udem_add_unavailable_course_suffix($heading, true, $COURSE->id, $USER->id);
+        }
+
+        return parent::context_header($headerinfo, $headinglevel);
+    }
+
+    /**
      * Gets the HTML for the frontpage heading button.
      *
      * @since 2.5.1 2.6
@@ -380,11 +408,11 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $usermenu->add($message, new moodle_url('/message/index.php', array('user1' => $USER->id)), $message);
 
             // My files.
-            $myfiles = get_string('myfiles');
+            $myfiles = get_string('privatefiles');
             $usermenu->add($myfiles, new moodle_url('/user/files.php'), $myfiles);
 
             // My badges.
-            $mybadges = get_string('mybadges', 'badges');
+            $mybadges = get_string('badges', 'badges');
             $usermenu->add($mybadges, new moodle_url('/badges/mybadges.php'), $mybadges);
 
             $usermenu->add(self::DIVIDER);
@@ -456,25 +484,6 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                 'class' => 'navbar-text fullscreen-toggle-btn'));
         }
         return $content;
-    }
-
-    /**
-     * Gets HTML for the page heading.
-     * If the heading is a course title and the course is not visible,
-     * add an suffix to specify it.
-     *
-     * @since 2.5.1 2.6
-     * @param string $tag The tag to encase the heading in. h1 by default.
-     * @return string HTML.
-     */
-    public function page_heading($tag = 'h1') {
-        global $COURSE, $USER;
-        $heading = $this->page->heading;
-        $iscoursehomepage = strpos($this->page->pagetype, 'course') === 0;
-        if ($iscoursehomepage && empty($COURSE->visible)) {
-            $heading = udem_add_unavailable_course_suffix($heading, true, $COURSE->id, $USER->id);
-        }
-        return html_writer::tag($tag, $heading);
     }
 
     /**

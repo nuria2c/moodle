@@ -29,7 +29,7 @@ if (!isset($vars['button'])) {
     $vars['button'] = $OUTPUT->page_heading_button();
 }
 if (!isset($vars['heading'])) {
-    $vars['heading'] = $OUTPUT->page_heading();
+    $vars['heading'] = $OUTPUT->context_header();
 }
 
 ?>

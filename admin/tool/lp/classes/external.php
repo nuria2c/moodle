@@ -3640,4 +3640,59 @@ class external extends external_api {
             'cohorts' => new external_multiple_structure(cohort_summary_exporter::get_read_structure())
         ));
     }
+
+    /**
+     * Returns description of update_ruleoutcome_course_competency() parameters.
+     *
+     * @return \external_function_parameters
+     */
+    public static function set_ruleoutcome_course_competency_parameters() {
+        $coursecompetencyid = new external_value(
+            PARAM_INT,
+            'Data base record id for the course competency',
+            VALUE_REQUIRED
+        );
+
+        $ruleoutcome = new external_value(
+            PARAM_INT,
+            'Ruleoutcome value',
+            VALUE_REQUIRED
+        );
+
+        $params = array(
+            'coursecompetencyid' => $coursecompetencyid,
+            'ruleoutcome' => $ruleoutcome,
+        );
+        return new external_function_parameters($params);
+    }
+
+    /**
+     * Change the ruleoutcome of a course competency.
+     *
+     * @param int $coursecompetencyid The course competency id
+     * @param int $ruleoutcome The ruleoutcome value
+     * @return bool
+     */
+    public static function set_ruleoutcome_course_competency($coursecompetencyid, $ruleoutcome) {
+        $params = self::validate_parameters(self::set_ruleoutcome_course_competency_parameters(),
+                                            array(
+                                                'coursecompetencyid' => $coursecompetencyid,
+                                                'ruleoutcome' => $ruleoutcome,
+                                            ));
+
+        $coursecompetency = new course_competency($params['coursecompetencyid']);
+        self::validate_context(context_course::instance($coursecompetency->get_courseid()));
+
+        return api::set_ruleoutcome_course_competency($params['coursecompetencyid'], $params['ruleoutcome']);
+    }
+
+    /**
+     * Returns description of update_ruleoutcome_course_competency() result value.
+     *
+     * @return \external_value
+     */
+    public static function set_ruleoutcome_course_competency_returns() {
+        return new external_value(PARAM_BOOL, 'True if the update was successful');
+    }
+
 }

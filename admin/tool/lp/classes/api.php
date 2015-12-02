@@ -30,6 +30,7 @@ use context_system;
 use context_course;
 use context_user;
 use coding_exception;
+use require_login_exception;
 use moodle_url;
 use required_capability_exception;
 
@@ -688,6 +689,41 @@ class api {
 
         // OK - all set.
         return course_competency::list_competencies($courseid, $onlyvisible);
+    }
+
+    /**
+     * List the competencies associated to a course.
+     *
+     * @param mixed $courseorid The course, or its ID.
+     * @return array( array(
+     *                   'competency' => \tool_lp\competency,
+     *                   'coursecompetency' => \tool_lp\course_competency
+     *              ))
+     */
+    public static function list_course_competencies($courseorid) {
+        $course = $courseorid;
+        if (!is_object($courseorid)) {
+            $course = get_course($courseorid);
+        }
+
+        // Check the user have access to the course.
+        self::validate_course($course);
+
+        $onlyvisible = 1;
+        $result = array();
+        $coursecompetencies = course_competency::list_course_competencies($course->id, $onlyvisible);
+
+        // Build the return values.
+        foreach ($coursecompetencies as $key => $coursecompetency) {
+            $competency = new competency($coursecompetency->get_competencyid());
+
+            $result[] = array(
+                'competency' => $competency,
+                'coursecompetency' => $coursecompetency
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -2119,4 +2155,48 @@ class api {
 
         return $evidence;
     }
+
+    /**
+     * Update ruleoutcome value for a course competency.
+     *
+     * @param int $coursecompetencyid The course_competency ID.
+     * @param int $ruleoutcome The value of ruleoutcome.
+     * @return bool True on success.
+     */
+    public static function set_ruleoutcome_course_competency($coursecompetencyid, $ruleoutcome) {
+        $coursecompetency = new course_competency($coursecompetencyid);
+        $coursecontext = context_course::instance($coursecompetency->get_courseid());
+        if (!has_capability('tool/lp:coursecompetencymanage', $coursecontext)) {
+            throw new required_capability_exception($coursecontext, 'tool/lp:coursecompetencymanage', 'nopermissions', '');
+        }
+        $coursecompetency->set_ruleoutcome($ruleoutcome);
+
+        return $coursecompetency->update();
+    }
+
+    /**
+     * Validate if current user have acces to the course if hidden.
+     *
+     * @param mixed $courseorid The course or it ID.
+     * @param bool $throwexception Throw an exception or not.
+     * @return bool
+     */
+    protected static function validate_course($courseorid, $throwexception = true) {
+        $course = $courseorid;
+        if (!is_object($course)) {
+            $course = get_course($course);
+        }
+
+        $coursecontext = context_course::instance($course->id);
+        if (!$course->visible and !has_capability('moodle/course:viewhiddencourses', $coursecontext)) {
+            if ($throwexception) {
+                throw new require_login_exception('Course is hidden');
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

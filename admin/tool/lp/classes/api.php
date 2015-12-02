@@ -603,7 +603,7 @@ class api {
                 continue;
             }
 
-            if (!$course->visible && !has_capability('course:viewhidden', $context)) {
+            if (!$course->visible && !has_capability('course:viewhiddencourses', $context)) {
                 continue;
             }
 
@@ -633,7 +633,7 @@ class api {
                 unset($courses[$id]);
                 continue;
             }
-            if (!$course->visible && !has_capability('course:viewhidden', $context)) {
+            if (!$course->visible && !has_capability('course:viewhiddencourses', $context)) {
                 unset($courses[$id]);
                 continue;
             }
@@ -650,6 +650,9 @@ class api {
      * @return int
      */
     public static function count_competencies_in_course($courseid) {
+        // Check the user have access to the course.
+        self::validate_course($courseid);
+
         // First we do a permissions check.
         $context = context_course::instance($courseid);
         $onlyvisible = 1;
@@ -674,6 +677,9 @@ class api {
      * @return array of competencies
      */
     public static function list_competencies_in_course($courseid) {
+        // Check the user have access to the course.
+        self::validate_course($courseid);
+
         // First we do a permissions check.
         $context = context_course::instance($courseid);
         $onlyvisible = 1;
@@ -734,6 +740,9 @@ class api {
      * @return bool
      */
     public static function add_competency_to_course($courseid, $competencyid) {
+        // Check the user have access to the course.
+        self::validate_course($courseid);
+
         // First we do a permissions check.
         $context = context_course::instance($courseid);
 
@@ -768,6 +777,9 @@ class api {
      * @return bool
      */
     public static function remove_competency_from_course($courseid, $competencyid) {
+        // Check the user have access to the course.
+        self::validate_course($courseid);
+
         // First we do a permissions check.
         $context = context_course::instance($courseid);
 
@@ -803,6 +815,9 @@ class api {
      * @return boolean
      */
     public static function reorder_course_competency($courseid, $competencyidfrom, $competencyidto) {
+        // Check the user have access to the course.
+        self::validate_course($courseid);
+
         // First we do a permissions check.
         $context = context_course::instance($courseid);
 

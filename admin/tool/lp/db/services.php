@@ -217,9 +217,9 @@ $functions = array(
         'capabilities' => 'tool/lp:competencymanage',
         'ajax'         => true,
     ),
-    'tool_lp_list_competencies_in_course' => array(
+    'tool_lp_list_course_competencies' => array(
         'classname'    => 'tool_lp\external',
-        'methodname'   => 'list_competencies_in_course',
+        'methodname'   => 'list_course_competencies',
         'classpath'    => '',
         'description'  => 'List the competencies in a course',
         'type'         => 'read',

@@ -1338,11 +1338,11 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of list_competencies_in_course() parameters.
+     * Returns description of list_course_competencies() parameters.
      *
      * @return \external_function_parameters
      */
-    public static function list_competencies_in_course_parameters() {
+    public static function list_course_competencies_parameters() {
         $courseid = new external_value(
             PARAM_INT,
             'The course id',
@@ -1360,10 +1360,10 @@ class external extends external_api {
      * @param int $courseid The course id to check.
      * @return array
      */
-    public static function list_competencies_in_course($courseid) {
+    public static function list_course_competencies($courseid) {
         global $PAGE;
 
-        $params = self::validate_parameters(self::list_competencies_in_course_parameters(),
+        $params = self::validate_parameters(self::list_course_competencies_parameters(),
                                             array(
                                                 'id' => $courseid,
                                             ));
@@ -1371,29 +1371,42 @@ class external extends external_api {
         self::validate_context(context_course::instance($params['id']));
         $output = $PAGE->get_renderer('tool_lp');
 
-        $competencies = api::list_competencies_in_course($params['id']);
-        $results = array();
+        $competencies = api::list_course_competencies($params['id']);
+        $result = array();
 
         $contextcache = array();
         foreach ($competencies as $competency) {
-            if (!isset($contextcache[$competency->get_competencyframeworkid()])) {
-                $contextcache[$competency->get_competencyframeworkid()] = $competency->get_context();
+            if (!isset($contextcache[$competency['competency']->get_competencyframeworkid()])) {
+                $contextcache[$competency['competency']->get_competencyframeworkid()] = $competency['competency']->get_context();
             }
-            $context = $contextcache[$competency->get_competencyframeworkid()];
-            $exporter = new competency_exporter($competency, array('context' => $context));
-            $record = $exporter->export($output);
-            array_push($results, $record);
+            $context = $contextcache[$competency['competency']->get_competencyframeworkid()];
+            $exporter = new competency_exporter($competency['competency'], array('context' => $context));
+            $competencyrecord = $exporter->export($output);
+            $exporter = new course_competency_exporter($competency['coursecompetency'], array('context' => $context));
+            $coursecompetencyrecord = $exporter->export($output);
+            $result[] = array(
+                'competency' => $competencyrecord,
+                'coursecompetency' => $coursecompetencyrecord
+            );
         }
-        return $results;
+
+        return $result;
     }
 
     /**
-     * Returns description of list_competencies_in_course() result value.
+     * Returns description of list_course_competencies() result value.
      *
      * @return \external_description
      */
-    public static function list_competencies_in_course_returns() {
-        return new external_multiple_structure(competency_exporter::get_read_structure());
+    public static function list_course_competencies_returns() {
+
+        return new external_multiple_structure(
+            new external_single_structure(array(
+                'competency' => competency_exporter::get_read_structure(),
+                'coursecompetency' => course_competency_exporter::get_read_structure()
+            ))
+        );
+
     }
 
     /**

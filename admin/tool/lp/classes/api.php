@@ -671,33 +671,6 @@ class api {
     }
 
     /**
-     * List all the competencies in a course.
-     *
-     * @param int $courseid The id of the course to check.
-     * @return array of competencies
-     */
-    public static function list_competencies_in_course($courseid) {
-        // Check the user have access to the course.
-        self::validate_course($courseid);
-
-        // First we do a permissions check.
-        $context = context_course::instance($courseid);
-        $onlyvisible = 1;
-
-        $capabilities = array('tool/lp:coursecompetencyread', 'tool/lp:coursecompetencymanage');
-        if (!has_any_capability($capabilities, $context)) {
-             throw new required_capability_exception($context, 'tool/lp:coursecompetencyread', 'nopermissions', '');
-        }
-
-        if (has_capability('tool/lp:coursecompetencymanage', $context)) {
-            $onlyvisible = 0;
-        }
-
-        // OK - all set.
-        return course_competency::list_competencies($courseid, $onlyvisible);
-    }
-
-    /**
      * List the competencies associated to a course.
      *
      * @param mixed $courseorid The course, or its ID.

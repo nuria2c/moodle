@@ -48,6 +48,9 @@
                     {{#canread}}
                         </a>
                     {{/canread}}
+                    {{#plan.usercanunlink}}
+                        (<a data-action="plan-unlink" href="#">{{#str}}unlinkplantemplate, tool_lp{{/str}}</a>)
+                    {{/plan.usercanunlink}}      
                 </dd>
             {{/plan.template}}
             {{#description}}

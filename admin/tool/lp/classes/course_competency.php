@@ -391,4 +391,15 @@ class course_competency extends persistent {
         return $instances;
     }
 
+    /**
+     * Check if course competency has records for a competency.
+     *
+     * @param int $competencyid The competency ID
+     * @return boolean
+     */
+    static public function has_records_for_competency($competencyid) {
+
+        return self::record_exists_select("competencyid = ?", array($competencyid));
+    }
+
 }

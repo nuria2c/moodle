@@ -131,4 +131,18 @@ class user_evidence_competency extends persistent {
         return $relation;
     }
 
+    /**
+     * Get relations user evidence competencies.
+     *
+     * @param array $competenciesid array of competencies ID
+     * @return user_evidence_competency[]
+     */
+    public static function get_relations_by_competenciesid($competenciesid) {
+        global $DB;
+
+        list($insql, $params) = $DB->get_in_or_equal($competenciesid);
+
+        return self::get_records_select("competencyid $insql", $params);
+    }
+
 }

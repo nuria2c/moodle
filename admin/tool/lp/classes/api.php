@@ -106,20 +106,77 @@ class api {
      * @return boolean
      */
     public static function delete_competency($id) {
+        global $DB;
         $competency = new competency($id);
 
         // First we do a permissions check.
         require_capability('tool/lp:competencymanage', $competency->get_context());
 
-        // Reset the rule of the parent.
-        $parent = $competency->get_parent();
-        if ($parent) {
-            $parent->reset_rule();
-            $parent->update();
+        $competencies = competency::search('', $competency->get_competencyframeworkid());
+        $tree = competency::build_tree($competencies, $competency->get_id());
+        if (!competency::can_be_deleted($competency->get_id()) || !competency::tree_can_be_deleted($tree)) {
+            return false;
         }
+        $transaction = $DB->start_delegated_transaction();
 
-        // OK - all set.
-        return $competency->delete();
+        try {
+
+            // Reset the rule of the parent.
+            $parent = $competency->get_parent();
+            if ($parent) {
+                $parent->reset_rule();
+                $parent->update();
+            }
+
+            // Start to delete competencies first so we parse the tree once.
+            $competenciesid = array($competency->get_id());
+            // Delete the competency, it is not included in the tree.
+            $competency->delete();
+            $competenciesid = array_merge(self::delete_competency_tree($tree), $competenciesid);
+
+            // Delete the competencies relation.
+            $competenciesrelation = related_competency::get_multiple_relations($competenciesid);
+            foreach ($competenciesrelation as $relation) {
+                self::remove_related_competency(
+                        $relation->get_competencyid(),
+                        $relation->get_relatedcompetencyid()
+                        );
+            }
+
+            // Delete competency evidences.
+            $userevidencecompetenciesrelation = user_evidence_competency::get_relations_by_competenciesid($competenciesid);
+            foreach ($userevidencecompetenciesrelation as $relation) {
+                $relation->delete();
+            }
+
+            $transaction->allow_commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $transaction->rollback(new moodle_exception('Error while deleting the competency.'));
+        }
+    }
+
+    /**
+     * Recursively delete competencies from a tree.
+     *
+     * @param competency[] $tree - array of competencies object
+     * @return array $deletedcompetencies
+     */
+    protected static function delete_competency_tree($tree) {
+        $deletedcompetencies = array();
+        foreach ($tree as $node) {
+            $id = $node->competency->get_id();
+
+            if (!empty($node->children)) {
+                // Delete children competency.
+                $childrenids = self::delete_competency_tree($node->children);
+                $deletedcompetencies = $deletedcompetencies + $childrenids;
+            }
+            $node->competency->delete();
+            $deletedcompetencies[] = $id;
+        }
+        return $deletedcompetencies;
     }
 
     /**

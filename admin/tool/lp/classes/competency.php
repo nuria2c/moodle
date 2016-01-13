@@ -735,8 +735,9 @@ class competency extends persistent {
      *
      * @param array $all - List of all competency classes.
      * @param int $parentid - The current parent ID. Pass 0 to build the tree from the top.
+     * @return node[] $tree tree of nodes
      */
-    protected static function build_tree($all, $parentid) {
+    public static function build_tree($all, $parentid) {
         $tree = array();
         foreach ($all as $one) {
             if ($one->get_parentid() == $parentid) {
@@ -747,6 +748,67 @@ class competency extends persistent {
             }
         }
         return $tree;
+    }
+
+    /**
+     * Check if we can delete a competency safely.
+     * Check if competency is used in a plan and user competency.
+     * Check if competency is used in a template.
+     * Check if competency is linked to a course.
+     *
+     * @param int $id The competency ID
+     * @return bool True if we can delete the competency
+     */
+    public static function can_be_deleted($id) {
+
+        // Check if competency is used in template.
+        if (template_competency::has_records_for_competency($id)) {
+            return false;
+        }
+
+        // Check if competency is used in plan.
+        if (plan_competency::has_records_for_competency($id)) {
+            return false;
+        }
+
+        // Check if competency is used in course.
+        if (course_competency::has_records_for_competency($id)) {
+            return false;
+        }
+
+        // Check if competency is used in user_competency.
+        if (user_competency::has_records_for_competency($id)) {
+            return false;
+        }
+
+        // Check if competency is used in user_competency_plan.
+        if (user_competency_plan::has_records_for_competency($id)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check recursively if the competencies can be deleted.  
+     *
+     * @param node[] $tree Tree of competencies
+     * @return boolean
+     */
+    static public function tree_can_be_deleted($tree) {
+        $candelete = true;
+        foreach ($tree as $node) {
+            $id = $node->competency->get_id();
+            if (!self::can_be_deleted($id)) {
+                $candelete = false;
+            } else if (!empty($node->children)) {
+                $candelete = self::tree_can_be_deleted($node->children);
+            }
+            if (!$candelete) {
+                break;
+            }
+        }
+        return $candelete;
     }
 
 }

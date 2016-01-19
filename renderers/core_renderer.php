@@ -378,42 +378,37 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $fullname = fullname($USER);
             $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
 
-            // View profile.
-            $viewprofile = get_string('viewprofile');
-            $usermenu->add($viewprofile, new moodle_url('/user/profile.php', array('id' => $USER->id)), $viewprofile);
-
-            // Edit profile.
-            $editmyprofile = get_string('editmyprofile');
-            $usermenu->add($editmyprofile, new moodle_url('/user/edit.php', array('id' => $USER->id)), $editmyprofile);
-
-            $usermenu->add(self::DIVIDER);
-
             // My home.
             $my = get_string('myhome');
             $usermenu->add($my, new moodle_url('/my/index.php'), $my);
 
-            // My grades (only if the user is a student in at least one course).
+            $usermenu->add(self::DIVIDER);
+
+            // Profile.
+            $profile = get_string('profile');
+            $usermenu->add($profile, new moodle_url('/user/profile.php'), $profile);
+
+            // Grades (only if the user is a student in at least one course).
             if (theme_cleanudem_user_has_role_assignment($USER->id, STUDENT_ROLE_ID)) {
-                $mygrades = get_string('mygrades', 'theme_cleanudem');
-                $usermenu->add($mygrades, new moodle_url('/grade/report/overview/index.php', array('id' => SITEID,
-                        'userid' => $USER->id)), $mygrades);
+                $grades = get_string('grades');
+                $usermenu->add($grades, new moodle_url('/grade/report/overview/index.php'), $grades);
             }
 
             // Forum posts.
             $forumpost = get_string('forumposts', 'forum');
-            $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php', array('id' => $USER->id)), $forumpost);
+            $usermenu->add($forumpost, new moodle_url('/mod/forum/user.php'), $forumpost);
 
             // Messages.
             $message = get_string('messages', 'message');
-            $usermenu->add($message, new moodle_url('/message/index.php', array('user1' => $USER->id)), $message);
+            $usermenu->add($message, new moodle_url('/message/index.php'), $message);
 
             // My files.
             $myfiles = get_string('privatefiles');
             $usermenu->add($myfiles, new moodle_url('/user/files.php'), $myfiles);
 
-            // My badges.
-            $mybadges = get_string('badges', 'badges');
-            $usermenu->add($mybadges, new moodle_url('/badges/mybadges.php'), $mybadges);
+            // My preferences.
+            $mypreferences = get_string('preferences', 'moodle');
+            $usermenu->add($mypreferences, new moodle_url('/user/preferences.php'), $mypreferences);
 
             $usermenu->add(self::DIVIDER);
 

@@ -2872,4 +2872,31 @@ class tool_lp_api_testcase extends advanced_testcase {
             'u1' => $u1
         );
     }
+    
+    public function test_delete_framework() {
+        $this->resetAfterTest(true);
+        $dg = $this->getDataGenerator();
+        $lpg = $dg->get_plugin_generator('tool_lp');
+        $this->setAdminUser();
+        
+        $f1 = $lpg->create_framework();
+        $count = 0;
+        for($i=1; $i < 50; $i++) {
+            $c1 = $lpg->create_competency(array('competencyframeworkid' => $f1->get_id()));
+            for($j=1; $j < 4; $j++) {
+                $c11 = $lpg->create_competency(array('competencyframeworkid' => $f1->get_id(), 'parentid' => $c1->get_id()));
+                for($k=1; $k < 4; $k++) {
+                    $c111 = $lpg->create_competency(array('competencyframeworkid' => $f1->get_id(), 'parentid' => $c11->get_id()));
+                    $c112 = $lpg->create_competency(array('competencyframeworkid' => $f1->get_id(), 'parentid' => $c111->get_id()));
+                    $count = $count + 2;
+                }
+                $count++;
+            }
+            $count++;
+        }
+       echo $count. '  *****  ';
+       $timebefore = time();
+       api::delete_framework($f1->get_id()); 
+       echo time() - $timebefore ;
+    }
 }

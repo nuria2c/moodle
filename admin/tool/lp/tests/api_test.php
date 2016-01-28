@@ -2709,4 +2709,34 @@ class tool_lp_api_testcase extends advanced_testcase {
         $this->assertEquals(competency::OUTCOME_EVIDENCE, $c1b->get_ruleoutcome());
         $this->assertEquals(competency::OUTCOME_EVIDENCE, $c2->get_ruleoutcome());
     }
+
+    public function test_delete_framework() {
+        $this->resetAfterTest(true);
+        $dg = $this->getDataGenerator();
+        $lpg = $dg->get_plugin_generator('tool_lp');
+        $this->setAdminUser();
+        
+        $f1 = $lpg->create_framework();
+        $frameworkid = $f1->get_id();
+        $count = 0;
+        for($i=1; $i < 100; $i++) {
+            $c1 = $lpg->create_competency(array('competencyframeworkid' => $frameworkid));
+            for($j=1; $j < 4; $j++) {
+                $c11 = $lpg->create_competency(array('competencyframeworkid' => $frameworkid, 'parentid' => $c1->get_id()));
+                for($k=1; $k < 4; $k++) {
+                    $c111 = $lpg->create_competency(array('competencyframeworkid' => $frameworkid, 'parentid' => $c11->get_id()));
+                    $c112 = $lpg->create_competency(array('competencyframeworkid' => $frameworkid, 'parentid' => $c111->get_id()));
+                    $count = $count + 2;
+                }
+                $count++;
+            }
+            $count++;
+        }
+       echo $count. '  *****  ';
+       $timebefore = time();
+       api::delete_framework($frameworkid); 
+       echo time() - $timebefore ; 
+       $this->assertEquals(0, competency::count_records(array('competencyframeworkid' => $frameworkid)));
+       
+    }
 }

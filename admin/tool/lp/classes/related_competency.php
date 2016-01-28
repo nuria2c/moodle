@@ -183,5 +183,22 @@ class related_competency extends persistent {
         }
         return $relatedcompetencies;
     }
+    
+    /**
+     * Delete relations using competencies.
+     *
+     * @param array $competenciesid the competencies ids
+     * @return bool True if delete was successful
+     */
+    public static function delete_relations_using_competencies($competenciesid) {
+        global $DB;
+
+        list($insql, $params) = $DB->get_in_or_equal($competenciesid);
+
+        return $DB->delete_records_select(self::TABLE,
+                                            "competencyid $insql OR relatedcompetencyid $insql",
+                                            array_merge($params, $params)
+                                            );
+    }
 
 }

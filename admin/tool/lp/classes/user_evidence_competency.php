@@ -130,5 +130,18 @@ class user_evidence_competency extends persistent {
 
         return $relation;
     }
+    /**
+     * Delete evidences using competencies.
+     * 
+     * @param array $competenciesid the competencies IDs
+     * @return bool True is delete was successful
+     */
+    public static function delete_evidences_for_competencies($competenciesid) {
+        global $DB;
+        
+        list($insql, $params) = $DB->get_in_or_equal($competenciesid);
+        
+        return $DB->delete_records_select(self::TABLE, "competencyid $insql", $params);
+    }
 
 }

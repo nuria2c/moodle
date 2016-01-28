@@ -748,5 +748,61 @@ class competency extends persistent {
         }
         return $tree;
     }
+    
+    /**
+     * Get competenciesid from framework. 
+     *
+     * @param type $frameworkid
+     * @return array array of competencies id
+     */
+    public static function get_competenciesid_from_framework($frameworkid) {
+        global $DB;
+        return  $DB->get_records(self::TABLE, array('competencyframeworkid' => $frameworkid), null, 'id');
+    }
+
+    /**
+     * Check if we can delete a competency safely.
+     * Check if competency is used in a plan and user competency.
+     * Check if competency is used in a template.
+     * Check if competency is linked to a course.
+     *
+     * @param int $ids The competency ID
+     * @return bool True if we can delete the competency
+     */
+    public static function can_be_deleted($ids) {
+        // Check if competency is used in template.
+        if (template_competency::has_records_for_competencies($ids)) {
+            return false;
+        }
+        // Check if competency is used in plan.
+        if (plan_competency::has_records_for_competencies($ids)) {
+            return false;
+        }
+        // Check if competency is used in course.
+        if (course_competency::has_records_for_competencies($ids)) {
+            return false;
+        }
+        // Check if competency is used in user_competency.
+        if (user_competency::has_records_for_competencies($ids)) {
+            return false;
+        }
+        // Check if competency is used in user_competency_plan.
+        if (user_competency_plan::has_records_for_competencies($ids)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Delete competencies.
+     *
+     * @param type $id the framework ID
+     * return bool is delete was successful
+     */
+    public static function delete_competencies_from_framework($id) {
+        global $DB;
+        return $DB->delete_records(self::TABLE, array('competencyframeworkid' => $id));
+    }
+
 
 }

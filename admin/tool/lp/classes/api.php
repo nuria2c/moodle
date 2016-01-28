@@ -502,13 +502,36 @@ class api {
      * @return boolean
      */
     public static function delete_framework($id) {
+        global $DB;
+
         $framework = new competency_framework($id);
         require_capability('tool/lp:competencymanage', $framework->get_context());
 
-        // Trigger a competency framework deleted event.
-        \tool_lp\event\competency_framework_deleted::create_from_framework($framework)->trigger();
+        $competenciesid = array_keys(competency::get_competenciesid_from_framework($id));
+        if (!competency::can_be_deleted($competenciesid)) {
+            return false;
+        }
+        $transaction = $DB->start_delegated_transaction();
 
-        return $framework->delete();
+        try {
+            // Delete competencies.
+            competency::delete_competencies_from_framework($id);
+
+            // Delete the related competencies.
+            related_competency::delete_relations_using_competencies($competenciesid);
+
+            // Delete the evidences for competencies.
+            user_evidence_competency::delete_evidences_for_competencies($competenciesid);
+
+            // Trigger a competency framework deleted event.
+            \tool_lp\event\competency_framework_deleted::create_from_framework($framework)->trigger();
+
+            $framework->delete();
+            $transaction->allow_commit();
+        } catch (\Exception $e) {
+            $transaction->rollback(new moodle_exception('Error while deleting the competency framework.'));
+        }
+        
     }
 
     /**

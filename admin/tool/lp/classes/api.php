@@ -528,13 +528,37 @@ class api {
      * @return boolean
      */
     public static function delete_framework($id) {
+        global $DB;
         $framework = new competency_framework($id);
         require_capability('tool/lp:competencymanage', $framework->get_context());
 
-        // Trigger a competency framework deleted event.
-        \tool_lp\event\competency_framework_deleted::create_from_framework($framework)->trigger();
+        $competenciesid = competency::get_ids_by_frameworkid($id);
+        if (!competency::can_all_be_deleted($competenciesid)) {
+            return false;
+        }
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            if (!empty($competenciesid)) {
+                // Delete competencies.
+                competency::delete_by_frameworkid($id);
 
-        return $framework->delete();
+                // Delete the related competencies.
+                related_competency::delete_multiple_relations($competenciesid);
+
+                // Delete the evidences for competencies.
+                user_evidence_competency::delete_by_competencyids($competenciesid);
+            }
+
+            // Trigger a competency framework deleted event.
+            \tool_lp\event\competency_framework_deleted::create_from_framework($framework)->trigger();
+
+            $framework->delete();
+            $transaction->allow_commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $transaction->rollback($e);
+        }
     }
 
     /**

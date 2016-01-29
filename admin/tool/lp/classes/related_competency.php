@@ -15,26 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class for loading/storing competencies from the DB.
+ * Class for loading/storing related competencies from the DB.
  *
  * @package    tool_lp
- * @copyright  2015 Damyon Wiese
+ * @copyright  2015 David Monllao
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace tool_lp;
 defined('MOODLE_INTERNAL') || die();
 
+use lang_string;
 use stdClass;
 
 /**
- * Class for loading/storing template_competencies from the DB.
+ * Class for loading/storing related_competencies from the DB.
  *
- * @copyright  2015 Damyon Wiese
+ * @package    tool_lp
+ * @copyright  2015 David Monllao
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class template_competency extends persistent {
+class related_competency extends persistent {
 
-    const TABLE = 'tool_lp_template_competency';
+    const TABLE = 'tool_lp_related_competency';
 
     /**
      * Return the definition of the properties of this model.
@@ -43,230 +45,165 @@ class template_competency extends persistent {
      */
     protected static function define_properties() {
         return array(
-            'templateid' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
-            ),
             'competencyid' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
+                'type' => PARAM_INT
             ),
-            'sortorder' => array(
-                'type' => PARAM_INT,
-                'default' => null,
+            'relatedcompetencyid' => array(
+                'type' => PARAM_INT
             ),
         );
     }
 
     /**
-     * Count the templates using a competency.
+     * Validate competency ID.
      *
-     * @param int $competencyid The competency id
-     * @param bool $onlyvisible If true, only count visible templates using this competency.
-     * @return int
-     */
-    public static function count_templates($competencyid, $onlyvisible) {
-        global $DB;
-
-        $sql = 'SELECT COUNT(tpl.id)
-                  FROM {' . self::TABLE . '} tplcomp
-                  JOIN {' . template::TABLE . '} tpl
-                    ON tplcomp.templateid = tpl.id
-                 WHERE tplcomp.competencyid = ? ';
-        $params = array($competencyid);
-
-        if ($onlyvisible) {
-            $sql .= ' AND tpl.visible = ?';
-            $params[] = 1;
-        }
-
-        $results = $DB->count_records_sql($sql, $params);
-
-        return $results;
-    }
-
-    /**
-     * List the templates using a competency.
-     *
-     * @param int $competencyid The competency id
-     * @param bool $onlyvisible If true, only count visible templates using this competency.
-     * @return array[competency]
-     */
-    public static function list_templates($competencyid, $onlyvisible) {
-        global $DB;
-
-        $sql = 'SELECT tpl.*
-                  FROM {' . template::TABLE . '} tpl
-                  JOIN {' . self::TABLE . '} tplcomp
-                    ON tplcomp.templateid = tpl.id
-                 WHERE tplcomp.competencyid = ? ';
-        $params = array($competencyid);
-
-        if ($onlyvisible) {
-            $sql .= ' AND tpl.visible = ?';
-            $params[] = 1;
-        }
-
-        $results = $DB->get_records_sql($sql, $params);
-
-        $instances = array();
-        foreach ($results as $result) {
-            array_push($instances, new template(0, $result));
-        }
-
-        return $instances;
-    }
-
-    /**
-     * Count the competencies in a template.
-     *
-     * @param int $templateid The template id
-     * @return int
-     */
-    public static function count_competencies($templateid) {
-        global $DB;
-
-        $sql = 'SELECT COUNT(comp.id)
-                  FROM {' . self::TABLE . '} tplcomp
-                  JOIN {' . competency::TABLE . '} comp
-                    ON tplcomp.competencyid = comp.id
-                 WHERE tplcomp.templateid = ? ';
-        $params = array($templateid);
-
-        $results = $DB->count_records_sql($sql, $params);
-
-        return $results;
-    }
-
-    /**
-     * Get a single competency from the template (only if it is really in the template).
-     *
-     * @param int $templateid The template id
-     * @param int $competencyid The competency id
-     * @return competency
-     */
-    public static function get_competency($templateid, $competencyid) {
-        global $DB;
-
-        $sql = 'SELECT comp.*
-                  FROM {' . competency::TABLE . '} comp
-                  JOIN {' . self::TABLE . '} tplcomp
-                    ON tplcomp.competencyid = comp.id
-                 WHERE tplcomp.templateid = ? AND tplcomp.competencyid = ?';
-        $params = array($templateid, $competencyid);
-
-        $result = $DB->get_record_sql($sql, $params);
-        if (!$result) {
-            throw new coding_exception('The competency does not belong to this template: ' . $competencyid . ', ' . $templateid);
-        }
-
-        return new competency(0, $result);
-    }
-
-    /**
-     * List the competencies in this template.
-     *
-     * @param int $templateid The template id
-     * @return array[competency]
-     */
-    public static function list_competencies($templateid) {
-        global $DB;
-
-        $sql = 'SELECT comp.*
-                  FROM {' . competency::TABLE . '} comp
-                  JOIN {' . self::TABLE . '} tplcomp
-                    ON tplcomp.competencyid = comp.id
-                 WHERE tplcomp.templateid = ?';
-        $params = array($templateid);
-
-        $sql .= 'ORDER BY tplcomp.sortorder ASC';
-
-        $results = $DB->get_records_sql($sql, $params);
-
-        $instances = array();
-        foreach ($results as $result) {
-            array_push($instances, new competency(0, $result));
-        }
-
-        return $instances;
-    }
-
-    /**
-     * Remove the competencies in this template.
-     *
-     * @param int $templateid The template id
-     * @return boolen
-     */
-    public static function delete_by_templateid($templateid) {
-        global $DB;
-
-        return $DB->delete_records(self::TABLE, array('templateid' => $templateid));
-    }
-
-    /**
-     * Hook to execute before validate.
-     *
-     * @return void
-     */
-    protected function before_validate() {
-        if (($this->get_id() && $this->get_sortorder() === null) || !$this->get_id()) {
-            $this->set_sortorder($this->count_records(array('templateid' => $this->get_templateid())));
-        }
-    }
-
-    /**
-     * Validate competencyid.
-     *
-     * @param  int $value ID.
      * @return true|lang_string
      */
-    protected function validate_competencyid($value) {
-        if (!competency::record_exists($value)) {
+    protected function validate_competencyid($data) {
+        if (!competency::record_exists($data)) {
             return new lang_string('invaliddata', 'error');
         }
         return true;
     }
 
     /**
-     * Validate templateid.
+     * Validate related competency ID.
      *
-     * @param  int $value ID.
      * @return true|lang_string
      */
-    protected function validate_templateid($value) {
-        if (!template::record_exists($value)) {
+    protected function validate_relatedcompetencyid($data) {
+
+        if ($this->get_competencyid() == $data) {
+            // A competency cannot be related to itself.
+            return new lang_string('invaliddata', 'error');
+
+        } if ($this->get_competencyid() > $data) {
+            // The competency ID must be lower than the related competency ID.
+            return new lang_string('invaliddata', 'error');
+
+        } else if (!competency::record_exists($data)) {
+            return new lang_string('invaliddata', 'error');
+
+        } else if (!competency::share_same_framework(array($data, $this->get_competencyid()))) {
+            // The competencies must belong to the same framework.
             return new lang_string('invaliddata', 'error');
         }
+
         return true;
     }
 
     /**
-     * Hook to execute after delete.
+     * Get relation specifying both competencies.
      *
-     * @param bool $result Whether or not the delete was successful.
-     * @return void
+     * This does not perform any validation on the data passed. If the relation exists in the database
+     * then it is loaded in a the model, if not then it is up to the developer to save the model.
+     *
+     * @param int $competencyid
+     * @param int $relatedcompetencyid
+     * @return related_competency
      */
-    protected function after_delete($result) {
+    public static function get_relation($competencyid, $relatedcompetencyid) {
         global $DB;
-        if (!$result) {
-            return;
+
+        // Lower id always as competencyid so we know which one is competencyid and which one relatedcompetencyid.
+        $relation = new static();
+        if ($competencyid > $relatedcompetencyid) {
+            $relation->set_competencyid($relatedcompetencyid);
+            $relation->set_relatedcompetencyid($competencyid);
+        } else {
+            $relation->set_competencyid($competencyid);
+            $relation->set_relatedcompetencyid($relatedcompetencyid);
         }
 
-        $table = '{' . self::TABLE . '}';
-        $sql = "UPDATE $table SET sortorder = sortorder -1  WHERE templateid = ? AND sortorder > ?";
-        $DB->execute($sql, array($this->get_templateid(), $this->get_sortorder()));
+        // We can do it because we have bidirectional relations in the DB.
+        $params = array(
+            'competencyid' => $relation->get_competencyid(),
+            'relatedcompetencyid' => $relation->get_relatedcompetencyid()
+        );
+        if ($record = $DB->get_record(self::TABLE, $params)) {
+            $relation->from_record($record);
+        }
+
+        return $relation;
     }
 
     /**
-     * Check if template competency has records for competencies.
+     * Get the competencies related to a competency.
+     *
+     * @param  int $competencyid The competency ID.
+     * @return competency[]
+     */
+    public static function get_related_competencies($competencyid) {
+        global $DB;
+
+        $sql = "(SELECT c.*, " . $DB->sql_concat('rc.relatedcompetencyid', "'_'", 'rc.competencyid') . " AS rid
+                   FROM {" . self::TABLE . "} rc
+                   JOIN {" . competency::TABLE . "} c
+                     ON c.id = rc.relatedcompetencyid
+                  WHERE rc.competencyid = :cid)
+              UNION ALL
+                (SELECT c.*, " . $DB->sql_concat('rc.competencyid', "'_'", 'rc.relatedcompetencyid') . " AS rid
+                   FROM {" . self::TABLE . "} rc
+                   JOIN {" . competency::TABLE . "} c
+                     ON c.id = rc.competencyid
+                  WHERE rc.relatedcompetencyid = :cid2)
+               ORDER BY path, sortorder ASC";
+
+        $competencies = array();
+        $records = $DB->get_recordset_sql($sql, array('cid' => $competencyid, 'cid2' => $competencyid));
+        foreach ($records as $record) {
+            unset($record->rid);
+            $competencies[$record->id] = new competency(null, $record);
+        }
+        $records->close();
+
+        return $competencies;
+    }
+
+    /**
+     * Get the related competencies from competency ids.
+     *
+     * @param  int[] $competencyids Array of competency ids.
+     * @return related_competency[]
+     */
+    public static function get_multiple_relations($competencyids) {
+        global $DB;
+
+        if (empty($competencyids)) {
+            return array();
+        }
+
+        list($insql, $params) = $DB->get_in_or_equal($competencyids);
+
+        $records = $DB->get_records_select(self::TABLE,
+                                            "competencyid $insql OR relatedcompetencyid $insql",
+                                            array_merge($params, $params)
+                                            );
+
+        $relatedcompetencies = array();
+        foreach ($records as $record) {
+            unset($record->id);
+            $relatedcompetencies[] = new related_competency(null, $record);
+        }
+        return $relatedcompetencies;
+    }
+
+    /**
+     * Delete relations using competencies.
      *
      * @param array $competencyids Array of competencies ids.
-     * @return boolean Return true if competencies were found in template_competency.
+     * @return bool True if relations were deleted successfully.
      */
-    public static function has_records_for_competencies($competencyids) {
+    public static function delete_multiple_relations($competencyids) {
         global $DB;
-        list($insql, $params) = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED);
-        return self::record_exists_select("competencyid $insql", $params);
+        if (empty($competencyids)) {
+            return true;
+        }
+        list($insql, $params) = $DB->get_in_or_equal($competencyids);
+        return $DB->delete_records_select(self::TABLE,
+                                            "competencyid $insql OR relatedcompetencyid $insql",
+                                            array_merge($params, $params)
+                                            );
     }
 
 }

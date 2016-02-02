@@ -1705,3 +1705,10 @@ p.arrow_button{
 .atto_form .warning {
     color: @errorText;
 }
+
+// Fix for the overlapping "Export whole discussion to portfolio" button in the forums
+@media (min-width: 1200px) and (max-width: 1485px) {
+    #page-mod-forum-discuss .discussioncontrol.exporttoportfolio {
+        margin-right: 5em;
+    }
+}

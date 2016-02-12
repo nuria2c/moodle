@@ -3595,6 +3595,7 @@ class api {
         $competencies = $plan->get_competencies();
         $usercompetencies = user_competency::get_multiple($plan->get_userid(), $competencies);
 
+        $i = 0;
         foreach ($competencies as $competency) {
             $found = false;
 
@@ -3604,6 +3605,7 @@ class api {
 
                     $ucprecord = $uc->to_record();
                     $ucprecord->planid = $plan->get_id();
+                    $ucprecord->sortorder = $i;
                     unset($ucprecord->id);
                     unset($ucprecord->status);
                     unset($ucprecord->reviewerid);
@@ -3620,8 +3622,10 @@ class api {
             if (!$found) {
                 $usercompetencyplan = user_competency_plan::create_relation($plan->get_userid(), $competency->get_id(),
                         $plan->get_id());
+                $usercompetencyplan->set_sortorder($i);
                 $usercompetencyplan->create();
             }
+            $i++;
         }
     }
 

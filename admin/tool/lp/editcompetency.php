@@ -24,6 +24,7 @@
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
+include_once($CFG->dirroot.'/tag/lib.php');
 
 $title = get_string('competencies', 'tool_lp');
 $id = optional_param('id', 0, PARAM_INT);
@@ -69,9 +70,14 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->navbar->add($competencyframework->get_shortname(), $frameworkurl);
 $output = $PAGE->get_renderer('tool_lp');
+// Populate competency tags.
+$tags = array();
+if ($CFG->usetags && $competency) {
+    $tags = tag_get_tags_array('competency', $competency->get_id());
+}
 
 $form = new \tool_lp\form\competency($url->out(false), array('competencyframework' => $competencyframework,
-    'parent' => $parent, 'persistent' => $competency));
+    'parent' => $parent, 'persistent' => $competency, 'tags' => $tags));
 
 if ($form->is_cancelled()) {
     redirect($frameworkurl);
@@ -81,16 +87,24 @@ echo $output->header();
 echo $output->heading($pagetitle);
 
 $data = $form->get_data();
+
 if ($data) {
     require_sesskey();
+    $tags = $data->tags;
+    unset($data->tags);
     if (empty($competency)) {
-        \tool_lp\api::create_competency($data);
+        $competency = \tool_lp\api::create_competency($data);
         echo $output->notification(get_string('competencycreated', 'tool_lp'), 'notifysuccess');
         echo $output->continue_button($frameworkurl);
     } else {
         \tool_lp\api::update_competency($data);
         echo $output->notification(get_string('competencyupdated', 'tool_lp'), 'notifysuccess');
         echo $output->continue_button($frameworkurl);
+    }
+
+    // Update competency tags.
+    if ($CFG->usetags && isset($tags)) {
+        tag_set('competency', $competency->get_id(), $tags, 'tool_lp', $competency->get_context()->id);
     }
 } else {
     $form->display();

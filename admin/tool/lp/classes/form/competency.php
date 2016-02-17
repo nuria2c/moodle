@@ -37,12 +37,14 @@ use stdClass;
 class competency extends persistent {
 
     protected static $persistentclass = 'tool_lp\\competency';
+    /** @var array Fields to remove from the persistent validation. */
+    protected static $foreignfields = array('tags');
 
     /**
      * Define the form - called by parent constructor
      */
     public function definition() {
-        global $PAGE;
+        global $PAGE, $CFG;
 
         $mform = $this->_form;
         $framework = $this->_customdata['competencyframework'];
@@ -103,6 +105,11 @@ class competency extends persistent {
             $mform->setConstant('scaleid', $competency->get_scaleid());
         }
 
+        if (!empty($CFG->usetags)) {
+            $mform->addElement('header', 'tagshdr', get_string('tags', 'tag'));
+            $mform->addElement('tags', 'tags', get_string('tags'));
+        }
+
         $this->add_action_buttons(true, get_string('savechanges', 'tool_lp'));
     }
 
@@ -117,6 +124,7 @@ class competency extends persistent {
             $data->scaleid = null;
             $data->scaleconfiguration = null;
         }
+
         return $data;
     }
 
@@ -136,6 +144,17 @@ class competency extends persistent {
             unset($errors['scaleconfiguration']);
         }
         return $newerrors;
+    }
+
+    /**
+     * Get the default data.
+     *
+     * @return stdClass
+     */
+    protected function get_default_data() {
+        $data = parent::get_default_data();
+        $data->tags = $this->_customdata['tags'];
+        return $data;
     }
 
 }

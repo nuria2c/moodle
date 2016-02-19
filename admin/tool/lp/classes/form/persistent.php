@@ -106,7 +106,7 @@ abstract class persistent extends moodleform {
 
         // TODO Make PHP7 compatible.
         unset($customdata['persistent']);
-        parent::moodleform($action, $customdata, $method, $target, $attributes, $editable);
+        parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
 
         // Load the defaults.
         $this->set_data($this->get_default_data());

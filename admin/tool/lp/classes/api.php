@@ -3376,6 +3376,23 @@ class api {
     }
 
     /**
+     * Log user evidence viewed event.
+     *
+     * @param int $id
+     */
+    public static function user_evidence_viewed($id) {
+        $userevidence = new user_evidence($id);
+
+        if (!$userevidence->can_read()) {
+            $context = $userevidence->get_context();
+            throw new required_capability_exception($context, 'tool/lp:userevidenceread', 'nopermissions', '');
+        }
+
+        // Trigger the viewed event.
+        \tool_lp\event\user_evidence_viewed::create_from_user_evidence($userevidence)->trigger();
+    }
+
+    /**
      * Create a new user evidence.
      *
      * @param  object $data        The data.

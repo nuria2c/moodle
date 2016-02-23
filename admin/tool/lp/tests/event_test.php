@@ -760,4 +760,30 @@ class tool_lp_event_testcase extends advanced_testcase {
         $this->assertEventContextNotUsed($event);
         $this->assertDebuggingNotCalled();
     }
+
+    /**
+     * Test the user evidence viewed event.
+     *
+     */
+    public function test_user_evidence_viewed() {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $dg = $this->getDataGenerator();
+        $lpg = $this->getDataGenerator()->get_plugin_generator('tool_lp');
+        $user = $dg->create_user();
+        $userevidence = $lpg->create_user_evidence(array('userid' => $user->id));
+        // Trigger and capture the event.
+        $sink = $this->redirectEvents();
+        api::user_evidence_viewed($userevidence->get_id());
+        // Get our event event.
+        $events = $sink->get_events();
+        $event = reset($events);
+        // Check that the event data is valid.
+        $this->assertInstanceOf('\tool_lp\event\user_evidence_viewed', $event);
+        $this->assertEquals($userevidence->get_id(), $event->objectid);
+        $this->assertEquals($userevidence->get_context()->id, $event->contextid);
+        $this->assertEquals($userevidence->get_userid(), $event->relateduserid);
+        $this->assertEventContextNotUsed($event);
+        $this->assertDebuggingNotCalled();
+    }
 }

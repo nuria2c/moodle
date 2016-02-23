@@ -119,6 +119,7 @@ $string['eventtemplateviewed'] = 'Template viewed.';
 $string['eventuserevidencecreated'] = 'Evidence of prior learning created.';
 $string['eventuserevidencedeleted'] = 'Evidence of prior learning deleted.';
 $string['eventuserevidenceupdated'] = 'Evidence of prior learning updated.';
+$string['eventuserevidenceviewed'] = 'Evidence of prior learning viewed.';
 $string['evidence'] = 'Evidence';
 $string['evidence_competencyrule'] = 'The rule of the competency was met.';
 $string['evidence_coursecompleted'] = 'The course \'{$a}\' was completed.';

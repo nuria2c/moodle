@@ -41,4 +41,7 @@ echo $output->header();
 $page = new \tool_lp\output\user_evidence_page($userevidence);
 echo $output->render($page);
 
+// Trigger the event viewed.
+\tool_lp\api::user_evidence_viewed($userevidence->get_id());
+
 echo $output->footer();

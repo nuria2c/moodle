@@ -175,8 +175,13 @@ class api {
             // Delete competency evidences.
             user_evidence_competency::delete_by_competencyids($competencyids);
 
+            // Event for current competency deleted will be done separatly because we can add a record snapshot for it.
+            array_pop($competencyids);
+            $competency->set_id($id);
+
             // Register the competencies deleted events.
             $events = \tool_lp\event\competency_deleted::create_multiple_from_competencyids($competencyids, $contextid);
+            $events[] = \tool_lp\event\competency_deleted::create_from_competency($competency);
 
         } catch (\Exception $e) {
             $transaction->rollback($e);

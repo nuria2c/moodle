@@ -48,11 +48,10 @@ if (theme_cleanudem_is_default_device_type()) {
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-            <?php echo $OUTPUT->login_buttons() ?>
+            <?php echo $OUTPUT->user_menu(); ?>
             <div class="nav-collapse collapse pull-right">
                 <?php echo $OUTPUT->custom_menu(); ?>
                 <?php echo $vars['fullscreenbutton']; ?>
-                <?php echo $OUTPUT->user_menu(); ?>
                 <?php echo $OUTPUT->page_heading_menu(); ?>
             </div>
         </div>

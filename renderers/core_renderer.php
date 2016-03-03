@@ -359,23 +359,64 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the user menu.
      */
     public function user_menu($user = null, $withlinks = null) {
-        $usermenu = new custom_menu('', current_language());
-        return $this->render_user_menu($usermenu);
-    }
+        global $USER, $OUTPUT;
 
-    /**
-     * Renders a custom menu object for the user menu.
-     *
-     * @param custom_menu $menu The custom menu used for adding items.
-     * @return string The html fragment of the user menu.
-     */
-    protected function render_user_menu(custom_menu $menu) {
-        global $USER;
         $content = '';
-        define('STUDENT_ROLE_ID', 5);
+
+        if (is_null($user)) {
+            $user = $USER;
+        }
+
+        // Set the usermenu class.
+        $usermenuclass = 'usermenu';
+
+        // If during initial install, return the empty return string.
+        if (during_initial_install()) {
+            return $content;
+        }
+
+        $loginpage = $this->is_login_page();
+        $loginurl = new moodle_url(get_login_url());
+
+        // If not logged in, show the typical not-logged-in string.
+        if (!isloggedin()) {
+            if ($loginpage) {
+                $content .= html_writer::div(get_string('loggedinnot', 'moodle'), 'navbar-text logininfo pull-right');
+            } else {
+                $method = 'get';
+                $content .= html_writer::start_div('login-buttons pull-right');
+                $loginurl->param('authCAS', 'CAS');
+                $content .= $OUTPUT->single_button($loginurl, get_string('acceslogincas', 'local_custompages'), $method,
+                        array('class' => 'login login-cas buttonemphasis',
+                        'tooltip' => get_string('acceslogincastitle', 'local_custompages')));
+                if (udem_is_multiauth_cas()) {
+                    $loginurl->param('authCAS', 'NOCAS');
+                    $content .= $OUTPUT->single_button($loginurl, get_string('accesloginnocas', 'local_custompages'), $method,
+                            array('class' => 'login login-nocas',
+                                'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
+                    $content .= $OUTPUT->help_icon('accesloginnocas', 'local_custompages');
+                }
+                $content .= html_writer::end_div();
+            }
+        }
+
+        // If logged in as a guest user, show a string to that effect.
+        if (isguestuser()) {
+            $content = get_string('loggedinasguest');
+            if (!$loginpage) {
+                $content .= ' (' . html_writer::link($loginurl, get_string('login')) . ')';
+            }
+            return html_writer::div(html_writer::span($content, 'login'), $usermenuclass);
+        }
+
         if (isloggedin() && !isguestuser()) {
+
+            define('STUDENT_ROLE_ID', 5);
+
             // Add The user menu.
-            $fullname = fullname($USER);
+            $menu = new custom_menu('', current_language());
+
+            $fullname = fullname($user);
             $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
 
             // My home.
@@ -389,7 +430,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $usermenu->add($profile, new moodle_url('/user/profile.php'), $profile);
 
             // Grades (only if the user is a student in at least one course).
-            if (theme_cleanudem_user_has_role_assignment($USER->id, STUDENT_ROLE_ID)) {
+            if (theme_cleanudem_user_has_role_assignment($user->id, STUDENT_ROLE_ID)) {
                 $grades = get_string('grades');
                 $usermenu->add($grades, new moodle_url('/grade/report/overview/index.php'), $grades);
             }
@@ -420,39 +461,9 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             foreach ($menu->get_children() as $item) {
                 $content .= $this->render_custom_menu_item($item, 1);
             }
+            $content . html_writer::end_tag('ul');
 
-            return $content . html_writer::end_tag('ul');
-        }
-        return $content;
-    }
-
-    /**
-     * Add the login buttons, CAS and No CAS.
-     */
-    public function login_buttons() {
-        global $OUTPUT;
-        $content = '';
-        if (!isloggedin()) {
-            $loginpage = ((string)$this->page->url === get_login_url());
-            if ($loginpage) {
-                $content .= html_writer::div(get_string('loggedinnot', 'moodle'), 'navbar-text logininfo pull-right');
-            } else {
-                $url = new moodle_url(get_login_url());
-                $method = 'get';
-                $content .= html_writer::start_div('login-buttons pull-right');
-                $url->param('authCAS', 'CAS');
-                $content .= $OUTPUT->single_button($url, get_string('acceslogincas', 'local_custompages'), $method,
-                        array('class' => 'login login-cas buttonemphasis',
-                        'tooltip' => get_string('acceslogincastitle', 'local_custompages')));
-                if (udem_is_multiauth_cas()) {
-                    $url->param('authCAS', 'NOCAS');
-                    $content .= $OUTPUT->single_button($url, get_string('accesloginnocas', 'local_custompages'), $method,
-                            array('class' => 'login login-nocas',
-                                'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
-                    $content .= $OUTPUT->help_icon('accesloginnocas', 'local_custompages');
-                }
-                $content .= html_writer::end_div();
-            }
+            return html_writer::div($content, $usermenuclass);
         }
         return $content;
     }

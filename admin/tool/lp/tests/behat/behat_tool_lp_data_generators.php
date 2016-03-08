@@ -192,6 +192,17 @@ class behat_tool_lp_data_generators extends behat_base {
             $data['userid'] = $user->id;
         }
         unset($data['user']);
+        
+        if (isset($data['reviewer'])) {
+            if (is_number($data['reviewer'])) {
+                $data['reviewerid'] = $data['reviewer'];
+            } else {
+                $user = $DB->get_record('user', array('username' => $data['reviewer']), '*', MUST_EXIST);
+                $data['reviewerid'] = $user->id;
+            }
+            unset($data['reviewer']);
+        }
+        
         return $data;
     }
 

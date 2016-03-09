@@ -42,9 +42,13 @@
 {{#usercompetencysummary}}
 <div data-region="user-competency-full-info" data-node="user-competency" data-competencyid="{{usercompetency.competencyid}}" data-userid="{{usercompetency.userid}}" data-region-id="{{uniqid}}">
 <div data-region="competency-summary">
-    {{#competency}}
-        {{> tool_lp/competency_summary }}
-    {{/competency}}
+    <div class="row-fluid">
+        <div class="span8">
+        {{#competency}}
+            {{> tool_lp/competency_summary }}
+        {{/competency}}
+        </div>
+    </div>
     <dl>
         <dt>{{#str}}activities, tool_lp{{/str}}</dt>
         <dd data-region="coursecompetencyactivities">

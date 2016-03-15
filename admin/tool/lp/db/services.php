@@ -891,4 +891,3 @@ $functions = array(
         'ajax'          => true,
     ),
 );
-

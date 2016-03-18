@@ -47,6 +47,7 @@ class template_cohorts extends moodleform {
             'data-contextid' => $this->_customdata['pagecontextid'],
             'data-includes' => 'parents'
         );
+        $mform->addElement('header', 'generalhdr', get_string('general'));
         $mform->addElement('autocomplete', 'cohorts', get_string('selectcohortstosync', 'tool_lp'), array(), $options);
         $mform->addElement('submit', 'submit', get_string('addcohorts', 'tool_lp'));
     }

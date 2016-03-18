@@ -46,6 +46,7 @@ class template_plans extends moodleform {
             'multiple' => true,
             'data-capability' => 'tool/lp:planmanage'
         );
+        $mform->addElement('header', 'generalhdr', get_string('general'));
         $mform->addElement('autocomplete', 'users', get_string('selectuserstocreateplansfor', 'tool_lp'), array(), $options);
         $mform->addElement('submit', 'submit', get_string('createplans', 'tool_lp'));
     }

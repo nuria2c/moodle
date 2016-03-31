@@ -65,7 +65,7 @@ class tool_lp_course_competency_settings_testcase extends advanced_testcase {
         $lpg->create_course_competency(array('competencyid' => $comp1->get_id(), 'courseid' => $c1->id));
         $lpg->create_course_competency(array('competencyid' => $comp2->get_id(), 'courseid' => $c1->id));
 
-        // Enrol the user
+        // Enrol the user.
         $dg->enrol_user($u1->id, $c1->id);
         role_assign($gradedrole, $u1->id, $syscontext->id);
 
@@ -74,26 +74,21 @@ class tool_lp_course_competency_settings_testcase extends advanced_testcase {
 
         $this->setUser($u2);
 
-        set_config('pushcourseratingstouserplans', true, 'tool_lp');
+        $currentsetting = (boolean)get_config('tool_lp', 'pushcourseratingstouserplans');
 
-        $coursesettings = course_competency_settings::get_by_courseid($c1->id);
-        $this->assertTrue((boolean)$coursesettings->get_pushratingstouserplans());
+        // Check we do not use the global paramater if a value is defined at course level.
+        if ($currentsetting) {
+            api::update_course_competency_settings($c1->id, (object) array('pushratingstouserplans' => false));
+            $coursesettings = course_competency_settings::get_by_courseid($c1->id);
+            $this->assertFalse((boolean)$coursesettings->get_pushratingstouserplans());
+        } else {
+            api::update_course_competency_settings($c1->id, (object) array('pushratingstouserplans' => true));
+            $coursesettings = course_competency_settings::get_by_courseid($c1->id);
+            $this->assertTrue((boolean)$coursesettings->get_pushratingstouserplans());
+        }
 
-        set_config('pushcourseratingstouserplans', false, 'tool_lp');
-
-        $coursesettings = course_competency_settings::get_by_courseid($c1->id);
-        $this->assertFalse((boolean)$coursesettings->get_pushratingstouserplans());
-
-        api::update_course_competency_settings($c1->id, (object) array('pushratingstouserplans' => true));
-        $coursesettings = course_competency_settings::get_by_courseid($c1->id);
-        $this->assertTrue((boolean)$coursesettings->get_pushratingstouserplans());
-
-        set_config('pushcourseratingstouserplans', true, 'tool_lp');
+        // Put back setting to false at course level.
         api::update_course_competency_settings($c1->id, (object) array('pushratingstouserplans' => false));
-        $coursesettings = course_competency_settings::get_by_courseid($c1->id);
-        $this->assertFalse((boolean)$coursesettings->get_pushratingstouserplans());
-
-        // Right now the setting is false.
         api::grade_competency_in_course($c1->id, $u1->id, $comp1->get_id(), 1, 'Note');
         $filterparams = array(
             'userid' => $u1->id,

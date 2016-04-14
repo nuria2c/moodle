@@ -40,7 +40,6 @@ if (!\core_competency\competency_framework::can_read_context($context)) {
 
 $title = get_string('competencies', 'core_competency');
 $pagetitle = get_string('competencyframeworks', 'tool_lp');
-$pagesubtitle = get_string('listcompetencyframeworkscaption', 'tool_lp');
 
 // Set up the page.
 $PAGE->set_context($context);

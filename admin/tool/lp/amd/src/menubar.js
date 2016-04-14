@@ -256,19 +256,52 @@ define(['jquery'], function($) {
      * @method setOpenDirection
      */
     Menubar.prototype.setOpenDirection = function() {
+        
         var pos = this.menuRoot.offset();
         var isRTL = $(document.body).hasClass('dir-rtl');
-        var menuMinWidth = 160;
         var openLeft = false;
+        // Sometimes the menuMinWidth is not enough to figure out if menu exceeds the window width.
+        // So we have to calculate the real menu width.
+        var subMenuContainer = this.rootMenus.find('ul.tool-lp-sub-menu');
+        
+        // Reset margins.
+        subMenuContainer.css('margin-right', '');
+        subMenuContainer.css('margin-top', '');
+
+        subMenuContainer.attr('aria-hidden', false);
+        var menuRealWidth = subMenuContainer.outerWidth(),
+            menuRealHeight = subMenuContainer.outerHeight(),
+            posSubMenu = subMenuContainer.offset();
+
+        var margintop = null, 
+            marginright = null,
+            marginleft = null;
+        var top = pos.top - $(window).scrollTop();
+        // Top is the same for RTL and LTR.
+        if (top + menuRealHeight > $( window ).height()) {
+                margintop = ( posSubMenu.top - top) + menuRealHeight;
+        }
 
         if (isRTL) {
-            if (pos.left - menuMinWidth < 0) {
-                openLeft = true;
+            if (pos.left - menuRealWidth < 0) {
+                marginright = menuRealWidth - pos.left;
             }
         } else {
-            if (pos.left + menuMinWidth > $( window ).width()) {
-                openLeft = true;
+            if ( pos.left + menuRealWidth > $( window ).width()) {
+                marginleft = menuRealWidth; 
             }
+        }
+
+        if (margintop) {
+             subMenuContainer.css('margin-top', '-' + margintop + 'px');
+        }
+        
+        if (marginright) {
+             subMenuContainer.css('margin-right', '-' + marginright + 'px');
+        }
+        
+        if (marginleft) {
+             subMenuContainer.css('margin-left', '-' + marginleft + 'px');
         }
 
         if (openLeft) {

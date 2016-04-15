@@ -82,6 +82,17 @@ define(['jquery',
     Picker.prototype._multiSelect = true;
     /** @type {Boolean} Do we allow to display hidden framework? */
     Picker.prototype._onlyVisible = true;
+    
+    
+    Picker.prototype._buildlist = function() {
+        var self = this;
+        var listcompetencies = self._find('[data-enhance=linktree]').find('[aria-selected=true]');
+        $('[data-region="selected-competencies"]').find('ul.inline').html('');
+        listcompetencies.each(function() {
+            var comp = $( this ).find("span").first();
+            $('[data-region="selected-competencies"] ul').append('<li><span class="label label-info">' + comp.text() +'</span></li>');
+        });
+    };
 
     /**
      * Hook to executed after the view is rendered.
@@ -128,6 +139,9 @@ define(['jquery',
             } else {
                 self._find('[data-region="competencylinktree"] [data-action="add"]').removeAttr('disabled');
             }
+            
+            // On selection change build selected competencies.
+            self._buildlist();
         }.bind(self));
 
         // Add listener for framework change.

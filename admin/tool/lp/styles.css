@@ -76,6 +76,10 @@
     overflow-y: auto;
     height: 400px;
 }
+.path-admin-tool-lp [data-region="selected-competencies"] {
+    overflow-y: auto;
+    height: 40px;
+}
 
 .dir-rtl.path-admin-tool-lp [data-region="filtercompetencies"] input {
     margin-right: 10px;

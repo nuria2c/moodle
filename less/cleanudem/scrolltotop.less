@@ -1,0 +1,23 @@
+// Styles for the scroll to top button
+.scroll-to-top {
+    background: @studiumPrimaryColorMedium;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.3);
+    color: #fff;
+    display: none;
+    font-size: 24px;
+    text-align: center;
+    position: fixed;
+    bottom: 10%;
+    right: 20px;  
+    padding: 10px 17px; 
+    transition: .3s;
+    z-index: 100;
+    
+    &:hover {
+        color: #fff;
+        background: @studiumPrimaryColor;
+    }
+    &:focus {
+        color: #fff;
+    }
+}

@@ -260,3 +260,14 @@ function theme_cleanudem_user_has_role_assignment($userid, $roleid) {
     }
     return $cachedisstudent;
 }
+
+/**
+ * Adds jQuery to the theme.
+ *
+ * @param moodle_page $page
+ *  */
+function theme_cleanudem_page_init(moodle_page $page) {
+    $page->requires->jquery();
+    $page->requires->jquery_plugin('ui');
+    $page->requires->jquery_plugin('scrolltotop', 'theme_cleanudem');
+}

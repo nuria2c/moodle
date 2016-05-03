@@ -47,3 +47,5 @@ if (!isset($vars['footnote'])) {
         <p class="serverinfo">Serveur: <?php echo $a[0]; ?></p>
     </div>
 </footer>
+
+<a href="#" aria-label="Retour vers le haut de la page" class="scroll-to-top"><i class="fa fa-angle-up"></i></a>

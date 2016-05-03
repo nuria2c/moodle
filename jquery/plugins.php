@@ -42,5 +42,6 @@
  */
 
 $plugins = array(
-    'bootstrap' => array('files' => array('bootstrap.min.js'))
+    'bootstrap' => array('files' => array('bootstrap.min.js')),
+    'scrolltotop' => array('files' => array('scrolltotop.js'))
 );

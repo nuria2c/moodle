@@ -104,12 +104,12 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
     }
 
     /**
-     * Add the msapplication meta tags required for the windows 8 start screen tiles to the header of a page.
+     * Add the favicon meta tags required to various devices to the header of a page.
      *
      * @return string the html required to add the meta tags.
      */
-    public static function msapplication_metas() {
-        return theme_cleanudem_renderer_helper::msapplication_metas();
+    public static function favicon_metas() {
+        return theme_cleanudem_renderer_helper::favicon_metas();
     }
 
     /**

@@ -36,7 +36,7 @@ echo $OUTPUT->doctype(); ?>
     <?php echo $OUTPUT->standard_head_html() ?>
     <?php echo $html->fontlinks ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php echo $OUTPUT->msapplication_metas(); ?>
+    <?php echo $OUTPUT->favicon_metas(); ?>
 </head>
 
 <body <?php echo $OUTPUT->body_attributes(); ?>>

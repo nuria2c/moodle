@@ -33,6 +33,11 @@
 class theme_cleanudem_renderer_helper {
 
     /**
+     * @var string The main color used in the theme.
+     */
+    const MAIN_COLOR = '#0e79d4';
+
+    /**
      * Gets the HTML for the studium logo box div.
      *
      * @param string $suffix The suffix used in the image (ex. white for the navigation logo box).
@@ -109,88 +114,99 @@ class theme_cleanudem_renderer_helper {
     public static function favicon_links() {
         global $OUTPUT;
 
-        // Standard favicon.
-        $html = html_writer::empty_tag('link', array(
-            'rel' => 'shortcut icon',
-            'href' => $OUTPUT->pix_url('favicon', 'theme')
-        ));
-
-        // Ipad 2 and Ipad mini.
-        $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon',
-            'sizes' => '76x76',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-76x76', 'theme')
-        ));
-
-        // Iphone with 2x retina display.
-        $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon',
-            'sizes' => '120x120',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-120x120', 'theme')
-        ));
-
-        // Ipad with 2x retina display.
-        $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon',
-            'sizes' => '152x152',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-152x152', 'theme')
-        ));
-
-        // Iphone with 3x retina display.
-        $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon',
-            'sizes' => '180x180',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon-180x180', 'theme')
-        ));
-
-        // Apple default.
-        $html .= html_writer::empty_tag('link', array(
-            'rel' => 'apple-touch-icon',
-            'href' => $OUTPUT->pix_url('apple-touch-icon/apple-touch-icon', 'theme')
-        ));
+        $html = '';
+        $html .= self::favicon_link('shortcut icon', $OUTPUT->pix_url("favicon", 'theme'));
+        $html .= self::apple_favicon_link(57);
+        $html .= self::apple_favicon_link(60);
+        $html .= self::apple_favicon_link(72);
+        $html .= self::apple_favicon_link(114);
+        $html .= self::apple_favicon_link(120);
+        $html .= self::apple_favicon_link(144);
+        $html .= self::apple_favicon_link(152);
+        $html .= self::apple_favicon_link(180);
+        $html .= self::favicon_link('mask-icon', $OUTPUT->pix_url('icons/safari-pinned-tab', 'theme'),
+                array('color' => self::MAIN_COLOR));
 
         return $html;
     }
 
     /**
-     * Add the msapplication meta tags required for the windows 8 start screen tiles to the header of a page.
+     * Add the favicon meta tags required to various devices to the header of a page.
      *
      * @return string The html required to add the meta tags.
      */
-    public static function msapplication_metas() {
-        global $OUTPUT;
+    public static function favicon_metas() {
 
-        $html = html_writer::empty_tag('meta', array(
-            'name' => 'application-name',
-            'content' => 'StudiUM'
-        ));
-
-        $html .= html_writer::empty_tag('meta', array(
-            'name' => 'msapplication-TileColor',
-            'content' => '#0E79D4'
-        ));
-
-        $html .= html_writer::empty_tag('meta', array(
-            'name' => 'msapplication-square70x70logo',
-            'content' => $OUTPUT->pix_url('msapplication/tiny', 'theme')
-        ));
-
-        $html .= html_writer::empty_tag('meta', array(
-            'name' => 'msapplication-square150x150logo',
-            'content' => $OUTPUT->pix_url('msapplication/square', 'theme')
-        ));
-
-        $html .= html_writer::empty_tag('meta', array(
-            'name' => 'msapplication-wide310x150logo',
-            'content' => $OUTPUT->pix_url('msapplication/wide', 'theme')
-        ));
-
-        $html .= html_writer::empty_tag('meta', array(
-            'name' => 'msapplication-square310x310logo',
-            'content' => $OUTPUT->pix_url('msapplication/large', 'theme')
-        ));
+        $name = get_string('studium', 'theme_cleanudem');
+        $html = '';
+        $html .= self::favicon_meta('apple-mobile-web-app-title', $name);
+        $html .= self::favicon_meta('application-name', $name);
+        $html .= self::favicon_meta('msapplication-tooltip', $name);
+        $html .= self::favicon_meta('msapplication-TileColor', self::MAIN_COLOR);
+        $html .= self::favicon_meta('msapplication-navbutton-color', self::MAIN_COLOR);
+        $html .= self::favicon_meta('msapplication-config', 'none');
+        $html .= self::msapplication_favicon_meta('TileImage', '144x144');
+        $html .= self::msapplication_favicon_meta('square70x70logo', '70x70');
+        $html .= self::msapplication_favicon_meta('square150x150logo', '150x150');
+        $html .= self::msapplication_favicon_meta('wide310x150logo', '310x150');
+        $html .= self::msapplication_favicon_meta('square310x310logo', '310x310');
 
         return $html;
+    }
+
+    /**
+     * Generate a favicon related html meta tag.
+     *
+     * @param string $name The name attribute of the meta tag
+     * @param string $content The content attribute of the meta tag
+     * @return string The html meta tag
+     */
+    private static function favicon_meta($name, $content) {
+        return html_writer::empty_tag('meta', array(
+            'name' => $name,
+            'content' => $content
+        )) . "\n";
+    }
+
+    /**
+     * Generate a favicon related html meta tag.
+     *
+     * @param string $name The suffix of msapplication name attribute of the meta tag
+     * @param string $formattedsize The size of the msapplication icon used in filename
+     * @return string The html meta tag
+     */
+    private static function msapplication_favicon_meta($name, $formattedsize) {
+        global $OUTPUT;
+        return self::favicon_meta("msapplication-$name", $OUTPUT->pix_url("icons/mstile-$formattedsize", 'theme'));
+    }
+
+    /**
+     * Generate a apple-touch-icon favicon related html link tag.
+     *
+     * @param int $size The size of the image
+     * @return string The html link tag
+     */
+    private static function apple_favicon_link($size) {
+        global $OUTPUT;
+        $name = 'apple-touch-icon';
+        $formattedsize = $size . 'x' . $size;
+        $href = $OUTPUT->pix_url("icons/$name-$formattedsize", 'theme');
+        $params = array('sizes' => $formattedsize);
+        return self::favicon_link($name, $href, $params);
+    }
+
+    /**
+     * Generate a favicon related html link tag.
+     *
+     * @param string $rel The rel attribute of the link tag
+     * @param string $href The href attribute of the link tag
+     * @param array $customparams Other custom attributes may be passed here
+     * @return string The html link tag
+     */
+    private static function favicon_link($rel, $href, $customparams = array()) {
+        $defaultparams = array('rel' => $rel, 'href' => $href);
+        $params = array_merge($defaultparams, $customparams);
+        return html_writer::empty_tag('link', $params) . "\n";
     }
 
 }

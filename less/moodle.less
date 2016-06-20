@@ -891,13 +891,16 @@
 }
 
 .logobox {
-    margin:0 0 16px 24px;
+    margin: 0 0 16px 24px;
     .editing & {
         margin-left: 0;
     }
     & > * {
         vertical-align: text-bottom;
         display: inline-block;
+    }
+    img {
+        display: block;
     }
     a:hover, a:active, a:focus {
         outline: 0;
@@ -908,8 +911,14 @@
         height: 40px;
         margin: 10px 18px 2px 20px;
         width: 1px;
-
     }
+    .logo_studium {
+        margin-right: 10px;
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+    // Small logo on the fixed bar.
     &.white {
         margin: 0;
         padding: 7px 0;
@@ -925,15 +934,15 @@
             margin-left: 15px;
         }
     }
-    .logo_studium {
-        margin-right: 10px;
-        &:last-child {
-            margin-right: 0;
-        }
-    }
-    // Small logos for mobile devices.
+    // Home page specific.
     &:not(.white) {
+        .logo_studium img {
+            margin-bottom: -1px;
+        }
         @media (max-width: 480px) {
+            #site_fullname {
+                margin-bottom: -1px;
+            }
             .logo_udem img {
                 width: 102px;
                 height: auto;
@@ -1051,9 +1060,9 @@ h1 .dimmed, .udem_coursehidden {
 #site_fullname {
     color: @studiumPrimaryColorDark;
     font-size: 26px;
-    line-height: 24px;
+    line-height: 23px;
     font-weight: bold;
-    margin: 10px 0 1px;
+    margin: 10px 0 0;
     .prefix {
         position: absolute;
         text-indent: -3000px;

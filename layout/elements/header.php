@@ -43,12 +43,9 @@ if (theme_cleanudem_is_default_device_type()) {
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
             <?php echo $vars['brand']; ?>
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
+            <?php echo $OUTPUT->navbar_button(); ?>
             <?php echo $OUTPUT->user_menu(); ?>
+            <?php echo $OUTPUT->search_box(); ?>
             <div class="nav-collapse collapse pull-right">
                 <?php echo $OUTPUT->custom_menu(); ?>
                 <?php echo $vars['fullscreenbutton']; ?>

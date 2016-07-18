@@ -60,7 +60,7 @@
 #coursesearch2 .coursesearchbox input[type=text],
 .searchform input[type=text] {
     width: calc(100% - 100px);
-    max-width: 300px;
+    max-width: 270px;
 }
 
 .lang-fr #coursesearch2 .coursesearchbox input[type=text] {

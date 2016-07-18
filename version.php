@@ -25,10 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2015120100;
-$plugin->requires  = 2015050500;
+$plugin->version   = 2016071800;
+$plugin->requires  = 2016051900;
 $plugin->component = 'theme_cleanudem';
 $plugin->dependencies = array(
-    'theme_bootstrapbase'  => 2015050500,
+    'theme_bootstrapbase'  => 2016051900,
     'local_custompages'  => 2015021700
 );

@@ -4700,6 +4700,19 @@ class settings_navigation extends navigation_node {
             }
         }
 
+        // View category reports.
+        if (has_capability('moodle/site:viewreports', $catcontext)) {
+            $reports = get_plugin_list_with_function('report', 'extend_navigation_category', 'lib.php');
+            if (!empty($reports)) {
+                $reportnav = $categorynode->add(get_string('reports'), null, self::TYPE_CATEGORY, null,
+                        'categoryreports', new pix_icon('i/stats', ''));
+
+                foreach ($reports as $reportfunction) {
+                    $reportfunction($reportnav, $catcontext);
+                }
+            }
+        }
+
         return $categorynode;
     }
 

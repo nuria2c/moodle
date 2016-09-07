@@ -1067,6 +1067,17 @@ $string['tasksessioncleanup'] = 'Cleanup old sessions';
 $string['taskstatscron'] = 'Background processing for statistics';
 $string['tasktagcron'] = 'Background processing for tags';
 $string['tasktempfilecleanup'] = 'Delete stale temp files';
+$string['tasktokencheckexpiration'] = "Check token expiration";
+$string['tasktokencheckexpirationsubject'] = '{$a} - Token expiration';
+$string['tasktokencheckexpirationmessage'] = 'Hi {$a->supportname},
+
+One of your webservice token will expire soon.
+
+Date(s) of expiration : {$a->datestr}
+
+To manage your token, login at:
+{$a->link}
+{$a->signoff}';
 $string['tempdatafoldercleanup'] = 'Clean up temporary data files older than';
 $string['themedesignermode'] = 'Theme designer mode';
 $string['themelist'] = 'Theme list';

@@ -338,4 +338,13 @@ $tasks = array(
         'dayofweek' => '*',
         'month' => '*'
     ),
+    array(
+        'classname' => 'core\task\token_check_expiration_task',
+        'blocking' => 0,
+        'minute' => '00',
+        'hour' => '09',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ),
 );

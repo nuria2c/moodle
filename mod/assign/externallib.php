@@ -2671,7 +2671,8 @@ class mod_assign_external extends external_api {
                 }
                 // Now we do the expensive lookup of user details because we completed the filtering.
                 if (!$assign->is_blind_marking() && !$params['onlyids']) {
-                    $userdetails = user_get_user_details($record, $course);
+                    $excludedfields = array('enrolledcourses');
+                    $userdetails = user_get_user_details($record, $course, array(), $excludedfields);
                 } else {
                     $userdetails = array('id' => $record->id);
                 }
@@ -2714,7 +2715,6 @@ class mod_assign_external extends external_api {
         $userdesc->keys['profileimageurlsmall']->required = VALUE_OPTIONAL;
         $userdesc->keys['profileimageurl']->required = VALUE_OPTIONAL;
         $userdesc->keys['email']->desc = 'Email address';
-        $userdesc->keys['email']->desc = 'Email address';
         $userdesc->keys['idnumber']->desc = 'The idnumber of the user';
 
         // Define other keys.
@@ -2737,15 +2737,6 @@ class mod_assign_external extends external_api {
                         'sortorder' => new external_value(PARAM_INT, 'role sortorder')
                     ]
                 ), 'user roles', VALUE_OPTIONAL
-            ),
-            'enrolledcourses' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'id' => new external_value(PARAM_INT, 'Id of the course'),
-                        'fullname' => new external_value(PARAM_RAW, 'Fullname of the course'),
-                        'shortname' => new external_value(PARAM_RAW, 'Shortname of the course')
-                    ]
-                ), 'Courses where the user is enrolled - limited by which courses the user is able to see', VALUE_OPTIONAL
             ),
             'submitted' => new external_value(PARAM_BOOL, 'have they submitted their assignment'),
             'requiregrading' => new external_value(PARAM_BOOL, 'is their submission waiting for grading'),

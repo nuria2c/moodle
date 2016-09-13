@@ -246,9 +246,10 @@ function user_get_default_fields() {
  * @param stdClass $user user record from mdl_user
  * @param stdClass $course moodle course
  * @param array $userfields required fields
+ * @param array $excludedfields excluded fields
  * @return array|null
  */
-function user_get_user_details($user, $course = null, array $userfields = array()) {
+function user_get_user_details($user, $course = null, array $userfields = array(), array $excludedfields = array()) {
     global $USER, $DB, $CFG, $PAGE;
     require_once($CFG->dirroot . "/user/profile/lib.php"); // Custom field library.
     require_once($CFG->dirroot . "/lib/filelib.php");      // File handling on description and friends.
@@ -264,6 +265,13 @@ function user_get_user_details($user, $course = null, array $userfields = array(
             throw new moodle_exception('invaliduserfield', 'error', '', $thefield);
         }
     }
+    foreach ($excludedfields as $excludedfield) {
+        if (!in_array($excludedfield, $defaultfields)) {
+            throw new moodle_exception('invaliduserfield', 'error', '', $excludedfield);
+        }
+    }
+
+    $userfields = array_diff($userfields, $excludedfields);
 
     // Make sure id and fullname are included.
     if (!in_array('id', $userfields)) {

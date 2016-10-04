@@ -2553,6 +2553,7 @@ class mod_assign_external extends external_api {
 
         $result = array();
         $index = 0;
+        $requiredfields = null;
         foreach ($participants as $record) {
             // Preserve the fullname set by the assignment.
             $fullname = $record->fullname;
@@ -2577,7 +2578,10 @@ class mod_assign_external extends external_api {
                 }
                 // Now we do the expensive lookup of user details because we completed the filtering.
                 if (!$assign->is_blind_marking() && !$params['onlyids']) {
-                    $userdetails = user_get_user_details($record, $course);
+                    if ($requiredfields === null) {
+                        $requiredfields = array('idnumber', 'email', 'phone1', 'phone2', 'department', 'institution');
+                    }
+                    $userdetails = user_get_user_details($record, $course, $requiredfields);
                 } else {
                     $userdetails = array('id' => $record->id);
                 }
@@ -2605,63 +2609,23 @@ class mod_assign_external extends external_api {
      */
     public static function list_participants_returns() {
         // Get user description.
-        $userdesc = core_user_external::user_description();
-        // List unneeded properties.
-        $unneededproperties = [
-            'auth', 'confirmed', 'lang', 'calendartype', 'theme', 'timezone', 'mailformat'
-        ];
-        // Remove unneeded properties for consistency with the previous version.
-        foreach ($unneededproperties as $prop) {
-            unset($userdesc->keys[$prop]);
-        }
-
-        // Override property attributes for consistency with the previous version.
-        $userdesc->keys['fullname']->type = PARAM_NOTAGS;
-        $userdesc->keys['profileimageurlsmall']->required = VALUE_OPTIONAL;
-        $userdesc->keys['profileimageurl']->required = VALUE_OPTIONAL;
-        $userdesc->keys['email']->desc = 'Email address';
-        $userdesc->keys['email']->desc = 'Email address';
-        $userdesc->keys['idnumber']->desc = 'The idnumber of the user';
-
-        // Define other keys.
-        $otherkeys = [
-            'groups' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'id' => new external_value(PARAM_INT, 'group id'),
-                        'name' => new external_value(PARAM_RAW, 'group name'),
-                        'description' => new external_value(PARAM_RAW, 'group description'),
-                    ]
-                ), 'user groups', VALUE_OPTIONAL
-            ),
-            'roles' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'roleid' => new external_value(PARAM_INT, 'role id'),
-                        'name' => new external_value(PARAM_RAW, 'role name'),
-                        'shortname' => new external_value(PARAM_ALPHANUMEXT, 'role shortname'),
-                        'sortorder' => new external_value(PARAM_INT, 'role sortorder')
-                    ]
-                ), 'user roles', VALUE_OPTIONAL
-            ),
-            'enrolledcourses' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'id' => new external_value(PARAM_INT, 'Id of the course'),
-                        'fullname' => new external_value(PARAM_RAW, 'Fullname of the course'),
-                        'shortname' => new external_value(PARAM_RAW, 'Shortname of the course')
-                    ]
-                ), 'Courses where the user is enrolled - limited by which courses the user is able to see', VALUE_OPTIONAL
-            ),
-            'submitted' => new external_value(PARAM_BOOL, 'have they submitted their assignment'),
+        $userdesc = array(
+            'id'             => new external_value(core_user::get_property_type('id'), 'ID of the user'),
+            'fullname'       => new external_value(core_user::get_property_type('firstname'), 'The fullname of the user'),
+            'idnumber'       => new external_value(core_user::get_property_type('idnumber'), 'The idnumber of the user',
+                                                   VALUE_OPTIONAL),
+            'email'          => new external_value(core_user::get_property_type('email'), 'Email address', VALUE_OPTIONAL),
+            'phone1'         => new external_value(core_user::get_property_type('phone1'), 'Phone 1', VALUE_OPTIONAL),
+            'phone2'         => new external_value(core_user::get_property_type('phone2'), 'Phone 2', VALUE_OPTIONAL),
+            'department'     => new external_value(core_user::get_property_type('department'), 'department', VALUE_OPTIONAL),
+            'institution'    => new external_value(core_user::get_property_type('institution'), 'institution', VALUE_OPTIONAL),
+            'submitted'      => new external_value(PARAM_BOOL, 'have they submitted their assignment'),
             'requiregrading' => new external_value(PARAM_BOOL, 'is their submission waiting for grading'),
-            'groupid' => new external_value(PARAM_INT, 'for group assignments this is the group id', VALUE_OPTIONAL),
-            'groupname' => new external_value(PARAM_NOTAGS, 'for group assignments this is the group name', VALUE_OPTIONAL),
-        ];
+            'groupid'        => new external_value(PARAM_INT, 'for group assignments this is the group id', VALUE_OPTIONAL),
+            'groupname'      => new external_value(PARAM_NOTAGS, 'for group assignments this is the group name', VALUE_OPTIONAL)
+        );
 
-        // Merge keys.
-        $userdesc->keys = array_merge($userdesc->keys, $otherkeys);
-        return new external_multiple_structure($userdesc);
+        return new external_multiple_structure(new external_single_structure($userdesc));
     }
 
     /**

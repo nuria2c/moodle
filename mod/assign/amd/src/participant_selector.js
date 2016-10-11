@@ -61,8 +61,10 @@ define(['core/ajax', 'jquery', 'core/templates'], function(ajax, $, templates) {
                 filterstrings[$(element).attr('name')] = $(element).prop('checked');
             });
 
+            var userfields = ['idnumber', 'email', 'phone1', 'phone2', 'department', 'institution'];
             var promise = ajax.call([{
-                methodname: 'mod_assign_list_participants', args: {assignid: assignmentid, groupid: 0, filter: query, limit: 30}
+                methodname: 'mod_assign_list_participants',
+                args: {assignid: assignmentid, groupid: 0, filter: query, limit: 30, userfields: userfields}
             }]);
 
             promise[0].then(function(results) {

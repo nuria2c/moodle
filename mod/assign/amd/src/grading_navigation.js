@@ -102,10 +102,11 @@ define(['jquery', 'core/notification', 'core/str', 'core/form-autocomplete',
         var select = this._region.find('[data-action=change-user]');
         var assignmentid = select.attr('data-assignmentid');
         var groupid = select.attr('data-groupid');
+        var userfields = ['id'];
 
         ajax.call([{
             methodname: 'mod_assign_list_participants',
-            args: {assignid: assignmentid, groupid: groupid, filter: '', onlyids: true},
+            args: {assignid: assignmentid, groupid: groupid, filter: '', userfields: userfields},
             done: this._usersLoaded.bind(this),
             fail: notification.exception
         }]);

@@ -2509,7 +2509,10 @@ class mod_assign_external extends external_api {
                 'filter' => new external_value(PARAM_RAW, 'search string to filter the results'),
                 'skip' => new external_value(PARAM_INT, 'number of records to skip', VALUE_DEFAULT, 0),
                 'limit' => new external_value(PARAM_INT, 'maximum number of records to return', VALUE_DEFAULT, 0),
-                'onlyids' => new external_value(PARAM_BOOL, 'Do not return all user fields', VALUE_DEFAULT, false),
+                'onlyids' => new external_value(PARAM_BOOL, '(deprecated, use userfields) Do not return all user fields',
+                                                VALUE_DEFAULT, false),
+                'userfields' => new external_multiple_structure(new external_value(PARAM_RAW, 'Name of the field'),
+                        'User fields to be returned. Empty array means all fields', VALUE_DEFAULT, array()),
             )
         );
     }
@@ -2522,12 +2525,13 @@ class mod_assign_external extends external_api {
      * @param string $filter search string to filter the results.
      * @param int $skip Number of records to skip
      * @param int $limit Maximum number of records to return
-     * @param bool $onlyids Only return user ids.
+     * @param bool $onlyids Only return user ids (deprecated, use userfields).
+     * @param array $userfields An array of user fields to be returned.
      * @return array of warnings and status result
      * @since Moodle 3.1
      * @throws moodle_exception
      */
-    public static function list_participants($assignid, $groupid, $filter, $skip, $limit, $onlyids) {
+    public static function list_participants($assignid, $groupid, $filter, $skip, $limit, $onlyids, $userfields = array()) {
         global $DB, $CFG;
         require_once($CFG->dirroot . "/mod/assign/locallib.php");
         require_once($CFG->dirroot . "/user/lib.php");
@@ -2539,7 +2543,8 @@ class mod_assign_external extends external_api {
                                                 'filter' => $filter,
                                                 'skip' => $skip,
                                                 'limit' => $limit,
-                                                'onlyids' => $onlyids
+                                                'onlyids' => $onlyids,
+                                                'userfields' => $userfields
                                             ));
         $warnings = array();
 
@@ -2551,6 +2556,10 @@ class mod_assign_external extends external_api {
 
         $participants = $assign->list_participants_with_filter_status_and_group($params['groupid']);
 
+        if ($params['onlyids']) {
+            debugging('The onlyids parameter is deprecated. Use userfields instead.', DEBUG_DEVELOPER);
+        }
+        $returnonlyids = ($params['onlyids'] || (count($params['userfields']) == 1 && isset($params['userfields']['id'])));
         $result = array();
         $index = 0;
         foreach ($participants as $record) {
@@ -2576,8 +2585,8 @@ class mod_assign_external extends external_api {
                     break;
                 }
                 // Now we do the expensive lookup of user details because we completed the filtering.
-                if (!$assign->is_blind_marking() && !$params['onlyids']) {
-                    $userdetails = user_get_user_details($record, $course);
+                if (!$assign->is_blind_marking() && !$returnonlyids) {
+                    $userdetails = user_get_user_details($record, $course, $params['userfields']);
                 } else {
                     $userdetails = array('id' => $record->id);
                 }
@@ -2619,7 +2628,6 @@ class mod_assign_external extends external_api {
         $userdesc->keys['fullname']->type = PARAM_NOTAGS;
         $userdesc->keys['profileimageurlsmall']->required = VALUE_OPTIONAL;
         $userdesc->keys['profileimageurl']->required = VALUE_OPTIONAL;
-        $userdesc->keys['email']->desc = 'Email address';
         $userdesc->keys['email']->desc = 'Email address';
         $userdesc->keys['idnumber']->desc = 'The idnumber of the user';
 

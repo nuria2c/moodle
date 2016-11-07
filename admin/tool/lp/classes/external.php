@@ -867,7 +867,7 @@ class external extends external_api {
             $USER->id, SQL_PARAMS_NAMED);
 
         $extrasearchfields = array();
-        if (!empty($CFG->showuseridentity) && has_capability('moodle/site:viewuseridentity', $context)) {
+        if (!empty($CFG->showuseridentity)) {
             $extrasearchfields = explode(',', $CFG->showuseridentity);
         }
         $fields = \user_picture::fields('u', $extrasearchfields);
@@ -886,8 +886,12 @@ class external extends external_api {
         $users = array();
         foreach ($result as $key => $user) {
             // Make sure all required fields are set.
+            // Check if user has viewuseridentity capability in user context.
+            $usercontext = \context_user::instance($user->id);
+            $hasshowidentityusercap = has_capability('moodle/site:viewuseridentity', $usercontext);
             foreach (user_summary_exporter::define_properties() as $propertykey => $definition) {
-                if (empty($user->$propertykey) || !in_array($propertykey, $extrasearchfields)) {
+                if (empty($user->$propertykey) || !in_array($propertykey, $extrasearchfields) ||
+                        !$hasshowidentityusercap) {
                     if ($propertykey != 'id') {
                         $user->$propertykey = '';
                     }

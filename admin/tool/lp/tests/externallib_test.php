@@ -290,6 +290,9 @@ class tool_lp_external_testcase extends externallib_advanced_testcase {
         $this->assertArrayHasKey($slave1->id, $result['users']);
     }
 
+    /**
+     * Test search users with show user identity check.
+     */
     public function test_search_users() {
         global $CFG;
         $this->resetAfterTest(true);
@@ -397,13 +400,13 @@ class tool_lp_external_testcase extends externallib_advanced_testcase {
         // Only names are included.
         $result = external::search_users('fish');
         $result = external_api::clean_returnvalue(external::search_users_returns(), $result);
-        $this->assertCount(0, $result['users']);
-        $this->assertEquals(0, $result['count']);
+        $this->assertCount(1, $result['users']);
+        $this->assertEquals(1, $result['count']);
 
         $result = external::search_users('bob', 'moodle/competency:planmanage');
         $result = external_api::clean_returnvalue(external::search_users_returns(), $result);
-        $this->assertCount(1, $result['users']);
-        $this->assertEquals(1, $result['count']);
+        $this->assertCount(2, $result['users']);
+        $this->assertEquals(2, $result['count']);
         $this->assertEquals($u1->id, $result['users'][0]['id']);
         $this->assertEmpty($result['users'][0]['idnumber']);
         $this->assertEmpty($result['users'][0]['email']);
@@ -411,6 +414,65 @@ class tool_lp_external_testcase extends externallib_advanced_testcase {
         $this->assertEmpty($result['users'][0]['phone2']);
         $this->assertEmpty($result['users'][0]['department']);
         $this->assertEmpty($result['users'][0]['institution']);
+        $this->assertEquals($u3->id, $result['users'][1]['id']);
+        $this->assertEmpty($result['users'][1]['idnumber']);
+        $this->assertEmpty($result['users'][1]['email']);
+        $this->assertEmpty($result['users'][1]['phone1']);
+        $this->assertEmpty($result['users'][1]['phone2']);
+        $this->assertEmpty($result['users'][1]['department']);
+        $this->assertEmpty($result['users'][1]['institution']);
+
+        // Test search users in category context.
+        $this->setAdminUser();
+        $catmanager = $dg->create_user();
+        $category = $dg->create_category();
+        $catcontext = context_coursecat::instance($category->id);
+        $syscontext = context_system::instance();
+        $cohort = $dg->create_cohort(array('contextid' => $catcontext->id));
+        cohort_add_member($cohort->id, $u1->id);
+        cohort_add_member($cohort->id, $u2->id);
+        cohort_add_member($cohort->id, $u3->id);
+
+        $roleid = create_role('Manager user context role', 'managerusercontext', 'Manager - User context');
+        assign_capability('moodle/competency:planmanage', CAP_ALLOW, $roleid, $syscontext->id);
+        assign_capability('moodle/site:viewuseridentity', CAP_ALLOW, $roleid, $syscontext->id);
+
+        role_assign($roleid, $catmanager->id, $catcontext->id);
+        $params = (object) array(
+            'userid' => $catmanager->id,
+            'roleid' => $roleid,
+            'cohortid' => $cohort->id
+        );
+        \tool_cohortroles\api::create_cohort_role_assignment($params);
+        \tool_cohortroles\api::sync_all_cohort_roles();
+
+        $this->setUser($catmanager);
+        $CFG->showuseridentity = 'idnumber,email,phone1,phone2,department,institution';
+        $result = external::search_users('yyy', 'moodle/competency:planmanage');
+        $result = external_api::clean_returnvalue(external::search_users_returns(), $result);
+        $this->assertCount(3, $result['users']);
+        $this->assertEquals(3, $result['count']);
+        $this->assertEquals($u2->id, $result['users'][0]['id']);
+        $this->assertEquals('Dogs', $result['users'][0]['idnumber']);
+        $this->assertEquals('alyyyson@dyyylan.com', $result['users'][0]['email']);
+        $this->assertEquals('33333', $result['users'][0]['phone1']);
+        $this->assertEquals('77777', $result['users'][0]['phone2']);
+        $this->assertEquals('Development', $result['users'][0]['department']);
+        $this->assertEquals('O2', $result['users'][0]['institution']);
+        $this->assertEquals($u1->id, $result['users'][1]['id']);
+        $this->assertEquals('Cats', $result['users'][1]['idnumber']);
+        $this->assertEquals('bobbyyy@dyyylan.com', $result['users'][1]['email']);
+        $this->assertEquals('123456', $result['users'][1]['phone1']);
+        $this->assertEquals('78910', $result['users'][1]['phone2']);
+        $this->assertEquals('Marketing', $result['users'][1]['department']);
+        $this->assertEquals('HQ', $result['users'][1]['institution']);
+        $this->assertEquals($u3->id, $result['users'][2]['id']);
+        $this->assertEquals('Fish', $result['users'][2]['idnumber']);
+        $this->assertEquals('fishyyy@moodle.com', $result['users'][2]['email']);
+        $this->assertEquals('77777', $result['users'][2]['phone1']);
+        $this->assertEquals('33333', $result['users'][2]['phone2']);
+        $this->assertEquals('Research', $result['users'][2]['department']);
+        $this->assertEquals('Bob', $result['users'][2]['institution']);
     }
 
     public function test_data_for_user_competency_summary_in_plan() {

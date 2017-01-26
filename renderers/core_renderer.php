@@ -359,7 +359,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
      * @return string The html fragment of the user menu.
      */
     public function user_menu($user = null, $withlinks = null) {
-        global $USER, $OUTPUT;
+        global $USER, $OUTPUT, $DB;
 
         $content = '';
 
@@ -453,9 +453,54 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
 
             $usermenu->add(self::DIVIDER);
 
-            // Logout.
-            $logout = get_string('logout');
-            $usermenu->add($logout, new moodle_url('/login/logout.php', array('sesskey' => sesskey(), 'alt' => 'logout')), $logout);
+            $course = $this->page->course;
+
+            // Query the environment.
+            $context = context_course::instance($course->id);
+
+            if (is_role_switched($course->id)) {
+                if ($role = $DB->get_record('role', array('id' => $user->access['rsw'][$context->path]))) {
+                    // Build role-return link instead of logout link.
+                    $rolereturn = new stdClass();
+                    $rolereturnurl = new moodle_url('/course/switchrole.php', array(
+                        'id' => $course->id,
+                        'sesskey' => sesskey(),
+                        'switchrole' => 0,
+                        'returnurl' => $this->page->url->out_as_local_url(false)
+                    ));
+                    $switchrolereturn = get_string('switchrolereturn');
+                    $usermenu->add($switchrolereturn, $rolereturnurl, $switchrolereturn);
+                    $usermenu->add(self::DIVIDER);
+                }
+            } else {
+                // Build switch role link.
+                $roles = get_switchable_roles($context);
+                if (is_array($roles) && (count($roles) > 0)) {
+                    $switchroleurl = new moodle_url('/course/switchrole.php', array(
+                        'id' => $course->id,
+                        'switchrole' => -1,
+                        'returnurl' => $this->page->url->out_as_local_url(false)
+                    ));
+                    $switchroleto = get_string('switchroleto');
+                    $usermenu->add($switchroleto, $switchroleurl, $switchroleto);
+                    $usermenu->add(self::DIVIDER);
+                }
+            }
+
+            if ($returnobject->metadata['asotheruser'] = \core\session\manager::is_loggedinas()) {
+                // Build a user-revert link.
+                $userreverturl = new moodle_url('/course/loginas.php', array(
+                    'id' => $course->id,
+                    'sesskey' => sesskey()
+                ));
+                $logout = get_string('logout');
+                $usermenu->add($logout, $userreverturl, $logout);
+            } else {
+                // Build a logout link.
+                $logouturl = new moodle_url('/login/logout.php', array('sesskey' => sesskey()));
+                $logout = get_string('logout');
+                $usermenu->add($logout, $logouturl, $logout);
+            }
 
             $content .= html_writer::start_tag('ul', array('class' => 'nav'));
             foreach ($menu->get_children() as $item) {

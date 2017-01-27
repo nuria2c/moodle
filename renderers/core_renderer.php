@@ -309,15 +309,17 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
 
             $content .= html_writer::start_tag('a', array('href' => $url, 'target' => $target , 'class' => 'dropdown-toggle',
                 'data-toggle' => $datatoggle, 'title' => $menunode->get_title()));
-            $content .= $menunode->get_text();
+            $content .= html_writer::span($menunode->get_text(), 'fullnameusertext');
             if ($level == 1) {
-                $content .= html_writer::tag('b', '', array('class' => 'caret'));
                 if ($isusermenu) {
                     $size = 30;
                     if (!theme_cleanudem_is_default_device_type()) {
                         $size *= 2;
                     }
                     $content .= $this->user_picture($USER, array('link' => false, 'size' => $size, 'alttext' => true));
+                    $content .= html_writer::tag('b', '', array('class' => 'caret'));
+                } else {
+                    $content .= html_writer::tag('b', '', array('class' => 'caret'));
                 }
             }
             $content .= html_writer::end_tag('a');

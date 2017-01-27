@@ -45,6 +45,7 @@ if (theme_cleanudem_is_default_device_type()) {
             <?php echo $vars['brand']; ?>
             <?php echo $OUTPUT->navbar_button(); ?>
             <?php echo $OUTPUT->user_menu(); ?>
+            <?php echo $OUTPUT->navbar_plugin_output(); ?>
             <?php echo $OUTPUT->search_box(); ?>
             <div class="nav-collapse collapse pull-right">
                 <?php echo $OUTPUT->custom_menu(); ?>

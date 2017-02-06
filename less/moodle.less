@@ -73,19 +73,21 @@
     .studium-dialogue;
     .uep-wrap {
         .studium-dialogue-container;
-        margin: 0;
+        background-color: @white;
         .uep-header {
             .studium-dialogue-hd;
             h2 {
                 .studium-dialogue-hd-title;
             }
             .close {
+                .studium-legacy-enrol-user-dialogue-close;
                 .studium-dialogue-hd-close-wrap;
                 .studium-dialogue-hd-close;
             }
         }
         .uep-footer {
             .studium-dialogue-footer;
+            padding: 14px 15px 5px;
             .uep-search input.uep-search-btn {
                 min-width: 90px;
             }
@@ -94,19 +96,18 @@
 }
 
 // Course user enrol add roles panel.
-.enrolpanel {
-    .studium-dialogue;
-    .container {
-        .studium-dialogue-container;
-        .header {
-            .studium-dialogue-hd;
-            h2 {
-                .studium-dialogue-hd-title;
-            }
-            .close {
-                .studium-dialogue-hd-close-wrap;
-                .studium-dialogue-hd-close;
-            }
+#page-enrol-users .popover {
+    .studium-dialogue-container;
+    padding: 0;
+    .popover-title {
+        .studium-dialogue-hd;
+        h3 {
+            .studium-dialogue-hd-title;
+        }
+        .close {
+            .studium-legacy-enrol-user-dialogue-close;
+            .studium-dialogue-hd-close-wrap;
+            .studium-dialogue-hd-close;
         }
     }
 }

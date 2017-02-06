@@ -1257,27 +1257,38 @@ p.arrow_button{
         display: block;
         position: relative;
         float: left;
-        padding: 2px 3px 0;
+        padding: 2px 8px 0;
         height: 38px;
-        @media (max-width: 980px) {
+        @media (max-width: 979px) {
             float: none;
-            margin-left: 14px;
+            padding-left: 20px;
             z-index: 1;
         }
         &:hover {
             background-color: @navbarInverseLinkBackgroundHover;
+            .fa:before {
+                text-shadow:
+                    -1px 0 @navbarInverseLinkBackgroundHover,
+                    0 1px @navbarInverseLinkBackgroundHover,
+                    1px 0 @navbarInverseLinkBackgroundHover,
+                    0 -1px @navbarInverseLinkBackgroundHover;
+            }
         }
         .fa {
-            border: 2px solid @gray;
+            border: 2px solid @white;
             .border-radius(@baseBorderRadius);
             line-height: 0.85em;
             padding: 1px;
+            font-size: 1.1em;
             &:before {
                 color: @white;
                 display: inline-block;
                 .rotate(45deg);
-                font-size: 1.2em;
-                line-height: 0.85em;
+                text-shadow:
+                    -1px 0 @navbarInverseBackground,
+                    0 1px @navbarInverseBackground,
+                    1px 0 @navbarInverseBackground,
+                    0 -1px @navbarInverseBackground;
             }
             &.fa-compress {
                 display: none;
@@ -1751,7 +1762,7 @@ p.arrow_button{
         padding: 10px 10px;
     }
 }
-@media (max-width: 980px) {
+@media (max-width: 979px) {
     .navbar-fixed-top .navbar-inner, .navbar-fixed-bottom .navbar-inner {
         padding: 5px 5px 1px;
     }

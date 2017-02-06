@@ -6,10 +6,10 @@
     #gradient > .vertical(@studiumPrimaryColor, @studiumPrimaryColorDark);
 }
 
-// White filter for images. Useful to transform gray images to white images. Currently only for webkit and firefox.
+// White filter for images. Useful to transform gray images to white images. Works with all but IE11.
 .studium-white-filter() {
     -webkit-filter: brightness(1.7);
-    filter: url([[pix:theme|white]]#white);
+    filter: brightness(1.7);
 }
 
 // Login buttons.

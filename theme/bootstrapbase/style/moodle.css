@@ -6612,6 +6612,11 @@ a.ygtvspacer:hover {
     height: 470px;
   }
 }
+@media (max-width: 767px) {
+  .preferences-container .preference-table .preference-row .row-fluid div:nth-child(2) .preference-state input[type="checkbox"] + .preference-state-status-container {
+    margin-top: 3px;
+  }
+}
 /* Question */
 .questionbank h2 {
   margin-top: 0;

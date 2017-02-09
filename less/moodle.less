@@ -1784,6 +1784,18 @@ p.arrow_button{
     }
 }
 
+// Prevents the main menu to slide on the second row by cutting the full name of the user.
+li.usermenu .dropdown-toggle .fullnameusertext {
+    vertical-align: top;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    @media (min-width: 980px) {
+        max-width: 10vw;
+    }
+}
+
 // Fix for the overlapping "Export whole discussion to portfolio" button in the forums
 @media (min-width: 1200px) and (max-width: 1485px) {
     #page-mod-forum-discuss .discussioncontrol.exporttoportfolio {

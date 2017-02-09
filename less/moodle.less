@@ -1720,6 +1720,18 @@ p.arrow_button{
     color: @errorText;
 }
 
+// Use fa-power-off icon instead of text for the preference-state-status buttons.
+.preference-state-status-container {
+    .on-text, .off-text {
+        font-size: 0;
+        &::before {
+            font-family: @fontAwesome;
+            content: "\f011";
+            font-size: 18px;
+        }
+    }
+}
+
 // Fix for the overlapping "Export whole discussion to portfolio" button in the forums
 @media (min-width: 1200px) and (max-width: 1485px) {
     #page-mod-forum-discuss .discussioncontrol.exporttoportfolio {

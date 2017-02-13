@@ -344,7 +344,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
                     $url->remove_params(self::HIDDEN_COURSE);
                 }
             } else {
-                $url = '#';
+                $url = '';
             }
             $content .= html_writer::link($url, $title, array('title' => $menunode->get_title(),
                 'target' => $target, 'class' => $class));
@@ -419,7 +419,7 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             $menu = new custom_menu('', current_language());
 
             $fullname = fullname($user);
-            $usermenu = $menu->add($fullname, new moodle_url('#'), $fullname, 10001);
+            $usermenu = $menu->add($fullname, new moodle_url(''), $fullname, 10001);
 
             // My home.
             $my = get_string('myhome');

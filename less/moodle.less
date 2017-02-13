@@ -1808,12 +1808,28 @@ li.usermenu .dropdown-toggle .fullnameusertext {
     li.usermenu .dropdown-toggle .fullnameusertext {
         display:none;
     }
-    .navbar .nav .usermenu > a {
-        min-width: 0px;
+    .navbar .nav > li {
+        // Inverse drop-down menu.
+        > .dropdown-menu {
+            right: 0;
+            &, &::before, &::after {
+                left: auto;
+            }
+            &::before {
+                right: 9px;
+            }
+            &::after {
+                right: 10px;
+            }
+        }
+        &.usermenu > a {
+            min-width: 0px;
+        }
+        > a {
+            padding: 10px 10px;
+        }
     }
-    .navbar .nav > li > a {
-        padding: 10px 10px;
-    }
+
 }
 @media (max-width: 979px) {
     .navbar-fixed-top .navbar-inner, .navbar-fixed-bottom .navbar-inner {

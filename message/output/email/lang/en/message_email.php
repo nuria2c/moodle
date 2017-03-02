@@ -26,3 +26,5 @@ $string['email'] = 'Send email notifications to';
 $string['emailonlyfromnoreplyaddress'] = 'Always send email from the no-reply address?';
 $string['ifemailleftempty'] = 'Leave empty to send notifications to {$a}';
 $string['pluginname'] = 'Email';
+$string['notificationpreferenceslinkhtml'] = '<p><a href="{$a}">Change your notification preferences</a></p>';
+$string['notificationpreferenceslinktext'] = 'Change your notification preferences: {$a}';

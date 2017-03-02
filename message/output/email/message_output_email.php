@@ -90,6 +90,15 @@ class message_output_email extends message_output {
             }
         }
 
+        // Add users preferences notification link in footer.
+        if ($eventdata->notification) {
+            $urlpref = (new \moodle_url('/message/notificationpreferences.php', array('userid' => $recipient->id)))->out(true);
+            $sm = get_string_manager();
+            $lang = $recipient->lang;
+            $eventdata->fullmessagehtml .= $sm->get_string('notificationpreferenceslinkhtml', 'message_email', $urlpref, $lang);
+            $eventdata->fullmessage .= $sm->get_string('notificationpreferenceslinktext', 'message_email', $urlpref, $lang);
+        }
+
         $result = email_to_user($recipient, $eventdata->userfrom, $eventdata->subject, $eventdata->fullmessage,
                                 $eventdata->fullmessagehtml, $attachment, $attachname, true, $replyto, $replytoname);
 

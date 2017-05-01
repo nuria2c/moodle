@@ -68,6 +68,38 @@ function xmldb_workshop_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016022200, 'workshop');
     }
 
+    if ($oldversion < 2017050100) {
+        // Add field submissionfiletypes to the table workshop.
+        $table = new xmldb_table('workshop');
+
+        // Add field assessmentype to the table workshop.
+        $field = new xmldb_field('assessmentype', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add field allowsubmission to the table workshop.
+        $field = new xmldb_field('allowsubmission', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 1, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add field assesassoonsubmitted to the table workshop.
+        $field = new xmldb_field('assessassoonsubmitted', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add field assesassoonsubmitted to the table workshop.
+        $field = new xmldb_field('assesswithoutsubmission', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2017050100, 'workshop');
+
+    }
+
     // Moodle v3.1.0 release upgrade line.
     // Put any upgrade step following this.
 

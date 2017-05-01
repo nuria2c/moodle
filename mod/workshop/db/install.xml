@@ -41,6 +41,10 @@
         <FIELD NAME="overallfeedbackfiles" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Number of allowed attachments to the overall feedback."/>
         <FIELD NAME="overallfeedbackfiletypes" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="comma separated liat of file extensions"/>
         <FIELD NAME="overallfeedbackmaxbytes" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="100000" SEQUENCE="false" COMMENT="Maximum size of one file attached to the overall feedback."/>
+        <FIELD NAME="assessmentype" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Assessment type: 1 = assessment by peers, 2 = self assessment, 3 = self assessment and by peers"/>
+        <FIELD NAME="allowsubmission" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Allow submission."/>
+        <FIELD NAME="assessassoonsubmitted" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Allow assessment immediately after submission."/>
+        <FIELD NAME="assesswithoutsubmission" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Allow user to assess without submission of his work."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

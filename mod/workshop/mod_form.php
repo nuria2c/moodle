@@ -54,7 +54,7 @@ class mod_workshop_mod_form extends moodleform_mod {
      * @return void
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $PAGE;
 
         $workshopconfig = get_config('workshop');
         $mform = $this->_form;
@@ -73,6 +73,9 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
+        // Save advanced setting state.
+        $mform->addElement('hidden', 'advancedsettingdisplayed', 0);
+        $mform->setType('advancedsettingdisplayed', PARAM_INT);
         // Introduction
         $this->standard_intro_elements(get_string('introduction', 'workshop'));
 
@@ -247,6 +250,11 @@ class mod_workshop_mod_form extends moodleform_mod {
 
         // Standard buttons, common to all modules ------------------------------------
         $this->add_action_buttons();
+        $fieldsetarray = array('#id_gradingsettings', '#id_submissionsettings', '#id_assessmentsettings', '#id_feedbacksettings',
+            '#id_examplesubmissionssettings', '#id_accesscontrol');
+        $fieldsets = implode(',', $fieldsetarray);
+        $inputadvancedsettingselector = "input[name='advancedsettingdisplayed']";
+        $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets));
     }
 
     /**

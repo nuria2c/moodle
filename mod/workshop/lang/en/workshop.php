@@ -345,6 +345,7 @@ $string['useselfassessment_desc'] = 'Students may assess their own work';
 $string['viewworkshopsummary'] = 'View workshop summary';
 $string['weightinfo'] = 'Weight: {$a}';
 $string['withoutsubmission'] = 'Reviewer without own submission';
+$string['wizardsubmitbutton'] = 'Save and follow wizard';
 $string['workshop:addinstance'] = 'Add a new workshop';
 $string['workshop:allocate'] = 'Allocate submissions for review';
 $string['workshop:editdimensions'] = 'Edit assessment forms';

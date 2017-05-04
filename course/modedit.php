@@ -158,7 +158,11 @@ if ($mform->is_cancelled()) {
 
     if (isset($fromform->submitbutton)) {
         if (empty($fromform->showgradingmanagement)) {
-            redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$fromform->coursemodule");
+            $wizardworkshop = "";
+            if (isset($fromform->advancedsettingdisplayed) && $fromform->advancedsettingdisplayed == 0) {
+                $wizardworkshop = "&wizard=1";
+            }
+            redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$fromform->coursemodule" . $wizardworkshop);
         } else {
             $returnurl = new moodle_url("/mod/$module->name/view.php", array('id' => $fromform->coursemodule));
             redirect($fromform->gradingman->get_management_url($returnurl));

@@ -168,6 +168,9 @@ class workshop {
     /** @var int maximum size of one file attached to the overall feedback */
     public $overallfeedbackmaxbytes;
 
+    /** @var stdClass Workshop instance data from {workshop} table */
+    public $record;
+
     /**
      * @var workshop_strategy grading strategy instance
      * Do not use directly, get the instance using {@link workshop::grading_strategy_instance()}
@@ -195,6 +198,9 @@ class workshop {
      * @param stdClass $context The context of the workshop instance
      */
     public function __construct(stdclass $dbrecord, $cm, $course, stdclass $context=null) {
+
+        $this->record = $dbrecord;
+
         foreach ($dbrecord as $field => $value) {
             if (property_exists('workshop', $field)) {
                 $this->{$field} = $value;
@@ -1446,6 +1452,36 @@ class workshop {
     }
 
     /**
+     * Return an instance of a wizard step class.
+     *
+     * @return wizard_step Instance of wizard step
+     */
+    public function wizard_step_instance($workshop, $step) {
+        $classname = $this->get_validated_wizard_class_name($step . '_step', 'step');
+        $wizardstep = new $classname($workshop, $step);
+        return $wizardstep;
+    }
+
+    /**
+     * Get a validated wizard class name.
+     *
+     * @param string $name The name of the class
+     * @param string $basename The name of the base class
+     * @return string The complete, validated class name
+     * @throws \invalid_parameter_exception
+     */
+    public function get_validated_wizard_class_name($name, $basename) {
+        $namespace = '\\mod_workshop\\wizard\\';
+        $name = $namespace . $name;
+        $basename = $namespace . $basename;
+        if (!class_exists($name) || !is_subclass_of($name, $basename)) {
+            $message = "Specified class $name does not exist or is not a subclass of $basename";
+            throw new \invalid_parameter_exception($message);
+        }
+        return $name;
+    }
+
+    /**
      * Sets the current evaluation method to the given plugin.
      *
      * @param string $method the name of the workshopeval subplugin
@@ -1654,6 +1690,20 @@ class workshop {
     public function toolbox_url($tool) {
         global $CFG;
         return new moodle_url('/mod/workshop/toolbox.php', array('id' => $this->cm->id, 'tool' => $tool));
+    }
+
+    /**
+     * Get the wizard page url.
+     *
+     * @param int|null $step The current step name of the wizard
+     * @return moodle_url to the wizard page
+     */
+    public function wizard_url($step = null) {
+        $params = array('id' => $this->cm->id);
+        if (!empty($step)) {
+            $params['step'] = $step;
+        }
+        return new moodle_url('/mod/workshop/wizard.php', $params);
     }
 
     /**

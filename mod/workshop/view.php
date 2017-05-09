@@ -38,6 +38,7 @@ $perpage    = optional_param('perpage', null, PARAM_INT);
 $sortby     = optional_param('sortby', 'lastname', PARAM_ALPHA);
 $sorthow    = optional_param('sorthow', 'ASC', PARAM_ALPHA);
 $eval       = optional_param('eval', null, PARAM_PLUGIN);
+$wizard     = optional_param('wizard', 0, PARAM_INT);
 
 if ($id) {
     $cm             = get_coursemodule_from_id('workshop', $id, 0, false, MUST_EXIST);
@@ -53,6 +54,11 @@ require_login($course, true, $cm);
 require_capability('mod/workshop:view', $PAGE->context);
 
 $workshop = new workshop($workshoprecord, $cm, $course);
+
+// Redirect to wizard if required.
+if ($wizard) {
+    redirect($workshop->wizard_url());
+}
 
 // Mark viewed
 $completion = new completion_info($course);
@@ -115,6 +121,7 @@ $output = $PAGE->get_renderer('mod_workshop');
 echo $output->header();
 echo $output->heading_with_help(format_string($workshop->name), 'userplan', 'workshop');
 echo $output->heading(format_string($currentphasetitle), 3, null, 'mod_workshop-userplanheading');
+echo $output->render_workshop_wizard_button($workshop->wizard_url());
 echo $output->render($userplan);
 
 switch ($workshop->phase) {

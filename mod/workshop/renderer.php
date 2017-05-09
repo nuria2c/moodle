@@ -852,6 +852,18 @@ class mod_workshop_renderer extends plugin_renderer_base {
         return $out;
     }
 
+    /**
+     * Renders the wizard button.
+     *
+     * @param moodle_url $url The wizard url
+     * @return string HTML
+     */
+    public function render_workshop_wizard_button(moodle_url $url) {
+        $text = get_string('opensetupwizard', 'workshop');
+        $attributes = array('class' => 'wizard-button btn btn-primary group');
+        return html_writer::div(html_writer::link($url, $text, $attributes), 'clearfix');
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Internal rendering helper methods
     ////////////////////////////////////////////////////////////////////////////

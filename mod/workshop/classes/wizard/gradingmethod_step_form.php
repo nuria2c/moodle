@@ -19,6 +19,7 @@
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,14 +28,14 @@ namespace mod_workshop\wizard;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/formslib.php');
 
 /**
  * The class for editing the grading method form.
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
- * @copyright  Serge Gauthier <serge.gauthier.2@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
+ * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class gradingmethod_step_form extends step_form {
@@ -43,6 +44,38 @@ class gradingmethod_step_form extends step_form {
      * The step form definition.
      */
     public function step_definition() {
+        global $PAGE, $OUTPUT;
+        $workshopconfig = get_config('workshop');
+        $mform = $this->_form;
+
+        // Set to 1 if strategy changed.
+        $mform->addElement('hidden', 'samestep', 0);
+        $mform->setType('samestep', PARAM_INT);
+
+        $label = get_string('strategy', 'workshop');
+        $mform->addElement('select', 'strategy', $label, \workshop::available_strategies_list());
+        $mform->setDefault('strategy', $workshopconfig->strategy);
+        $mform->addHelpButton('strategy', 'strategy', 'workshop');
+        // Set the next step.
+        $this->workshop->wizardstep = submissionsettings_step::NAME;
+        $url = $this->workshop->editform_url();
+        // New or edit grading form.
+        if (!$this->workshop->grading_strategy_instance()->form_ready()) {
+            $textbutton = get_string('manageactionnew', 'core_grading');
+            $imgsrc = 'b/document-new';
+        } else {
+            $textbutton = get_string('manageactionedit', 'core_grading');
+            $imgsrc = 'b/document-edit';
+        }
+
+        $html = \html_writer::start_div('strategybuttoncontainer');
+        $img = \html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url($imgsrc), 'class' => 'action-icon'));
+        $txt = \html_writer::tag('div', $textbutton, array('class' => 'action-text'));
+        $html .= \html_writer::link($url, $img . $txt, array('class' => 'action'));
+        $html .= \html_writer::end_div();
+
+        $mform->addElement('html', $html);
+        $PAGE->requires->js_call_amd('mod_workshop/wizardform', 'init', array());
     }
 
 }

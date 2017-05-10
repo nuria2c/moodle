@@ -194,6 +194,9 @@ class workshop {
      * Do not use directly, get the instance using {@link workshop::grading_evaluation_instance()}
      */
     protected $evaluationinstance = null;
+    
+    /** @var string wizard step */
+    public $wizardstep = null;
 
     /**
      * Initializes the workshop API instance using the data from DB
@@ -1466,11 +1469,15 @@ class workshop {
     /**
      * Return an instance of a wizard step class.
      *
+     * @param string $step Wizard step
      * @return wizard_step Instance of wizard step
      */
-    public function wizard_step_instance($workshop, $step) {
+    public function wizard_step_instance($step = null) {
+        if (empty($step)) {
+            $step = $this->wizardstep;
+        }
         $classname = $this->get_validated_wizard_class_name($step . '_step', 'step');
-        $wizardstep = new $classname($workshop, $step);
+        $wizardstep = new $classname($this, $step);
         return $wizardstep;
     }
 
@@ -1582,7 +1589,11 @@ class workshop {
      */
     public function editform_url() {
         global $CFG;
-        return new moodle_url('/mod/workshop/editform.php', array('cmid' => $this->cm->id));
+        $params = array('cmid' => $this->cm->id);
+        if ($this->wizardstep) {
+            $params['wizardstep'] = $this->wizardstep;
+        }
+        return new moodle_url('/mod/workshop/editform.php', $params);
     }
 
     /**
@@ -1590,7 +1601,11 @@ class workshop {
      */
     public function previewform_url() {
         global $CFG;
-        return new moodle_url('/mod/workshop/editformpreview.php', array('cmid' => $this->cm->id));
+        $params = array('cmid' => $this->cm->id);
+        if ($this->wizardstep) {
+            $params['wizardstep'] = $this->wizardstep;
+        }
+        return new moodle_url('/mod/workshop/editformpreview.php', $params);
     }
 
     /**
@@ -1707,13 +1722,15 @@ class workshop {
     /**
      * Get the wizard page url.
      *
-     * @param int|null $step The current step name of the wizard
+     * @param string|null $step The current step name of the wizard
      * @return moodle_url to the wizard page
      */
     public function wizard_url($step = null) {
         $params = array('id' => $this->cm->id);
         if (!empty($step)) {
             $params['step'] = $step;
+        } else if (!empty($this->wizardstep)) {
+            $params['step'] = $this->wizardstep;
         }
         return new moodle_url('/mod/workshop/wizard.php', $params);
     }

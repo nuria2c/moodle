@@ -19,6 +19,7 @@
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * The wizard step class for the grading method.
  *
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -45,7 +47,12 @@ class gradingmethod_step extends step {
      * @param \stdclass $data Raw data as returned by the form editor
      */
     public function save_form(\stdclass $data) {
-
+        global $DB;
+        if (isset($data->strategy)) {
+            $record = $this->workshop->record;
+            $record->strategy = $data->strategy;
+            $DB->update_record('workshop', $record);
+        }
     }
 
     /**

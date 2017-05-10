@@ -25,8 +25,10 @@
 
 require(__DIR__.'/../../config.php');
 require_once(__DIR__.'/locallib.php');
+use mod_workshop\wizard\gradingmethod_step;
 
 $cmid       = required_param('cmid', PARAM_INT);
+$wizardstep = optional_param('wizardstep', null, PARAM_ALPHA);
 
 $cm         = get_coursemodule_from_id('workshop', $cmid, 0, false, MUST_EXIST);
 $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -36,6 +38,9 @@ require_capability('mod/workshop:editdimensions', $PAGE->context);
 
 $workshop   = $DB->get_record('workshop', array('id' => $cm->instance), '*', MUST_EXIST);
 $workshop   = new workshop($workshop, $cm, $course);
+if ($wizardstep) {
+    $workshop->wizardstep = $wizardstep;
+}
 
 // todo: check if there already is some assessment done and do not allowed the change of the form
 // once somebody already used it to assess
@@ -49,9 +54,12 @@ $PAGE->navbar->add(get_string('editingassessmentform', 'workshop'));
 $strategy = $workshop->grading_strategy_instance();
 
 // load the form to edit the grading strategy dimensions
-$mform = $strategy->get_edit_strategy_form($PAGE->url);
+$mform = $strategy->get_edit_strategy_form($workshop->editform_url()->out(false));
 
 if ($mform->is_cancelled()) {
+    if ($wizardstep) {
+        redirect($workshop->wizard_url(gradingmethod_step::NAME));
+    }
     redirect($workshop->view_url());
 } elseif ($data = $mform->get_data()) {
     if (($data->workshopid != $workshop->id) or ($data->strategy != $workshop->strategy)) {
@@ -59,8 +67,15 @@ if ($mform->is_cancelled()) {
         // editing form opened
         throw new invalid_parameter_exception('Invalid workshop ID or the grading strategy has changed.');
     }
+    if (isset($data->wizardstep)) {
+        $wizardstep = $data->wizardstep;
+    }
     $strategy->save_edit_strategy_form($data);
     if (isset($data->saveandclose)) {
+        // If come from wizard.
+        if ($wizardstep) {
+            redirect($workshop->wizard_url($wizardstep));
+        }
         redirect($workshop->view_url());
     } elseif (isset($data->saveandpreview)) {
         redirect($workshop->previewform_url());

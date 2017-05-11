@@ -28,7 +28,7 @@ namespace mod_workshop\wizard;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The wizard step class for the assessment types.
+ * The wizard step class for the assessment type.
  *
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
  * @copyright  2017 Université de Montréal
@@ -40,12 +40,17 @@ class assessmenttype_step extends step {
     const NAME = 'assessmenttype';
 
     /**
-     * Saves the grading form elements.
+     * Saves the assessment type form elements.
      *
      * @param \stdclass $data Raw data as returned by the form editor
      */
     public function save_form(\stdclass $data) {
-
+        global $DB;
+        if ($data && $this->workshop->record->assessmenttype != $data->assessmenttype) {
+            $this->workshop->record->assessmenttype = $data->assessmenttype;
+            $this->workshop->record->timemodified = time();
+            $DB->update_record('workshop', $this->workshop->record);
+        }
     }
 
     /**

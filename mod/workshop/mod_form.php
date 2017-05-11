@@ -83,6 +83,17 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addElement('header', 'gradingsettings', get_string('gradingsettings', 'workshop'));
         $mform->setExpanded('gradingsettings');
 
+        $radio = array();
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('peerassessment', 'workshop'),
+                \workshop::PEER_ASSESSMENT);
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfassessment', 'workshop'),
+                \workshop::SELF_ASSESSMENT);
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfandpeerassessment', 'workshop'),
+                \workshop::SELF_AND_PEER_ASSESSMENT);
+        $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
+        $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
+        $mform->setType('assessmenttype', PARAM_INT);
+        
         $label = get_string('strategy', 'workshop');
         $mform->addElement('select', 'strategy', $label, workshop::available_strategies_list());
         $mform->setDefault('strategy', $workshopconfig->strategy);

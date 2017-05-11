@@ -100,6 +100,17 @@ function xmldb_workshop_upgrade($oldversion) {
 
     }
 
+    if ($oldversion < 2017051100) {
+        $table = new xmldb_table('workshop');
+
+        // Rename field assessmentype to assessmenttype in table workshop.
+        $field = new xmldb_field('assessmentype', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, "assessmenttype");
+        }
+        upgrade_mod_savepoint(true, 2017051100, 'workshop');
+    }
+
     // Moodle v3.1.0 release upgrade line.
     // Put any upgrade step following this.
 

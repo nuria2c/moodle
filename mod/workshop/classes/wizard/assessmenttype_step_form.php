@@ -45,6 +45,19 @@ class assessmenttype_step_form extends step_form {
      * The step form definition.
      */
     public function step_definition() {
+
+        $mform = $this->_form;
+
+        $radio = array();
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('peerassessment', 'workshop'),
+                \workshop::PEER_ASSESSMENT);
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfassessment', 'workshop'),
+                \workshop::SELF_ASSESSMENT);
+        $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfandpeerassessment', 'workshop'),
+                \workshop::SELF_AND_PEER_ASSESSMENT);
+        $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
+        $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
+        $mform->setType('assessmenttype', PARAM_INT);
     }
 
 }

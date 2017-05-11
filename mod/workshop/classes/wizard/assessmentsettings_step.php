@@ -54,7 +54,11 @@ class assessmentsettings_step extends step {
      * @return \moodle_url The previous url of the wizard page
      */
     public function get_previous_url() {
-        return $this->workshop->wizard_url(peerallocation_step::NAME);
+        if ($this->workshop->record->assessmenttype != \workshop::SELF_ASSESSMENT) {
+            return $this->workshop->wizard_url(peerallocation_step::NAME);
+        } else {
+            return $this->workshop->wizard_url(submissionsettings_step::NAME);
+        }
     }
 
     /**

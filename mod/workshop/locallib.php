@@ -57,6 +57,15 @@ class workshop {
     const EXAMPLES_BEFORE_SUBMISSION    = 1;
     const EXAMPLES_BEFORE_ASSESSMENT    = 2;
 
+    /** @var string PEER_ASSESSMENT Value for peer asssessment */
+    const PEER_ASSESSMENT = 1;
+
+    /** @var string SELF_ASSESSMENT Value for self asssessment */
+    const SELF_ASSESSMENT = 2;
+
+    /** @var string SELF_ASSESSMENT Value for self and peer asssessment */
+    const SELF_AND_PEER_ASSESSMENT = 3;
+    
     /** @var cm_info course module record */
     public $cm;
 
@@ -167,6 +176,9 @@ class workshop {
 
     /** @var int maximum size of one file attached to the overall feedback */
     public $overallfeedbackmaxbytes;
+
+    /** @var int indicate who should assess the workshop */
+    public $assessmenttype;
 
     /** @var stdClass Workshop instance data from {workshop} table */
     public $record;

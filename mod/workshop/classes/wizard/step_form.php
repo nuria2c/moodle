@@ -85,12 +85,12 @@ abstract class step_form extends \moodleform {
         $mform = $this->_form;
         $buttonarray = array();
 
-        if (!empty($this->step->get_previous_url())) {
+        if (!empty($this->step->get_previous())) {
             $buttonarray[] = $mform->createElement('submit', 'previous', get_string('previous'));
         }
 
         $params = array('class' => 'form-submit proceedbutton');
-        if (empty($this->step->get_next_url())) {
+        if (empty($this->step->get_next())) {
             $buttonarray[] = $mform->createElement('submit', 'close', get_string('closeanddisplay', 'workshop'), $params);
         } else {
             $buttonarray[] = $mform->createElement('submit', 'next', get_string('next'), $params);

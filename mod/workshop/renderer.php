@@ -864,6 +864,17 @@ class mod_workshop_renderer extends plugin_renderer_base {
         return html_writer::div(html_writer::link($url, $text, $attributes), 'clearfix');
     }
 
+    /**
+     * Defer to template.
+     *
+     * @param manage_competency_frameworks_page $page
+     * @return string html for the page
+     */
+    public function render_workshop_wizard_navigation_page(mod_workshop\output\wizard_navigation_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('mod_workshop/wizard_navigation_page', $data);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Internal rendering helper methods
     ////////////////////////////////////////////////////////////////////////////

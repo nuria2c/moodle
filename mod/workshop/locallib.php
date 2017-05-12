@@ -180,8 +180,11 @@ class workshop {
     /** @var int indicate who should assess the workshop */
     public $assessmenttype;
 
-    /** @var stdClass Workshop instance data from {workshop} table */
-    public $record;
+    /** @var string wizard step */
+    public $wizardstep = null;
+
+    /** @var array field names from {workshop} table */
+    protected $fieldnames;
 
     /**
      * @var workshop_strategy grading strategy instance
@@ -194,9 +197,6 @@ class workshop {
      * Do not use directly, get the instance using {@link workshop::grading_evaluation_instance()}
      */
     protected $evaluationinstance = null;
-    
-    /** @var string wizard step */
-    public $wizardstep = null;
 
     /**
      * Initializes the workshop API instance using the data from DB
@@ -214,10 +214,11 @@ class workshop {
      */
     public function __construct(stdclass $dbrecord, $cm, $course, stdclass $context=null) {
 
-        $this->record = $dbrecord;
+        $this->fieldnames = array();
 
         foreach ($dbrecord as $field => $value) {
             if (property_exists('workshop', $field)) {
+                $this->fieldnames[] = $field;
                 $this->{$field} = $value;
             }
         }
@@ -1467,9 +1468,36 @@ class workshop {
     }
 
     /**
+     * Get the record format of the workshop database based on the field.
+     *
+     * @return stdClass Workshop instance data from {workshop} table
+     */
+    public function get_record() {
+        $record = new stdClass();
+        foreach ($this->fieldnames as $field) {
+            $value = $this->{$field};
+            if (property_exists('workshop', $field) && is_scalar($value)) {
+                $record->{$field} = $value;
+            }
+        }
+        // Get back the course id instead of the course object;
+        $record->course = $this->course->id;
+        return $record;
+    }
+
+    /**
+     * Check if the assessment type is self assessment.
+     *
+     * @return boolean If the assessment type is self assessment
+     */
+    public function is_self_assessment_type() {
+        return $this->assessmenttype == self::SELF_ASSESSMENT;
+    }
+
+    /**
      * Return an instance of a wizard step class.
      *
-     * @param string $step Wizard step
+     * @param string|null $step A Wizard step
      * @return wizard_step Instance of wizard step
      */
     public function wizard_step_instance($step = null) {
@@ -1477,7 +1505,7 @@ class workshop {
             $step = $this->wizardstep;
         }
         $classname = $this->get_validated_wizard_class_name($step . '_step', 'step');
-        $wizardstep = new $classname($this, $step);
+        $wizardstep = new $classname($this);
         return $wizardstep;
     }
 

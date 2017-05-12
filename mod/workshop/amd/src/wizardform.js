@@ -19,17 +19,35 @@
  * @module      mod_workshop/wizardform
  * @category    output
  * @author      Issam Taboubi <issam.taboubi@umontreal.ca>
+ * @author      Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
  * @copyright   2017 Université de Montréal
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define(['jquery',
+        'core/notification',
+        'core/ajax',
+        'core/templates'],
+    function($, notification, ajax, templates) {
 
     /**
      * Wizard form.
+     *
+     * @param {int} The course module id
+     * @param {String} The current step
      */
-    var Wizardform = function() {
+    var Wizardform = function(cmid, currentstep) {
+        this.cmdid = cmid;
+        this.currentstep = currentstep;
+        $("input:radio[name='assessmenttype']").on('change', this.assessmenttypechanged.bind(this));
         $("select[name='strategy']").on('change', this.strategychanged.bind(this));
     };
+
+    /** @var {int} The course module id */
+    Wizardform.prototype.cmdid = '';
+
+    /** @var {String} The current step */
+    Wizardform.prototype.currentstep = '';
+
 
     /**
      * Function triggered when strategy changed.
@@ -40,11 +58,31 @@ define(['jquery'], function($) {
         $("input[name='samestep']").val(1);
         $('#id_next').click();
     };
+    /**
+     * Function triggered when assessment type changed.
+     *
+     * @param {Event} e the click event
+     * @method assessmenttypechanged
+     */
+    Wizardform.prototype.assessmenttypechanged = function(e) {
+        var requests = [],
+            localthis = this;
+        var assessmenttype = $(e.target).val();
+        requests = ajax.call([{
+            methodname: 'mod_workshop_data_for_wizard_navigation_page',
+            args: {id: parseInt(localthis.cmdid), currentstep: localthis.currentstep, assessmenttype: parseInt(assessmenttype)}
+        }]);
+        requests[0].done(function(context) {
+            templates.render('mod_workshop/wizard_navigation_page', context).done(function(html) {
+                $('[data-region="wizardnavigationpage"]').replaceWith(html);
+            }).fail(notification.exception);
+        }).fail(notification.exception);
+    };
 
-    return /** @alias module:mod_workshop/wizardform*/ {
-        init: function() {
+    return /** @alias module:mod_workshop/wizardform */ {
+        init: function(cmid, currentstep) {
             // Create instance.
-            new Wizardform();
+            new Wizardform(cmid, currentstep);
         }
     };
 });

@@ -49,28 +49,28 @@ class gradingmethod_step extends step {
     public function save_form(\stdclass $data) {
         global $DB;
         if (isset($data->strategy)) {
-            $record = $this->workshop->record;
+            $record = $this->workshop->get_record();
             $record->strategy = $data->strategy;
             $DB->update_record('workshop', $record);
         }
     }
 
     /**
-     * Get the previous url of the wizard page.
+     * Get the previous step of this step.
      *
-     * @return \moodle_url The previous url of the wizard page
+     * @return string The previous step of this step
      */
-    public function get_previous_url() {
-        return $this->workshop->wizard_url(assessmenttype_step::NAME);
+    public function get_previous() {
+        return assessmenttype_step::NAME;
     }
 
     /**
-     * Get the next url of the wizard page.
+     * Get the next step of this step.
      *
-     * @return \moodle_url The next url of the wizard page
+     * @return string The next step of this step
      */
-    public function get_next_url() {
-        return $this->workshop->wizard_url(submissionsettings_step::NAME);
+    public function get_next() {
+        return submissionsettings_step::NAME;
     }
 
 }

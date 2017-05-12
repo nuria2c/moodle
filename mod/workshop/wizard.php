@@ -37,9 +37,9 @@ require_capability('moodle/course:manageactivities', $modcontext);
 
 $workshop = $DB->get_record('workshop', array('id' => $cm->instance), '*', MUST_EXIST);
 $workshop = new workshop($workshop, $cm, $course);
-// Set current step.
-$workshop->wizardstep = $step;
 
+// Set the current step.
+$workshop->wizardstep = $step;
 
 $PAGE->set_url($workshop->wizard_url());
 $PAGE->set_title($workshop->name);
@@ -51,6 +51,7 @@ $PAGE->navbar->add($wizardtitle);
 
 // Load the correct wizard step instance.
 $wizardstep = $workshop->wizard_step_instance();
+$wizardstep->build_form();
 
 // Load the form to edit the current wizard step.
 $mform = $wizardstep->get_form($PAGE->url);
@@ -61,13 +62,13 @@ if ($mform->is_cancelled()) {
     if (isset($data->close)) {
         redirect($workshop->view_url());
     } else if (isset($data->previous)) {
-        redirect($wizardstep->get_previous_url());
+        redirect($workshop->wizard_url($wizardstep->get_previous()));
     } else if (isset($data->samestep) && $data->samestep == 1) {
         $wizardstep->save_form($data);
         redirect($PAGE->url);
     } else if (isset($data->next)) {
         $wizardstep->save_form($data);
-        redirect($wizardstep->get_next_url());
+        redirect($workshop->wizard_url($wizardstep->get_next()));
     } else {
         // Save and continue - redirect to self to prevent data being re-posted by pressing "Reload".
         $wizardstep->save_form($data);
@@ -81,6 +82,10 @@ $output = $PAGE->get_renderer('mod_workshop');
 
 echo $output->header();
 echo $output->heading_with_help($wizardtitle, 'setupwizard', 'workshop');
+
+$page = new mod_workshop\output\wizard_navigation_page($workshop);
+
+echo $output->render_workshop_wizard_navigation_page($page);
 
 $mform->display();
 

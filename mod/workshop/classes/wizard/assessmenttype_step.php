@@ -46,29 +46,29 @@ class assessmenttype_step extends step {
      */
     public function save_form(\stdclass $data) {
         global $DB;
-        if ($data && $this->workshop->record->assessmenttype != $data->assessmenttype) {
-            $this->workshop->record->assessmenttype = $data->assessmenttype;
-            $this->workshop->record->timemodified = time();
-            $DB->update_record('workshop', $this->workshop->record);
+        if ($data && $this->workshop->assessmenttype != $data->assessmenttype) {
+            $this->workshop->assessmenttype = $data->assessmenttype;
+            $this->workshop->timemodified = time();
+            $DB->update_record('workshop', $this->workshop->get_record());
         }
     }
 
     /**
-     * Get the previous url of the wizard page.
+     * Get the previous step of this step.
      *
-     * @return \moodle_url The previous url of the wizard page
+     * @return string The previous step of this step
      */
-    public function get_previous_url() {
+    public function get_previous() {
         return null;
     }
 
     /**
-     * Get the next url of the wizard page.
+     * Get the next step of this step.
      *
-     * @return \moodle_url The next url of the wizard page
+     * @return string The next step of this step
      */
-    public function get_next_url() {
-        return $this->workshop->wizard_url(gradingmethod_step::NAME);
+    public function get_next() {
+        return gradingmethod_step::NAME;
     }
 
 }

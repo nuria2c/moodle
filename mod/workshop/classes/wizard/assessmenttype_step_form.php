@@ -45,7 +45,7 @@ class assessmenttype_step_form extends step_form {
      * The step form definition.
      */
     public function step_definition() {
-
+        global $PAGE;
         $mform = $this->_form;
 
         $radio = array();
@@ -58,6 +58,9 @@ class assessmenttype_step_form extends step_form {
         $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
         $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
         $mform->setType('assessmenttype', PARAM_INT);
+
+        $PAGE->requires->js_call_amd('mod_workshop/wizardform', 'init',
+                array($this->workshop->cm->id, assessmenttype_step::NAME));
     }
 
 }

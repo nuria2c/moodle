@@ -56,8 +56,7 @@ class gradingmethod_step_form extends step_form {
         $mform->addElement('select', 'strategy', $label, \workshop::available_strategies_list());
         $mform->setDefault('strategy', $workshopconfig->strategy);
         $mform->addHelpButton('strategy', 'strategy', 'workshop');
-        // Set the next step.
-        $this->workshop->wizardstep = submissionsettings_step::NAME;
+
         $url = $this->workshop->editform_url();
         // New or edit grading form.
         if (!$this->workshop->grading_strategy_instance()->form_ready()) {

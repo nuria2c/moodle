@@ -49,20 +49,20 @@ class summary_step extends step {
     }
 
     /**
-     * Get the previous url of the wizard page.
+     * Get the previous step of this step.
      *
-     * @return \moodle_url The previous url of the wizard page
+     * @return string The previous step of this step
      */
-    public function get_previous_url() {
-        return $this->workshop->wizard_url(assessmentsettings_step::NAME);
+    public function get_previous() {
+        return assessmentsettings_step::NAME;
     }
 
     /**
-     * Get the next url of the wizard page.
+     * Get the next step of this step.
      *
-     * @return \moodle_url The next url of the wizard page
+     * @return string The next step of this step
      */
-    public function get_next_url() {
+    public function get_next() {
         return null;
     }
 

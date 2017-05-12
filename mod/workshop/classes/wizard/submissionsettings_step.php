@@ -49,24 +49,24 @@ class submissionsettings_step extends step {
     }
 
     /**
-     * Get the previous url of the wizard page.
+     * Get the previous step of this step.
      *
-     * @return \moodle_url The previous url of the wizard page
+     * @return string The previous step of this step
      */
-    public function get_previous_url() {
-        return $this->workshop->wizard_url(gradingmethod_step::NAME);
+    public function get_previous() {
+        return gradingmethod_step::NAME;
     }
 
     /**
-     * Get the next url of the wizard page.
+     * Get the next step of this step.
      *
-     * @return \moodle_url The next url of the wizard page
+     * @return string The next step of this step
      */
-    public function get_next_url() {
-        if ($this->workshop->record->assessmenttype != \workshop::SELF_ASSESSMENT) {
-            return $this->workshop->wizard_url(peerallocation_step::NAME);
+    public function get_next() {
+        if ($this->workshop->is_self_assessment_type()) {
+            return assessmentsettings_step::NAME;
         } else {
-            return $this->workshop->wizard_url(assessmentsettings_step::NAME);
+            return peerallocation_step::NAME;
         }
     }
 

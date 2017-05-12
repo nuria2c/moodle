@@ -49,14 +49,21 @@ abstract class step {
      * @param string $step The current step of the wizard
      * @throws coding_exception A coding exception if the child class does not define NAME const
      */
-    public function __construct($workshop, $step) {
+    public function __construct($workshop) {
         if (!defined('static::NAME')) {
             throw new \coding_exception('Constant NAME is not defined on subclass ' . get_class($this));
         }
-        $classname = $workshop->get_validated_wizard_class_name($step . '_step_form', 'step_form');
         $this->workshop = $workshop;
+    }
+
+    /**
+     * Build the form.
+     */
+    final public function build_form() {
+        $workshop = $this->workshop;
+        $classname = $workshop->get_validated_wizard_class_name($workshop->wizardstep . '_step_form', 'step_form');
         $this->form = new $classname($workshop, $this);
-        $this->form->set_data($workshop->record);
+        $this->form->set_data($workshop->get_record());
     }
 
     /**
@@ -70,6 +77,7 @@ abstract class step {
 
     /**
      * Saves the grading form elements.
+     * The form must be builded first.
      *
      * @param \stdclass $data Raw data as returned by the form editor
      * @return void
@@ -77,17 +85,17 @@ abstract class step {
     abstract public function save_form(\stdclass $data);
 
     /**
-     * Get the previous url of the wizard page.
+     * Get the previous step of this step.
      *
-     * @return \moodle_url The previous url of the wizard page
+     * @return string The previous step of this step
      */
-    abstract public function get_previous_url();
+    abstract public function get_previous();
 
     /**
-     * Get the next url of the wizard page.
+     * Get the next step of this step.
      *
-     * @return \moodle_url The next url of the wizard page
+     * @return string The next step of this step
      */
-    abstract public function get_next_url();
+    abstract public function get_next();
 
 }

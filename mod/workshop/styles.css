@@ -279,6 +279,98 @@
     float: right;
 }
 
+.path-mod-workshop .wizard-navigation {
+    margin: 25px 0 20px;
+}
+
+.path-mod-workshop .wizard-navigation ol {
+    position: relative;
+    overflow: hidden;
+    counter-reset: wizard;
+    display: flex;
+    flex: 0 1 auto;
+    margin: 0;
+}
+
+.path-mod-workshop .wizard-navigation ol:before,
+.path-mod-workshop .wizard-navigation ol:after,
+.path-mod-workshop .wizard-navigation li + li:after {
+    content: "";
+    display: block;
+    width: 50%;
+    background-color: #3498db;
+    height: 2px;
+    position: absolute;
+    top: 1.5em;
+    z-index: -1;
+    transform: translateY(1px);
+}
+
+path-mod-workshop .wizard-navigation ol:before {
+    left:0;
+}
+.path-mod-workshop .wizard-navigation ol:after {
+    background-color: #ddd;
+    right: 0;
+}
+
+.path-mod-workshop .wizard-navigation li + li:after {
+    width: 100%;
+    background-color: #3498db;
+    left: -50%;
+    z-index: 0;
+}
+
+.path-mod-workshop .wizard-navigation li {
+    position: relative;
+    list-style-type: none;
+    flex-basis: 100%;
+    text-align: center;
+    color: #3498db;
+}
+
+.path-mod-workshop .wizard-navigation li a {
+    color : #333;
+}
+.path-mod-workshop .wizard-navigation li a:hover,
+.path-mod-workshop .wizard-navigation li a:focus {
+    text-decoration : none;
+}
+
+.path-mod-workshop .wizard-navigation .current ~ li {
+    color: #3498db;
+}
+
+.path-mod-workshop .wizard-navigation li .container:before {
+    counter-increment: wizard;
+    content: counter(wizard);
+    display: block;
+    color: #fff;
+    font-size: 1.5em;
+    background-color: #3498db;
+    border: 2px solid #3498db;
+    text-align: center;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    border-radius: 2em;
+    position: relative;
+    left: 50%;
+    margin-bottom: 0.2em;
+    margin-left: -1em;
+    z-index: 1;
+}
+.path-mod-workshop .wizard-navigation .current ~ li .container:before {
+    background-color: #fff;
+    color: #333;
+    border-color: #ddd;
+}
+
+.path-mod-workshop .wizard-navigation .current ~ li:after {
+    background-color: #ddd;
+}
+
+
 @media only screen and (max-width: 768px) {
     .path-mod-workshop .userplan {
         border-right: none;
@@ -305,6 +397,10 @@
         width: 65%;
         border-left: 1px solid #ddd;
         border-top: 1px solid #ddd;
+    }
+
+    .path-mod-workshop .wizard-navigation li .container .legend {
+        display: none;
     }
 }
 
@@ -333,6 +429,20 @@
 
     .path-mod-workshop .wizard-button {
         float: none;
+    }
+
+    .path-mod-workshop .wizard-navigation li .container:before {
+        font-size: 1.5em;
+        width: 1.5em;
+        height: 1.5em;
+        line-height: 1.5em;
+        border-radius: 1.5em;
+    }
+
+    .path-mod-workshop .wizard-navigation ol:before,
+    .path-mod-workshop .wizard-navigation ol:after,
+    .path-mod-workshop .wizard-navigation li + li:after {
+        top: 1.15em;
     }
 }
 

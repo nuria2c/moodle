@@ -19,6 +19,7 @@
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * The wizard step for assessment settings.
  *
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,12 +42,33 @@ class assessmentsettings_step extends step {
     const NAME = 'assessmentsettings';
 
     /**
-     * Saves the grading form elements.
+     * Saves the assessment settings form elements.
      *
      * @param \stdclass $data Raw data as returned by the form editor
      */
     public function save_form(\stdclass $data) {
-
+        global $DB;
+        $record = $this->workshop->get_record();
+        $record->assesswithoutsubmission = (int)!empty($data->assesswithoutsubmission);
+        // Intructions for reviewers.
+        if ($draftitemid = $data->instructreviewerseditor['itemid']) {
+            $record->instructreviewers = file_save_draft_area_files($draftitemid, $this->workshop->context->id,
+                'mod_workshop',
+                'instructreviewers',
+                0, \workshop::instruction_editors_options($this->workshop->context), $data->instructreviewerseditor['text']);
+            $record->instructreviewersformat = $data->instructreviewerseditor['format'];
+        }
+        // Assessment start date.
+        if (isset($data->assessmentstart)) {
+            $record->assessmentstart = $data->assessmentstart;
+        } else {
+            $record->assessmentstart = 0;
+        }
+        // Assessment end date.
+        $record->assessmentend = $data->assessmentend;
+        // Update time modified.
+        $record->timemodified = time();
+        $DB->update_record('workshop', $record);
     }
 
     /**

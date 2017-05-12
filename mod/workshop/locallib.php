@@ -192,6 +192,9 @@ class workshop {
     /** @var bool indicate if assessmnent is allowed as soon work is submitted */
     public $assessassoonsubmitted;
 
+    /** @var int 1 if user can assess without submission */
+    public $assesswithoutsubmission;
+
     /**
      * @var workshop_strategy grading strategy instance
      * Do not use directly, get the instance using {@link workshop::grading_strategy_instance()}

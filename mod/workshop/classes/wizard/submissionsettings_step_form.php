@@ -83,10 +83,13 @@ class submissionsettings_step_form extends step_form {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        if (!empty($errors)) {
+            return $errors;
+        }
 
         // No validation required if no submission is allowed.
         if (!isset($data['allowsubmission'])) {
-           return $errors;
+            return $errors;
         }
 
         $data['assessmentstart'] = $this->workshop->assessmentstart;
@@ -101,6 +104,7 @@ class submissionsettings_step_form extends step_form {
         // Check the phases borders are valid.
         if ($data['submissionstart'] > 0 and $data['submissionend'] > 0 and $data['submissionstart'] >= $data['submissionend']) {
             $errors['submissionend'] = get_string('submissionendbeforestart', 'mod_workshop');
+            return $errors;
         }
 
         // Check the phases do not overlap.

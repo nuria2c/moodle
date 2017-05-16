@@ -834,3 +834,6 @@ path-mod-workshop .wizard-navigation ol:before {
     width: 150px;
     text-decoration: none;
 }
+.path-mod-workshop .mform .wizard-summary .fitem {
+    margin-bottom: 0;
+}

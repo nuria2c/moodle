@@ -139,34 +139,55 @@ class mod_workshop_mod_form extends moodleform_mod {
         // Submission settings --------------------------------------------------------
         $mform->addElement('header', 'submissionsettings', get_string('submissionsettings', 'workshop'));
 
+        $label = get_string('allowsubmission', 'workshop');
+        $mform->addElement('checkbox', 'allowsubmission', $label, ' ');
+        $mform->addHelpButton('allowsubmission', 'allowsubmission', 'workshop');
+
+        $divsubmissioninfo =  \html_writer::start_div('fitem submissioninfo');
         $label = get_string('instructauthors', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('editor', 'instructauthorseditor', $label, null,
                             workshop::instruction_editors_options($this->context));
+        $mform->addElement('html', \html_writer::end_div());
+
+        $label = get_string('assessassoonsubmitted', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
+        $mform->addElement('checkbox', 'assessassoonsubmitted', $label, ' ');
+        $mform->addHelpButton('assessassoonsubmitted', 'assessassoonsubmitted', 'workshop');
+        $mform->addElement('html', \html_writer::end_div());
 
         $options = array();
         for ($i = 7; $i >= 0; $i--) {
             $options[$i] = $i;
         }
         $label = get_string('nattachments', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('select', 'nattachments', $label, $options);
         $mform->setDefault('nattachments', 1);
+        $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('allowedfiletypesforsubmission', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('text', 'submissionfiletypes', $label, array('maxlength' => 255, 'size' => 64));
         $mform->addHelpButton('submissionfiletypes', 'allowedfiletypesforsubmission', 'workshop');
         $mform->setType('submissionfiletypes', PARAM_TEXT);
         $mform->addRule('submissionfiletypes', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->disabledIf('submissionfiletypes', 'nattachments', 'eq', 0);
+        $mform->addElement('html', \html_writer::end_div());
 
         $options = get_max_upload_sizes($CFG->maxbytes, $this->course->maxbytes, 0, $workshopconfig->maxbytes);
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('select', 'maxbytes', get_string('maxbytes', 'workshop'), $options);
         $mform->setDefault('maxbytes', $workshopconfig->maxbytes);
         $mform->disabledIf('maxbytes', 'nattachments', 'eq', 0);
+        $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('latesubmissions', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $text = get_string('latesubmissions_desc', 'workshop');
         $mform->addElement('checkbox', 'latesubmissions', $label, $text);
         $mform->addHelpButton('latesubmissions', 'latesubmissions', 'workshop');
+        $mform->addElement('html', \html_writer::end_div());
 
         // Assessment settings --------------------------------------------------------
         $mform->addElement('header', 'assessmentsettings', get_string('assessmentsettings', 'workshop'));
@@ -234,15 +255,21 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addElement('header', 'accesscontrol', get_string('availability', 'core'));
 
         $label = get_string('submissionstart', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('date_time_selector', 'submissionstart', $label, array('optional' => true));
+        $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('submissionend', 'workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('date_time_selector', 'submissionend', $label, array('optional' => true));
+        $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('submissionendswitch', 'mod_workshop');
+        $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('checkbox', 'phaseswitchassessment', $label);
         $mform->disabledIf('phaseswitchassessment', 'submissionend[enabled]');
         $mform->addHelpButton('phaseswitchassessment', 'submissionendswitch', 'mod_workshop');
+        $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('assessmentstart', 'workshop');
         $mform->addElement('date_time_selector', 'assessmentstart', $label, array('optional' => true));
@@ -266,6 +293,7 @@ class mod_workshop_mod_form extends moodleform_mod {
         $fieldsets = implode(',', $fieldsetarray);
         $inputadvancedsettingselector = "input[name='advancedsettingdisplayed']";
         $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets));
+        $PAGE->requires->js_call_amd('mod_workshop/wizardsubmissionsettings', 'init', array("input[name='allowsubmission']"));
     }
 
     /**

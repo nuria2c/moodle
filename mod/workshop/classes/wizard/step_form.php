@@ -105,6 +105,31 @@ abstract class step_form extends \moodleform {
     }
 
     /**
+     * Load in existing data as form defaults. Usually new entry defaults are stored directly in
+     * form definition (new entry form); this function is used to load in data where values
+     * already exist and data is being edited (edit entry form).
+     *
+     * note: $slashed param removed
+     *
+     * @param stdClass|array $defaultvalues object or array of default values
+     */
+    public function set_data($defaultvalues) {
+        if (is_object($defaultvalues)) {
+            $defaultvalues = (array)$defaultvalues;
+        }
+        $this->data_preprocessing($defaultvalues);
+        $this->_form->setDefaults($defaultvalues);
+    }
+
+    /**
+     * Prepares the form before data are set.
+     *
+     * @param array $defaultvalues passed by reference
+     */
+    public function data_preprocessing(&$defaultvalues) {
+    }
+
+    /**
      * The step form definition.
      */
     abstract public function step_definition();

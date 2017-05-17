@@ -186,6 +186,12 @@ class workshop {
     /** @var array field names from {workshop} table */
     protected $fieldnames;
 
+    /** @var bool indicate if user will submit work for workshop */
+    public $allowsubmission;
+
+    /** @var bool indicate if assessmnent is allowed as soon work is submitted */
+    public $assessassoonsubmitted;
+
     /**
      * @var workshop_strategy grading strategy instance
      * Do not use directly, get the instance using {@link workshop::grading_strategy_instance()}

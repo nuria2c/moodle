@@ -19,6 +19,7 @@
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Serge Gauthier <serge.gauthier.2@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * The wizard step class for the submission settings.
  *
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Serge Gauthier <serge.gauthier.2@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,12 +42,44 @@ class submissionsettings_step extends step {
     const NAME = 'submissionsettings';
 
     /**
-     * Saves the grading form elements.
+     * Saves the submission settings form elements.
      *
      * @param \stdclass $data Raw data as returned by the form editor
      */
     public function save_form(\stdclass $data) {
+        global $DB;
 
+        $data->allowsubmission = (int)!empty($data->allowsubmission);
+        $data->assessassoonsubmitted = (int)!empty($data->assessassoonsubmitted);
+        $record = $this->workshop->get_record();
+        if ($data->allowsubmission == 0) {
+            $record->allowsubmission = $data->allowsubmission;
+            $record->assessassoonsubmitted = 0;
+            $record->instructauthors = '';
+            $record->instructauthorsformat = FORMAT_HTML;
+            $record->submissionstart = 0;
+            $record->submissionend = 0;
+            $record->latesubmissions = 0;
+            $record->nattachments = 1;
+            $record->maxbytes = 0;
+            $record->submissionfiletypes = '';
+        } else {
+            $record->allowsubmission = $data->allowsubmission;
+            $record->assessassoonsubmitted = $data->assessassoonsubmitted;
+            $record->submissionstart = $data->submissionstart;
+            $record->submissionend = $data->submissionend;
+
+            // Process the custom wysiwyg editors.
+            if ($draftitemid = $data->instructauthorseditor['itemid']) {
+                $record->instructauthors = file_save_draft_area_files($draftitemid,
+                        $this->workshop->context->id, 'mod_workshop', 'instructauthors', 0,
+                        \workshop::instruction_editors_options($this->workshop->context), $data->instructauthorseditor['text']);
+                $record->instructauthorsformat = $data->instructauthorseditor['format'];
+            }
+        }
+
+        $record->timemodified = time();
+        $DB->update_record('workshop', $record);
     }
 
     /**

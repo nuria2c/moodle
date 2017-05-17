@@ -84,7 +84,21 @@ function workshop_add_instance(stdclass $workshop) {
     $workshop->useselfassessment     = (int)!empty($workshop->useselfassessment);
     $workshop->latesubmissions       = (int)!empty($workshop->latesubmissions);
     $workshop->phaseswitchassessment = (int)!empty($workshop->phaseswitchassessment);
+    $workshop->allowsubmission       = (int)!empty($workshop->allowsubmission);
+    $workshop->assessassoonsubmitted = (int)!empty($workshop->assessassoonsubmitted);
     $workshop->evaluation            = 'best';
+
+    if ($workshop->allowsubmission == 0) {
+        $workshop->assessassoonsubmitted = 0;
+        $workshop->instructauthorseditor['text'] = '';
+        $workshop->instructauthorseditor['format'] = FORMAT_HTML;
+        $workshop->submissionstart = 0;
+        $workshop->submissionend = 0;
+        $workshop->latesubmissions = 0;
+        $workshop->nattachments = 1;
+        $workshop->maxbytes = 0;
+        $workshop->submissionfiletypes = '';
+    }
 
     if (isset($workshop->gradinggradepass)) {
         $workshop->gradinggradepass = (float)unformat_float($workshop->gradinggradepass);
@@ -161,6 +175,20 @@ function workshop_update_instance(stdclass $workshop) {
     $workshop->useselfassessment     = (int)!empty($workshop->useselfassessment);
     $workshop->latesubmissions       = (int)!empty($workshop->latesubmissions);
     $workshop->phaseswitchassessment = (int)!empty($workshop->phaseswitchassessment);
+    $workshop->allowsubmission       = (int)!empty($workshop->allowsubmission);
+    $workshop->assessassoonsubmitted = (int)!empty($workshop->assessassoonsubmitted);
+
+    if ($workshop->allowsubmission == 0) {
+        $workshop->assessassoonsubmitted = 0;
+        $workshop->instructauthorseditor['text'] = '';
+        $workshop->instructauthorseditor['format'] = FORMAT_HTML;
+        $workshop->submissionstart = 0;
+        $workshop->submissionend = 0;
+        $workshop->latesubmissions = 0;
+        $workshop->nattachments = 1;
+        $workshop->maxbytes = 0;
+        $workshop->submissionfiletypes = '';
+    }
 
     if (isset($workshop->gradinggradepass)) {
         $workshop->gradinggradepass = (float)unformat_float($workshop->gradinggradepass);

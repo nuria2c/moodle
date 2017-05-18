@@ -181,6 +181,7 @@ $string['gradereceivedfrom'] = '&lt;';
 $string['gradeinfo'] = 'Grade: {$a->received} of {$a->max}';
 $string['gradetopasssubmission'] = 'Submission grade to pass';
 $string['gradetopassgrading'] = 'Assessment grade to pass';
+$string['gradingformnotready'] = 'Please note: the grading form is not defined at the moment. Reviewer will not be able to asses until the form has been defined.';
 $string['gradinggrade'] = 'Grade for assessment';
 $string['gradinggrade_help'] = 'This setting specifies the maximum grade that may be obtained for submission assessment.';
 $string['gradinggradecalculated'] = 'Calculated grade for assessment';

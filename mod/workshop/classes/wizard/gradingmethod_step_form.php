@@ -75,6 +75,11 @@ class gradingmethod_step_form extends step_form {
 
         $mform->addElement('html', $html);
         $PAGE->requires->js_call_amd('mod_workshop/wizardform', 'init', array());
+
+        if (!$this->workshop->grading_strategy_instance()->form_ready()) {
+            $mform->addElement('html', $OUTPUT->notification(get_string('gradingformnotready', 'workshop')));
+        }
+
     }
 
 }

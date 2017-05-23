@@ -67,10 +67,21 @@ class submissionsettings_step_form extends step_form {
 
         $label = get_string('submissionend', 'workshop');
         $mform->addElement('date_time_selector', 'submissionend', $label, array('optional' => true));
+
+        $label = get_string('submissionendswitch', 'mod_workshop');
+        $mform->addElement('html',  \html_writer::start_div('phaseswitchassessmentinfo'));
+        $mform->addElement('checkbox', 'phaseswitchassessment', $label);
+        $mform->addHelpButton('phaseswitchassessment', 'submissionendswitch', 'mod_workshop');
         $mform->addElement('html', \html_writer::end_div());
 
+        $mform->addElement('html', \html_writer::end_div());
+
+        $fieldselectors = array("input[name='allowsubmission']", "input[name='submissionend[enabled]']");
+        $fieldselectors = implode(',' , $fieldselectors);
         $inputallowsubmissionselector = "input[name='allowsubmission']";
-        $PAGE->requires->js_call_amd('mod_workshop/wizardsubmissionsettings', 'init', array($inputallowsubmissionselector));
+        $submissionendselector = "input[name='submissionend[enabled]']";
+        $PAGE->requires->js_call_amd('mod_workshop/wizardsubmissionsettings', 'init',
+                array($inputallowsubmissionselector, $submissionendselector));
 
     }
 

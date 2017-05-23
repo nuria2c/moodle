@@ -51,6 +51,8 @@ class submissionsettings_step extends step {
 
         $data->allowsubmission = (int)!empty($data->allowsubmission);
         $data->assessassoonsubmitted = (int)!empty($data->assessassoonsubmitted);
+        $data->phaseswitchassessment = (int)!empty($data->phaseswitchassessment);
+
         $record = $this->workshop->get_record();
         if ($data->allowsubmission == 0) {
             $record->allowsubmission = $data->allowsubmission;
@@ -59,6 +61,7 @@ class submissionsettings_step extends step {
             $record->instructauthorsformat = FORMAT_HTML;
             $record->submissionstart = 0;
             $record->submissionend = 0;
+            $record->phaseswitchassessment = 0;
             $record->latesubmissions = 0;
             $record->nattachments = 1;
             $record->maxbytes = 0;
@@ -66,8 +69,12 @@ class submissionsettings_step extends step {
         } else {
             $record->allowsubmission = $data->allowsubmission;
             $record->assessassoonsubmitted = $data->assessassoonsubmitted;
+            $record->phaseswitchassessment = $data->phaseswitchassessment;
             $record->submissionstart = $data->submissionstart;
             $record->submissionend = $data->submissionend;
+            if ($data->submissionend == 0) {
+                $record->phaseswitchassessment = 0;
+            }
 
             // Process the custom wysiwyg editors.
             if ($draftitemid = $data->instructauthorseditor['itemid']) {

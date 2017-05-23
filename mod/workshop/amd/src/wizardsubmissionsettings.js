@@ -27,9 +27,11 @@ define(['jquery'], function($) {
     /**
      * Add allow submission checkbox.
      * @param {String} allowsubmissionselector Input containing allowsubmission state.
+     * @param {String} submissionendselector Input containing submissionend state.
      */
-    var AllowSubmissionCheckbox = function(allowsubmissionselector) {
+    var AllowSubmissionCheckbox = function(allowsubmissionselector, submissionendselector) {
         this.allowsubmissionselector = allowsubmissionselector;
+        this.submissionendselector = submissionendselector;
         var self = this;
         if ($(self.allowsubmissionselector).is((':not(:checked)'))){
             $('.fitem.submissioninfo').hide();
@@ -41,15 +43,28 @@ define(['jquery'], function($) {
                 $('.fitem.submissioninfo').hide();
             }
         });
+        if ($(self.submissionendselector).is((':not(:checked)'))){
+            $('div.phaseswitchassessmentinfo').hide();
+        }
+        $(self.submissionendselector).on('change', function(){
+            if ($(self.submissionendselector).is(":checked")){
+                $('div.phaseswitchassessmentinfo').show();
+            } else {
+                $('div.phaseswitchassessmentinfo').hide();
+            }
+        });
     };
 
     /** @var {String} The checkbox for allowsubmission. */
     AllowSubmissionCheckbox.prototype.allowsubmissionselector = '';
 
+    /** @var {String} The checkbox for submissionend. */
+    AllowSubmissionCheckbox.prototype.submissionendselector = '';
+
     return /** @alias module:mod_workshop/submissionsettings*/ {
-        init: function(allowsubmissionselector) {
+        init: function(allowsubmissionselector, submissionendselector) {
             // Create instance.
-            new AllowSubmissionCheckbox(allowsubmissionselector);
+            new AllowSubmissionCheckbox(allowsubmissionselector, submissionendselector);
         }
     };
 });

@@ -93,7 +93,7 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
         $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
         $mform->setType('assessmenttype', PARAM_INT);
-        
+
         $label = get_string('strategy', 'workshop');
         $mform->addElement('select', 'strategy', $label, workshop::available_strategies_list());
         $mform->setDefault('strategy', $workshopconfig->strategy);
@@ -143,7 +143,7 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addElement('checkbox', 'allowsubmission', $label, ' ');
         $mform->addHelpButton('allowsubmission', 'allowsubmission', 'workshop');
 
-        $divsubmissioninfo =  \html_writer::start_div('fitem submissioninfo');
+        $divsubmissioninfo = \html_writer::start_div('fitem submissioninfo');
         $label = get_string('instructauthors', 'workshop');
         $mform->addElement('html', $divsubmissioninfo);
         $mform->addElement('editor', 'instructauthorseditor', $label, null,
@@ -266,9 +266,11 @@ class mod_workshop_mod_form extends moodleform_mod {
 
         $label = get_string('submissionendswitch', 'mod_workshop');
         $mform->addElement('html', $divsubmissioninfo);
+        $mform->addElement('html',  \html_writer::start_div('phaseswitchassessmentinfo'));
         $mform->addElement('checkbox', 'phaseswitchassessment', $label);
-        $mform->disabledIf('phaseswitchassessment', 'submissionend[enabled]');
         $mform->addHelpButton('phaseswitchassessment', 'submissionendswitch', 'mod_workshop');
+        $mform->addElement('html', \html_writer::end_div());
+
         $mform->addElement('html', \html_writer::end_div());
 
         $label = get_string('assessmentstart', 'workshop');
@@ -293,7 +295,11 @@ class mod_workshop_mod_form extends moodleform_mod {
         $fieldsets = implode(',', $fieldsetarray);
         $inputadvancedsettingselector = "input[name='advancedsettingdisplayed']";
         $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets));
-        $PAGE->requires->js_call_amd('mod_workshop/wizardsubmissionsettings', 'init', array("input[name='allowsubmission']"));
+
+        $inputallowsubmissionselector = "input[name='allowsubmission']";
+        $submissionendselector = "input[name='submissionend[enabled]']";
+        $PAGE->requires->js_call_amd('mod_workshop/wizardsubmissionsettings', 'init',
+                array($inputallowsubmissionselector, $submissionendselector));
     }
 
     /**
@@ -344,6 +350,7 @@ class mod_workshop_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('conclusion');
             file_prepare_draft_area($draftitemid, null, 'mod_workshop', 'conclusion', 0);    // no context yet, itemid not used
             $data['conclusioneditor'] = array('text' => '', 'format' => editors_get_preferred_format(), 'itemid' => $draftitemid);
+            $data['allowsubmission'] = 1;
         }
     }
 

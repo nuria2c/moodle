@@ -100,6 +100,10 @@ function workshop_add_instance(stdclass $workshop) {
         $workshop->submissionfiletypes = '';
     }
 
+    if ($workshop->submissionend == 0) {
+        $workshop->phaseswitchassessment = 0;
+    }
+
     if (isset($workshop->gradinggradepass)) {
         $workshop->gradinggradepass = (float)unformat_float($workshop->gradinggradepass);
     }
@@ -188,6 +192,10 @@ function workshop_update_instance(stdclass $workshop) {
         $workshop->nattachments = 1;
         $workshop->maxbytes = 0;
         $workshop->submissionfiletypes = '';
+    }
+
+    if ($workshop->submissionend == 0) {
+        $workshop->phaseswitchassessment = 0;
     }
 
     if (isset($workshop->gradinggradepass)) {

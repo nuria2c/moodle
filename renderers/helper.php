@@ -75,7 +75,7 @@ class theme_cleanudem_renderer_helper {
     private static function studium_logo($type, $url, $suffix = '') {
         global $OUTPUT;
         $title = get_string($type, 'theme_cleanudem');
-        $logo = html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url('logos/logo_' . $type . $suffix, 'theme'),
+        $logo = html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('logos/logo_' . $type . $suffix, 'theme'),
             'alt' => get_string('logoof', 'theme_cleanudem', $title)));
         $target = theme_cleanudem_get_target($url);
         $html = html_writer::link($url, $logo, array('title' => $title, 'target' => $target, 'class' => 'logo_' . $type));
@@ -115,7 +115,7 @@ class theme_cleanudem_renderer_helper {
         global $OUTPUT;
 
         $html = '';
-        $html .= self::favicon_link('shortcut icon', $OUTPUT->pix_url("favicon", 'theme'));
+        $html .= self::favicon_link('shortcut icon', $OUTPUT->image_url("favicon", 'theme'));
         $html .= self::apple_favicon_link(57);
         $html .= self::apple_favicon_link(60);
         $html .= self::apple_favicon_link(72);
@@ -124,7 +124,7 @@ class theme_cleanudem_renderer_helper {
         $html .= self::apple_favicon_link(144);
         $html .= self::apple_favicon_link(152);
         $html .= self::apple_favicon_link(180);
-        $html .= self::favicon_link('mask-icon', $OUTPUT->pix_url('icons/safari-pinned-tab', 'theme'),
+        $html .= self::favicon_link('mask-icon', $OUTPUT->image_url('icons/safari-pinned-tab', 'theme'),
                 array('color' => self::MAIN_COLOR));
 
         return $html;
@@ -177,7 +177,7 @@ class theme_cleanudem_renderer_helper {
      */
     private static function msapplication_favicon_meta($name, $formattedsize) {
         global $OUTPUT;
-        return self::favicon_meta("msapplication-$name", $OUTPUT->pix_url("icons/mstile-$formattedsize", 'theme'));
+        return self::favicon_meta("msapplication-$name", $OUTPUT->image_url("icons/mstile-$formattedsize", 'theme'));
     }
 
     /**
@@ -190,7 +190,7 @@ class theme_cleanudem_renderer_helper {
         global $OUTPUT;
         $name = 'apple-touch-icon';
         $formattedsize = $size . 'x' . $size;
-        $href = $OUTPUT->pix_url("icons/$name-$formattedsize", 'theme');
+        $href = $OUTPUT->image_url("icons/$name-$formattedsize", 'theme');
         $params = array('sizes' => $formattedsize);
         return self::favicon_link($name, $href, $params);
     }

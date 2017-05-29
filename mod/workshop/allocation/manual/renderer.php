@@ -129,28 +129,40 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         if (is_null($allocation->submissionid)) {
             $o .= $this->output->container(get_string('nothingtoreview', 'workshop'), 'info');
         } else {
-            $exclude = array();
-            if (! $selfassessment) {
-                $exclude[$allocation->userid] = true;
-            }
-            // todo add an option to exclude users without own submission
-            $options = array_diff_key($reviewers, $exclude);
-            if ($options) {
-                $handler = new moodle_url($this->page->url, array('mode' => 'new', 'of' => $allocation->userid, 'sesskey' => sesskey()));
-                $select = new single_select($handler, 'by', $options, '', array(''=>get_string('chooseuser', 'workshop')), 'addreviewof' . $allocation->userid);
-                $select->set_label(get_string('addreviewer', 'workshopallocation_manual'));
-                $o .= $this->output->render($select);
+            // Build a list of possible reviewers.
+            if ($this->workshop->assessmenttype != workshop::SELF_ASSESSMENT) {
+                $exclude = array();
+                if ($this->workshop->assessmenttype == workshop::PEER_ASSESSMENT) {
+                    $exclude[$allocation->userid] = true;
+                }
+                foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
+                    $exclude[$reviewerid] = true;
+                }
+                $options = array_diff_key($reviewers, $exclude);
+                if ($options) {
+                    $handler = new moodle_url($this->page->url, array('mode' => 'new', 'of' => $allocation->userid,
+                        'sesskey' => sesskey()));
+                    $select = new single_select($handler, 'by', $options, '', array('' => get_string('chooseuser', 'workshop')),
+                            'addreviewof' . $allocation->userid);
+                    $select->set_label(get_string('addreviewer', 'workshopallocation_manual'));
+                    $o .= $this->output->render($select);
+                }
             }
         }
         $o .= html_writer::start_tag('ul', array());
         foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
             $o .= html_writer::start_tag('li', array());
-            $o .= $this->output->user_picture($userinfo[$reviewerid], array('courseid' => $this->page->course->id, 'size' => 16));
-            $o .= fullname($userinfo[$reviewerid]);
-
-            // delete icon
-            $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid, 'sesskey' => sesskey()));
-            $o .= $this->helper_remove_allocation_icon($handler);
+            if ($reviewerid == $allocation->userid) {
+                $o .= get_string('selfassessment', 'workshop');
+            } else {
+                $o .= $this->output->user_picture($userinfo[$reviewerid], array('courseid' => $this->page->course->id,
+                    'size' => 16));
+                $o .= fullname($userinfo[$reviewerid]);
+                // Delete icon.
+                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
+                    'sesskey' => sesskey()));
+                $o .= $this->helper_remove_allocation_icon($handler);
+            }
 
             $o .= html_writer::end_tag('li');
         }
@@ -168,31 +180,40 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         if (is_null($allocation->submissionid)) {
             $o .= $this->output->container(get_string('withoutsubmission', 'workshop'), 'info');
         }
-        $exclude = array();
-        if (! $selfassessment) {
-            $exclude[$allocation->userid] = true;
-            $o .= $this->output->container(get_string('selfassessmentdisabled', 'workshop'), 'info');
-        }
-        // todo add an option to exclude users without own submission
-        $options = array_diff_key($authors, $exclude);
-        if ($options) {
-            $handler = new moodle_url($this->page->url, array('mode' => 'new', 'by' => $allocation->userid, 'sesskey' => sesskey()));
-            $select = new single_select($handler, 'of', $options, '', array(''=>get_string('chooseuser', 'workshop')), 'addreviewby' . $allocation->userid);
-            $select->set_label(get_string('addreviewee', 'workshopallocation_manual'));
-            $o .= $this->output->render($select);
-        } else {
-            $o .= $this->output->container(get_string('nothingtoreview', 'workshop'), 'info');
+
+        // Build a list of possible reviewees.
+        if ($this->workshop->assessmenttype != workshop::SELF_ASSESSMENT) {
+            $exclude = array();
+            if ($this->workshop->assessmenttype == workshop::PEER_ASSESSMENT) {
+                $exclude[$allocation->userid] = true;
+            }
+            foreach ($allocation->reviewerof as $authorid => $assessmentid) {
+                $exclude[$authorid] = true;
+            }
+            $options = array_diff_key($authors, $exclude);
+            if ($options) {
+                $handler = new moodle_url($this->page->url, array('mode' => 'new', 'by' => $allocation->userid,
+                    'sesskey' => sesskey()));
+                $select = new single_select($handler, 'of', $options, '', array('' => get_string('chooseuser', 'workshop')),
+                    'addreviewby' . $allocation->userid);
+                $select->set_label(get_string('addreviewee', 'workshopallocation_manual'));
+                $o .= $this->output->render($select);
+            }
         }
         $o .= html_writer::start_tag('ul', array());
         foreach ($allocation->reviewerof as $authorid => $assessmentid) {
-            $o .= html_writer::start_tag('li', array());
-            $o .= $this->output->user_picture($userinfo[$authorid], array('courseid' => $this->page->course->id, 'size' => 16));
-            $o .= fullname($userinfo[$authorid]);
+            if ($authorid == $allocation->userid) {
+                $o .= get_string('selfassessment', 'workshop');
+            } else {
+                $o .= html_writer::start_tag('li', array());
+                $o .= $this->output->user_picture($userinfo[$authorid], array('courseid' => $this->page->course->id, 'size' => 16));
+                $o .= fullname($userinfo[$authorid]);
 
-            // delete icon
-            $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid, 'sesskey' => sesskey()));
-            $o .= $this->helper_remove_allocation_icon($handler);
-
+                // Delete icon.
+                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
+                    'sesskey' => sesskey()));
+                $o .= $this->helper_remove_allocation_icon($handler);
+            }
             $o .= html_writer::end_tag('li');
         }
         $o .= html_writer::end_tag('ul');

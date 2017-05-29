@@ -65,6 +65,9 @@ if (!empty($allocators)) {
     $inactive   = array();
     $activated  = array();
     foreach ($allocators as $methodid => $methodname) {
+        if ($workshop->assessmenttype == workshop::SELF_ASSESSMENT && $methodid != "manual") {
+            continue;
+        }
         $row[] = new tabobject($methodid, $workshop->allocation_url($methodid)->out(), $methodname);
         if ($methodid == $method) {
             $currenttab = $methodid;

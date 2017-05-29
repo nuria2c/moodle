@@ -104,6 +104,16 @@ function workshop_add_instance(stdclass $workshop) {
         $workshop->phaseswitchassessment = 0;
     }
 
+    if (!isset($workshop->assessmenttype)) {
+        $workshop->assessmenttype = \workshop::PEER_ASSESSMENT;
+    }
+    
+    if ($workshop->assessmenttype == \workshop::PEER_ASSESSMENT) {
+        $workshop->useselfassessment = false;
+    } else {
+        $workshop->useselfassessment = true;
+    }
+
     if (isset($workshop->gradinggradepass)) {
         $workshop->gradinggradepass = (float)unformat_float($workshop->gradinggradepass);
     }
@@ -196,6 +206,16 @@ function workshop_update_instance(stdclass $workshop) {
 
     if ($workshop->submissionend == 0) {
         $workshop->phaseswitchassessment = 0;
+    }
+
+    if (!isset($workshop->assessmenttype)) {
+        $workshop->assessmenttype = \workshop::PEER_ASSESSMENT;
+    }
+
+    if ($workshop->assessmenttype == \workshop::PEER_ASSESSMENT) {
+        $workshop->useselfassessment = false;
+    } else {
+        $workshop->useselfassessment = true;
     }
 
     if (isset($workshop->gradinggradepass)) {

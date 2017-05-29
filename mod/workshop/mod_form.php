@@ -196,11 +196,6 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'instructreviewerseditor', $label, null,
                             workshop::instruction_editors_options($this->context));
 
-        $label = get_string('useselfassessment', 'workshop');
-        $text = get_string('useselfassessment_desc', 'workshop');
-        $mform->addElement('checkbox', 'useselfassessment', $label, $text);
-        $mform->addHelpButton('useselfassessment', 'useselfassessment', 'workshop');
-
         // Feedback -------------------------------------------------------------------
         $mform->addElement('header', 'feedbacksettings', get_string('feedbacksettings', 'workshop'));
 

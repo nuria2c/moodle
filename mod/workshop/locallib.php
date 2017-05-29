@@ -65,7 +65,7 @@ class workshop {
 
     /** @var string SELF_ASSESSMENT Value for self and peer asssessment */
     const SELF_AND_PEER_ASSESSMENT = 3;
-    
+
     /** @var cm_info course module record */
     public $cm;
 
@@ -195,6 +195,9 @@ class workshop {
     /** @var int 1 if user can assess without submission */
     public $assesswithoutsubmission;
 
+    /** @var boolean true if allocations already generated */
+    public static $allocationsgenerated = false;
+
     /**
      * @var workshop_strategy grading strategy instance
      * Do not use directly, get the instance using {@link workshop::grading_strategy_instance()}
@@ -246,6 +249,19 @@ class workshop {
         } else {
             $this->context = $context;
         }
+
+        if (self::$allocationsgenerated == false) {
+            if ($this->assessmenttype == self::PEER_ASSESSMENT) {
+                $this->remove_allocations(true);
+            } else {
+                $this->generate_self_allocations();
+                if ($this->assessmenttype == self::SELF_ASSESSMENT) {
+                    $this->remove_allocations(false);
+                }
+            }
+            self::$allocationsgenerated = true;
+        }
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -3109,6 +3125,39 @@ class workshop {
 
         $DB->set_field('workshop', 'phase', self::PHASE_SETUP, array('id' => $this->id));
         $this->phase = self::PHASE_SETUP;
+    }
+
+    /**
+     * Generate self assessment allocations.
+     */
+    public function generate_self_allocations() {
+        $users = $this->get_potential_authors(false);
+        foreach ($users as $user) {
+            $submission = $this->get_submission_by_author($user->id, false);
+            if ($submission) {
+                $res = $this->add_allocation($submission, $user->id);
+            }
+        }
+    }
+
+    /**
+     * Remove users assessment allocations.
+     *
+     * @param bool $self Indicate if we remove self or other allocations
+     */
+    public function remove_allocations($self = true) {
+        $users = $this->get_potential_authors(false);
+        foreach ($users as $user) {
+            $submission = $this->get_submission_by_author($user->id, false);
+            if ($submission) {
+                $assessmentlist = $this->get_assessments_of_submission($submission->id);
+                foreach ($assessmentlist as $assessment) {
+                    if (($self && $assessment->reviewerid == $user->id) || (!$self && $assessment->reviewerid != $user->id)) {
+                        $this->delete_assessment($assessment->id);
+                    }
+                }
+            }
+        }
     }
 }
 

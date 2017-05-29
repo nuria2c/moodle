@@ -46,11 +46,17 @@ class assessmenttype_step extends step {
      */
     public function save_form(\stdclass $data) {
         global $DB;
-        if ($data && $this->workshop->assessmenttype != $data->assessmenttype) {
-            $this->workshop->assessmenttype = $data->assessmenttype;
-            $this->workshop->timemodified = time();
-            $DB->update_record('workshop', $this->workshop->get_record());
+
+        $this->workshop->assessmenttype = $data->assessmenttype;
+
+        if ($data->assessmenttype == \workshop::PEER_ASSESSMENT) {
+            $this->workshop->useselfassessment = false;
+        } else {
+            $this->workshop->useselfassessment = true;
         }
+        $this->workshop->timemodified = time();
+        $DB->update_record('workshop', $this->workshop->get_record());
+
     }
 
     /**

@@ -107,6 +107,21 @@ class summary_step_form extends step_form {
             $mform->addElement('static', 'summary_peerallocationdetails', get_string('allocate', 'workshop'), $details);
         }
 
+        // Anonymity.
+        if (!$this->workshop->is_self_assessment_type()) {
+            $anonymitysettings = new \mod_workshop\anonymity_settings($this->workshop->context);
+            // Display appraisees name.
+            if (!empty($record->allowsubmission)) {
+                $yesno = ($anonymitysettings->display_appraisees_name()) ? get_string('yes') : get_string('no');
+                $label = get_string('displayappraiseesname', 'workshop');
+                $mform->addElement('static', 'summary_displayappraiseesname', $label, $yesno);
+            }
+            // Display appraisers name.
+            $yesno = ($anonymitysettings->display_appraisers_name()) ? get_string('yes') : get_string('no');
+            $label = get_string('displayappraisersname', 'workshop');
+            $mform->addElement('static', 'summary_displayappraisersname', $label, $yesno);
+        }
+
         // Asssess without submission.
         if ($record->allowsubmission && $record->assesswithoutsubmission) {
             $mform->addElement('static',

@@ -47,18 +47,23 @@ class assessmentsettings_step_form extends step_form {
     public function step_definition() {
         $mform = $this->_form;
         $record = $this->workshop->get_record();
-        if (intval($record->assessmenttype) !== \workshop::SELF_ASSESSMENT) {
+        if (!$this->workshop->is_self_assessment_type()) {
+            $anonymitysettings = new \mod_workshop\anonymity_settings($this->workshop->context);
             // Display appraisees name.
-            $label = get_string('displayappraiseesname', 'workshop');
-            $mform->addElement('checkbox', 'displayappraiseesname', $label);
-            $mform->addHelpButton('displayappraiseesname', 'displayappraiseesname', 'workshop');
+            if (!empty($record->allowsubmission)) {
+                $label = get_string('displayappraiseesname', 'workshop');
+                $mform->addElement('checkbox', 'displayappraiseesname', $label);
+                $mform->addHelpButton('displayappraiseesname', 'displayappraiseesname', 'workshop');
+                $mform->setDefault('displayappraiseesname', $anonymitysettings->display_appraisees_name());
+            }
             // Display appraisers name.
             $label = get_string('displayappraisersname', 'workshop');
             $mform->addElement('checkbox', 'displayappraisersname', $label);
             $mform->addHelpButton('displayappraisersname', 'displayappraisersname', 'workshop');
+            $mform->setDefault('displayappraisersname', $anonymitysettings->display_appraisers_name());
         }
         // Do not display assess without submission if allow submission is false.
-        if (intval($record->allowsubmission) !== 0) {
+        if ($record->allowsubmission != 0) {
             // Assess without submission.
             $label = get_string('assesswithoutsubmission', 'workshop');
             $mform->addElement('checkbox', 'assesswithoutsubmission', $label);
@@ -70,7 +75,7 @@ class assessmentsettings_step_form extends step_form {
         $mform->addElement('editor', 'instructreviewerseditor', $label, null,
                             \workshop::instruction_editors_options($this->workshop->context));
         // Assessment start date.
-        if (intval($record->assessassoonsubmitted) === 0) {
+        if ($record->assessassoonsubmitted == 0) {
             $label = get_string('assessmentstart', 'workshop');
             $mform->addElement('date_time_selector', 'assessmentstart', $label, array('optional' => true));
         }

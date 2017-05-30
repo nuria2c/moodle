@@ -25,7 +25,7 @@
 define(['jquery', 'core/str', 'core/notification'], function($, str, notification) {
     // Define toggletext jquery function.
     $.fn.extend({
-        toggleText: function(a, b){
+        toggleText: function(a, b) {
             return this.text(this.text() == b ? a : b);
         }
     });
@@ -34,76 +34,112 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
      * Add advanced setting link.
      * @param {String} inputadvancedsettingselector Input containing advancedsetting state.
      * @param {String} fieldsets List of filedsets to hide/show ex:#f1,#f2.
+     * @param {Int} selfassessmentvalue Self assessment value
      */
-    var AdvancedSettingLink = function(inputadvancedsettingselector, fieldsets) {
+    var workshopform = function(inputadvancedsettingselector, fieldsets, selfassessmentvalue) {
         this.fieldsets = fieldsets;
         this.inputadvancedsettingselector = inputadvancedsettingselector;
+        this.selfassessment = selfassessmentvalue;
         this.submitbuttonvalue = $("input[name='submitbutton']").val();
         var self = this;
         str.get_strings([
-                {key: 'showadvancedsettings', component: 'moodle'},
-                {key: 'hideadvancedsettings', component: 'moodle'},
-                {key: 'wizardsubmitbutton', component: 'workshop'}
-            ]).done(function(strings) {
-                self.showadvancedsettingsstring = strings[0];
-                self.hideadvancedsettingsstring = strings[1];
-                self.wizardbuttonvalue = strings[2];
-                var textlink = self.showadvancedsettingsstring;
-                var classlink = 'showadvancedsettings';
-                // Get advanced setting state.
-                var showadvancedsetting = $(self.inputadvancedsettingselector).val();
-                if (parseInt(showadvancedsetting) === 1) {
-                    textlink = self.hideadvancedsettingsstring;
-                    classlink = 'hideadvancedsettings';
-                } else {
-                    $(self.fieldsets).hide();
-                    // Change submit button value.
+            {key: 'showadvancedsettings', component: 'moodle'},
+            {key: 'hideadvancedsettings', component: 'moodle'},
+            {key: 'wizardsubmitbutton', component: 'workshop'}
+        ]).done(function(strings) {
+            self.showadvancedsettingsstring = strings[0];
+            self.hideadvancedsettingsstring = strings[1];
+            self.wizardbuttonvalue = strings[2];
+            var textlink = self.showadvancedsettingsstring;
+            var classlink = 'showadvancedsettings';
+            // Get advanced setting state.
+            var showadvancedsetting = $(self.inputadvancedsettingselector).val();
+            if (parseInt(showadvancedsetting) === 1) {
+                textlink = self.hideadvancedsettingsstring;
+                classlink = 'hideadvancedsettings';
+            } else {
+                $(self.fieldsets).hide();
+                // Change submit button value.
+                $("input[name='submitbutton']").val(self.wizardbuttonvalue);
+            }
+            var link = $('<a>', {
+                text: textlink,
+                title: textlink,
+                href: '#',
+                class: classlink
+            });
+            $(".collapsible-actions").prepend(link);
+            // Add event click on advanced settings link.
+            $(".showadvancedsettings, .hideadvancedsettings").on('click', function(e) {
+                var inputhidden = $(self.inputadvancedsettingselector);
+                // Control submit button value.
+                if (parseInt(inputhidden.val()) === 1) {
+                    inputhidden.val(0);
                     $("input[name='submitbutton']").val(self.wizardbuttonvalue);
+                } else {
+                    inputhidden.val(1);
+                    $("input[name='submitbutton']").val(self.submitbuttonvalue);
                 }
-                var link = $('<a>',{
-                    text: textlink,
-                    title: textlink,
-                    href: '#',
-                    class: classlink
-                    });
-                $( ".collapsible-actions" ).prepend(link);
-                // Add event click on advanced settings link.
-                $(".showadvancedsettings, .hideadvancedsettings").on('click', function(e){
-                    var inputhidden = $(self.inputadvancedsettingselector);
-                    // Control submit button value.
-                    if (parseInt(inputhidden.val()) === 1) {
-                        inputhidden.val(0);
-                        $("input[name='submitbutton']").val(self.wizardbuttonvalue);
-                    } else {
-                        inputhidden.val(1);
-                        $("input[name='submitbutton']").val(self.submitbuttonvalue);
-                    }
-                    e.preventDefault();
-                    var element = $(e.target);
-                    $(self.fieldsets).toggle();
-                    element.toggleClass("showadvancedsettings hideadvancedsettings");
-                    element.toggleText(strings[0], strings[1]);
-                });
-            }).fail(notification.exception);
+                e.preventDefault();
+                var element = $(e.target);
+                $(self.fieldsets).toggle();
+                element.toggleClass("showadvancedsettings hideadvancedsettings");
+                element.toggleText(strings[0], strings[1]);
+            });
+        }).fail(notification.exception);
+
+        self.showHideAnonymity();
+        $(self.assessmenttypeSelector + ", " + self.allowsubmissionSelector).on('change', function() {
+            self.showHideAnonymity();
+        });
     };
 
     /** @var {String} The show advanced settings string. */
-    AdvancedSettingLink.prototype.showadvancedsettingsstring = '';
+    workshopform.prototype.showadvancedsettingsstring = '';
     /** @var {String} The hide advanced settings string. */
-    AdvancedSettingLink.prototype.hideadvancedsettingsstring = '';
+    workshopform.prototype.hideadvancedsettingsstring = '';
     /** @var {String} List of filedsets to hide/show ex:#f1,#f2. */
-    AdvancedSettingLink.prototype.fieldsets = '';
+    workshopform.prototype.fieldsets = '';
     /** @var {String} Input containing advancedsetting state. */
-    AdvancedSettingLink.prototype.inputadvancedsettingselector = '';
+    workshopform.prototype.inputadvancedsettingselector = '';
     /** @var {String} Value of original submit button. */
-    AdvancedSettingLink.prototype.submitbuttonvalue = '';
+    workshopform.prototype.submitbuttonvalue = '';
     /** @var {String} Value of wizard submit button. */
-    AdvancedSettingLink.prototype.wizardbuttonvalue = '';
+    workshopform.prototype.wizardbuttonvalue = '';
+    /** @var {Int} Self assessment value. */
+    workshopform.prototype.selfassessment = null;
+    /** @var {String} assessmenttype selector. */
+    workshopform.prototype.assessmenttypeSelector = "input[name='assessmenttype']";
+    /** @var {String} allowsubmission selector. */
+    workshopform.prototype.allowsubmissionSelector = "input[name='allowsubmission']";
+    /** @var {String} display Appraisees Name selector. */
+    workshopform.prototype.displayAppraiseesNameSelector = "#fitem_id_displayappraiseesname";
+    /** @var {String} display Appraisers Name selector. */
+    workshopform.prototype.displayAppraisersNameSelector = "#fitem_id_displayappraisersname";
+
+    /**
+     * Function triggered when assessment type or allow submission changed.
+     *
+     * @method showHideAnonymity
+     */
+    workshopform.prototype.showHideAnonymity = function() {
+        if (parseInt($(this.assessmenttypeSelector + ":checked").val()) == this.selfassessment) {
+            $(this.displayAppraiseesNameSelector).hide();
+            $(this.displayAppraisersNameSelector).hide();
+        } else {
+            $(this.displayAppraisersNameSelector).show();
+            if ($(this.allowsubmissionSelector).is((':not(:checked)'))) {
+                $(this.displayAppraiseesNameSelector).hide();
+            } else {
+                $(this.displayAppraiseesNameSelector).show();
+            }
+        }
+    };
 
     return /** @alias module:mod_workshop/workshopform*/ {
-        init: function(inputadvancedsettingselector, fieldsets) {
+        init: function(inputadvancedsettingselector, fieldsets, selfassessmentvalue) {
             // Create instance.
-            new AdvancedSettingLink(inputadvancedsettingselector, fieldsets);
+            new workshopform(inputadvancedsettingselector, fieldsets, selfassessmentvalue);
         }
     };
 });

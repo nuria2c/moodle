@@ -167,6 +167,10 @@ function workshop_add_instance(stdclass $workshop) {
     // create calendar events
     workshop_calendar_update($workshop, $workshop->coursemodule);
 
+    // Anonymity settings.
+    $anonymitysettings = new \mod_workshop\anonymity_settings($context);
+    $anonymitysettings->save_changes($workshop);
+
     return $workshop->id;
 }
 
@@ -267,6 +271,10 @@ function workshop_update_instance(stdclass $workshop) {
 
     // update calendar events
     workshop_calendar_update($workshop, $workshop->coursemodule);
+
+    // Anonymity settings.
+    $anonymity_settings = new \mod_workshop\anonymity_settings($context);
+    $anonymity_settings->save_changes($workshop);
 
     return true;
 }

@@ -93,6 +93,7 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
         $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
         $mform->setType('assessmenttype', PARAM_INT);
+        $mform->setDefault('assessmenttype', \workshop::PEER_ASSESSMENT);
 
         $label = get_string('strategy', 'workshop');
         $mform->addElement('select', 'strategy', $label, workshop::available_strategies_list());
@@ -191,6 +192,17 @@ class mod_workshop_mod_form extends moodleform_mod {
 
         // Assessment settings --------------------------------------------------------
         $mform->addElement('header', 'assessmentsettings', get_string('assessmentsettings', 'workshop'));
+        $anonymitysettings = new \mod_workshop\anonymity_settings($this->context);
+        // Display appraisees name.
+        $label = get_string('displayappraiseesname', 'workshop');
+        $mform->addElement('checkbox', 'displayappraiseesname', $label);
+        $mform->addHelpButton('displayappraiseesname', 'displayappraiseesname', 'workshop');
+        $mform->setDefault('displayappraiseesname', $anonymitysettings->display_appraisees_name());
+        // Display appraisers name.
+        $label = get_string('displayappraisersname', 'workshop');
+        $mform->addElement('checkbox', 'displayappraisersname', $label);
+        $mform->addHelpButton('displayappraisersname', 'displayappraisersname', 'workshop');
+        $mform->setDefault('displayappraisersname', $anonymitysettings->display_appraisers_name());
 
         $label = get_string('instructreviewers', 'workshop');
         $mform->addElement('editor', 'instructreviewerseditor', $label, null,
@@ -289,7 +301,7 @@ class mod_workshop_mod_form extends moodleform_mod {
             '#id_examplesubmissionssettings', '#id_accesscontrol');
         $fieldsets = implode(',', $fieldsetarray);
         $inputadvancedsettingselector = "input[name='advancedsettingdisplayed']";
-        $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets));
+        $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets, \workshop::SELF_ASSESSMENT));
 
         $inputallowsubmissionselector = "input[name='allowsubmission']";
         $submissionendselector = "input[name='submissionend[enabled]']";

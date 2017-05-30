@@ -66,6 +66,15 @@ class assessmentsettings_step extends step {
         }
         // Assessment end date.
         $record->assessmentend = $data->assessmentend;
+        // Anonymity settings.
+        if (isset($data->displayappraiseesname)) {
+            $record->displayappraiseesname = $data->displayappraiseesname;
+        }
+        if (isset($data->displayappraisersname)) {
+            $record->displayappraisersname = $data->displayappraisersname;
+        }
+        $anonymitysettings = new \mod_workshop\anonymity_settings($this->workshop->context);
+        $anonymitysettings->save_changes($record);
         // Update time modified.
         $record->timemodified = time();
         $DB->update_record('workshop', $record);

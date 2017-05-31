@@ -72,6 +72,7 @@
         <FIELD NAME="timegraded" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The timestamp when grade or gradeover was recently modified"/>
         <FIELD NAME="published" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Shall the submission be available to other when the workshop is closed"/>
         <FIELD NAME="late" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Has this submission been submitted after the deadline or during the assessment phase?"/>
+        <FIELD NAME="realsubmission" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True (set to 1) if the author actually submitted his work."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

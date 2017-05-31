@@ -832,4 +832,32 @@ class mod_workshop_internal_api_testcase extends advanced_testcase {
         $this->assertTrue($workshop3->check_group_membership($student2->id));
         $this->assertFalse($workshop3->check_group_membership($student3->id));
     }
+
+    /**
+     * Test generate fake submissions.
+     */
+    public function test_generate_submissions() {
+        global $DB;
+        $this->resetAfterTest(true);
+        // Use existing sample course from setUp.
+        $courseid = $this->workshop->course->id;
+        // Enrol some students.
+        $generator = $this->getDataGenerator();
+        $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
+        $student1 = $generator->create_user();
+        $student2 = $generator->create_user();
+        $student3 = $generator->create_user();
+        $generator->enrol_user($student1->id, $courseid, $roleids['student']);
+        $generator->enrol_user($student2->id, $courseid, $roleids['student']);
+        $generator->enrol_user($student3->id, $courseid, $roleids['student']);
+        // Test the fake.
+        $this->workshop->generate_submissions();
+
+        $fakesubmissions = $this->workshop->get_submissions('all', 0, 0, 0, false);
+        $realsubmissions = $this->workshop->get_submissions('all', 0, 0, 0, true);
+        $this->assertCount(3, $fakesubmissions);
+        $this->assertCount(0, $realsubmissions);
+        $studentsubmission = current($fakesubmissions);
+        $this->assertEquals(0, $studentsubmission->timemodified);
+    }
 }

@@ -79,7 +79,7 @@ class workshop_manual_allocator implements workshop_allocator {
             $reviewerid = required_param('by', PARAM_INT);
             $authorid   = required_param('of', PARAM_INT);
             $m          = array();  // message object to be passed to the next page
-            $submission = $this->workshop->get_submission_by_author($authorid);
+            $submission = $this->workshop->get_submission_by_author($authorid, false);
             if (!$submission) {
                 // nothing submitted by the given user
                 $m[] = self::MSG_NOSUBMISSION;
@@ -223,7 +223,7 @@ class workshop_manual_allocator implements workshop_allocator {
         $userinfo = $participants;
 
         // load the participants' submissions
-        $submissions = $this->workshop->get_submissions(array_keys($participants));
+        $submissions = $this->workshop->get_submissions(array_keys($participants), 0, 0, 0, false);
         $allnames = get_all_user_name_fields();
         foreach ($submissions as $submission) {
             if (!isset($userinfo[$submission->authorid])) {

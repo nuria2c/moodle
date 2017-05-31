@@ -198,6 +198,9 @@ class workshop {
     /** @var boolean true if allocations already generated */
     public static $allocationsgenerated = false;
 
+    /** @var boolean true if submissions already generated */
+    public static $submissionsgenerated = false;
+
     /**
      * @var workshop_strategy grading strategy instance
      * Do not use directly, get the instance using {@link workshop::grading_strategy_instance()}
@@ -260,6 +263,12 @@ class workshop {
                 }
             }
             self::$allocationsgenerated = true;
+        }
+
+        // Generate fake submissions.
+        if (self::$submissionsgenerated == false) {
+            $this->generate_submissions();
+            self::$submissionsgenerated = true;
         }
 
     }
@@ -836,9 +845,10 @@ class workshop {
      *
      * @param mixed $authorid int|array|'all' If set to [array of] integer, return submission[s] of the given user[s] only
      * @param int $groupid If non-zero, return only submissions by authors in the specified group
+     * @param boolean $realsubmission Get real submissions
      * @return int number of records
      */
-    public function count_submissions($authorid='all', $groupid=0) {
+    public function count_submissions($authorid='all', $groupid=0, $realsubmission = true) {
         global $DB;
 
         $params = array('workshopid' => $this->id);
@@ -850,6 +860,10 @@ class workshop {
             $params['groupid'] = $groupid;
         }
         $sql .= " WHERE s.example = 0 AND s.workshopid = :workshopid";
+        // Get only real submissions.
+        if ($realsubmission) {
+            $sql .= " AND s.realsubmission = 1";
+        }
 
         if ('all' === $authorid) {
             // no additional conditions
@@ -877,16 +891,17 @@ class workshop {
      * @param int $groupid If non-zero, return only submissions by authors in the specified group
      * @param int $limitfrom Return a subset of records, starting at this point (optional)
      * @param int $limitnum Return a subset containing this many records in total (optional, required if $limitfrom is set)
+     * @param boolean $realsubmission Get real submission
      * @return array of records or an empty array
      */
-    public function get_submissions($authorid='all', $groupid=0, $limitfrom=0, $limitnum=0) {
+    public function get_submissions($authorid='all', $groupid=0, $limitfrom=0, $limitnum=0, $realsubmission = true) {
         global $DB;
 
         $authorfields      = user_picture::fields('u', null, 'authoridx', 'author');
         $gradeoverbyfields = user_picture::fields('t', null, 'gradeoverbyx', 'over');
         $params            = array('workshopid' => $this->id);
         $sql = "SELECT s.id, s.workshopid, s.example, s.authorid, s.timecreated, s.timemodified,
-                       s.title, s.grade, s.gradeover, s.gradeoverby, s.published,
+                       s.title, s.grade, s.gradeover, s.gradeoverby, s.published, s.realsubmission,
                        $authorfields, $gradeoverbyfields
                   FROM {workshop_submissions} s
                   JOIN {user} u ON (s.authorid = u.id)";
@@ -896,6 +911,9 @@ class workshop {
         }
         $sql .= " LEFT JOIN {user} t ON (s.gradeoverby = t.id)
                  WHERE s.example = 0 AND s.workshopid = :workshopid";
+        if ($realsubmission) {
+            $sql .= " AND s.realsubmission = 1";
+        }
 
         if ('all' === $authorid) {
             // no additional conditions
@@ -938,12 +956,12 @@ class workshop {
     /**
      * Returns a submission submitted by the given author
      *
-     * @param int $id author id
+     * @param int $authorid author id
+     * @param boolean $realsubmission True if real submission
      * @return stdclass|false
      */
-    public function get_submission_by_author($authorid) {
+    public function get_submission_by_author($authorid, $realsubmission = true) {
         global $DB;
-
         if (empty($authorid)) {
             return false;
         }
@@ -954,7 +972,15 @@ class workshop {
             INNER JOIN {user} u ON (s.authorid = u.id)
              LEFT JOIN {user} g ON (s.gradeoverby = g.id)
                  WHERE s.example = 0 AND s.workshopid = :workshopid AND s.authorid = :authorid";
-        $params = array('workshopid' => $this->id, 'authorid' => $authorid);
+         $params = array(
+            'workshopid' => $this->id,
+            'authorid' => $authorid);
+
+        if ($realsubmission) {
+            $sql .= " AND s.realsubmission = :realsubmission";
+            $params['realsubmission'] = 1;
+        }
+
         return $DB->get_record_sql($sql, $params);
     }
 
@@ -1323,13 +1349,17 @@ class workshop {
     public function get_assessments_of_submission($submissionid) {
         global $DB;
 
+        $sqlrealsubmission = "";
+        if ($this->allowsubmission) {
+            $sqlrealsubmission = " AND s.realsubmission = 1";
+        }
         $reviewerfields = user_picture::fields('reviewer', null, 'revieweridx', 'reviewer');
         $overbyfields   = user_picture::fields('overby', null, 'gradinggradeoverbyx', 'overby');
         list($sort, $params) = users_order_by_sql('reviewer');
         $sql = "SELECT a.*, s.title, $reviewerfields, $overbyfields
                   FROM {workshop_assessments} a
             INNER JOIN {user} reviewer ON (a.reviewerid = reviewer.id)
-            INNER JOIN {workshop_submissions} s ON (a.submissionid = s.id)
+            INNER JOIN {workshop_submissions} s ON (a.submissionid = s.id $sqlrealsubmission)
              LEFT JOIN {user} overby ON (a.gradinggradeoverby = overby.id)
                  WHERE s.example = 0 AND s.id = :submissionid AND s.workshopid = :workshopid
               ORDER BY $sort";
@@ -1348,6 +1378,10 @@ class workshop {
     public function get_assessments_by_reviewer($reviewerid) {
         global $DB;
 
+        $sqlrealsubmission = "";
+        if ($this->allowsubmission) {
+            $sqlrealsubmission = " AND s.realsubmission = 1";
+        }
         $reviewerfields = user_picture::fields('reviewer', null, 'revieweridx', 'reviewer');
         $authorfields   = user_picture::fields('author', null, 'authorid', 'author');
         $overbyfields   = user_picture::fields('overby', null, 'gradinggradeoverbyx', 'overby');
@@ -1356,7 +1390,7 @@ class workshop {
                        s.timemodified AS submissionmodified
                   FROM {workshop_assessments} a
             INNER JOIN {user} reviewer ON (a.reviewerid = reviewer.id)
-            INNER JOIN {workshop_submissions} s ON (a.submissionid = s.id)
+            INNER JOIN {workshop_submissions} s ON (a.submissionid = s.id $sqlrealsubmission)
             INNER JOIN {user} author ON (s.authorid = author.id)
              LEFT JOIN {user} overby ON (a.gradinggradeoverby = overby.id)
                  WHERE s.example = 0 AND reviewer.id = :reviewerid AND s.workshopid = :workshopid";
@@ -1573,6 +1607,45 @@ class workshop {
         }
 
         throw new coding_exception('Attempt to set a non-existing evaluation method.');
+    }
+
+    /**
+     * Generate fakes submissions for users.
+     */
+    public function generate_submissions() {
+        global $DB;
+        $users = $this->get_potential_authors(false);
+        $submissions = $this->get_submissions('all', 0, 0, 0, false);
+        $authors = array_map(function($o) {
+            return $o->authorid;
+        }, $submissions);
+        $misseduserssubmissions = array_diff(array_keys($users), array_values($authors));
+        $missedusers = array_diff(array_values($authors), array_keys($users));
+
+        if (!empty($misseduserssubmissions)) {
+            foreach ($misseduserssubmissions as $user) {
+                    $record = new \stdClass();
+                    $record->workshopid     = $this->id;
+                    $record->example        = 0;
+                    $record->authorid       = $user;
+                    $record->timecreated    = time();
+                    $record->timemodified   = 0;
+                    $record->realsubmission = 0;
+                    $record->contentformat  = FORMAT_HTML;
+                    $record->feedbackauthorformat = editors_get_preferred_format();
+                    $DB->insert_record('workshop_submissions', $record);
+            }
+        }
+
+        if (!empty($missedusers)) {
+            // Delete fake submission for this user.
+            foreach ($missedusers as $user) {
+                $submission = $submissions[array_search($user, $authors)];
+                if ($submission->realsubmission == 0) {
+                    $DB->delete_records("workshop_submissions", array('id' => $submission->id));
+                }
+            }
+        }
     }
 
     /**
@@ -2027,6 +2100,10 @@ class workshop {
         $canviewall     = has_capability('mod/workshop:viewallassessments', $this->context, $userid);
         $isparticipant  = $this->is_participant($userid);
 
+        $sqlrealsubmission = "";
+        if ($this->allowsubmission) {
+            $sqlrealsubmission = " AND s.realsubmission = 1";
+        }
         if (!$canviewall and !$isparticipant) {
             // who the hell is this?
             return array();
@@ -2067,7 +2144,8 @@ class workshop {
             $sql = "SELECT $picturefields, s.title AS submissiontitle, s.timemodified AS submissionmodified,
                            s.grade AS submissiongrade, ag.gradinggrade
                       FROM {user} u
-                 LEFT JOIN {workshop_submissions} s ON (s.authorid = u.id AND s.workshopid = :workshopid1 AND s.example = 0)
+                 LEFT JOIN {workshop_submissions} s ON (s.authorid = u.id AND s.workshopid = :workshopid1 AND s.example = 0
+                        $sqlrealsubmission)
                  LEFT JOIN {workshop_aggregations} ag ON (ag.userid = u.id AND ag.workshopid = :workshopid2)
                      WHERE u.id $participantids
                   ORDER BY $sqlsort";
@@ -2093,9 +2171,12 @@ class workshop {
                 }
             }
         }
-
+        $realsubmission = false;
+        if ($this->allowsubmission) {
+            $realsubmission = true;
+        }
         // load the submissions details
-        $submissions = $this->get_submissions(array_keys($participants));
+        $submissions = $this->get_submissions(array_keys($participants), 0, 0, 0, $realsubmission);
 
         // get the user details for all moderators (teachers) that have overridden a submission grade
         foreach ($submissions as $submission) {
@@ -2123,7 +2204,7 @@ class workshop {
                            $picturefields, s.id AS submissionid, s.authorid
                       FROM {workshop_assessments} a
                       JOIN {user} r ON (a.reviewerid = r.id)
-                      JOIN {workshop_submissions} s ON (a.submissionid = s.id AND s.example = 0)
+                      JOIN {workshop_submissions} s ON (a.submissionid = s.id AND s.example = 0 $sqlrealsubmission)
                      WHERE a.submissionid $submissionids
                   ORDER BY a.weight DESC, $sort";
             $reviewers = $DB->get_records_sql($sql, array_merge($params, $sortparams));
@@ -2152,7 +2233,7 @@ class workshop {
                            s.id AS submissionid, $picturefields
                       FROM {user} u
                       JOIN {workshop_assessments} a ON (a.reviewerid = u.id)
-                      JOIN {workshop_submissions} s ON (a.submissionid = s.id AND s.example = 0)
+                      JOIN {workshop_submissions} s ON (a.submissionid = s.id AND s.example = 0 $sqlrealsubmission)
                       JOIN {user} e ON (s.authorid = e.id)
                      WHERE u.id $participantids AND s.workshopid = :workshopid
                   ORDER BY a.weight DESC, $sort";
@@ -3228,7 +3309,8 @@ class workshop_user_plan implements renderable {
         if ($workshop->useexamples and has_capability('mod/workshop:manageexamples', $workshop->context, $userid)) {
             $task = new stdclass();
             $task->title = get_string('prepareexamples', 'workshop');
-            if ($DB->count_records('workshop_submissions', array('example' => 1, 'workshopid' => $workshop->id)) > 0) {
+            if ($DB->count_records('workshop_submissions',
+                    array('example' => 1, 'workshopid' => $workshop->id, 'realsubmission' => 1)) > 0) {
                 $task->completed = true;
             } elseif ($workshop->phase > workshop::PHASE_SETUP) {
                 $task->completed = false;
@@ -3288,7 +3370,8 @@ class workshop_user_plan implements renderable {
             $task = new stdclass();
             $task->title = get_string('tasksubmit', 'workshop');
             $task->link = $workshop->submission_url();
-            if ($DB->record_exists('workshop_submissions', array('workshopid'=>$workshop->id, 'example'=>0, 'authorid'=>$userid))) {
+            if ($DB->record_exists('workshop_submissions',
+                    array('workshopid' => $workshop->id, 'example' => 0, 'authorid' => $userid, 'realsubmission' => 1))) {
                 $task->completed = true;
             } elseif ($workshop->phase >= workshop::PHASE_ASSESSMENT) {
                 $task->completed = false;
@@ -3318,11 +3401,12 @@ class workshop_user_plan implements renderable {
             $task->title = get_string('allocate', 'workshop');
             $task->link = $workshop->allocation_url();
             $numofauthors = $workshop->count_potential_authors(false);
-            $numofsubmissions = $DB->count_records('workshop_submissions', array('workshopid'=>$workshop->id, 'example'=>0));
+            $numofsubmissions = $DB->count_records('workshop_submissions',
+                array('workshopid' => $workshop->id, 'example' => 0, 'realsubmission' => 1));
             $sql = 'SELECT COUNT(s.id) AS nonallocated
                       FROM {workshop_submissions} s
                  LEFT JOIN {workshop_assessments} a ON (a.submissionid=s.id)
-                     WHERE s.workshopid = :workshopid AND s.example=0 AND a.submissionid IS NULL';
+                     WHERE s.workshopid = :workshopid AND s.example=0 AND a.submissionid IS NULL AND s.realsubmission = 1';
             $params['workshopid'] = $workshop->id;
             $numnonallocated = $DB->count_records_sql($sql, $params);
             if ($numofsubmissions == 0) {

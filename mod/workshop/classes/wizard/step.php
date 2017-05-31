@@ -46,7 +46,6 @@ abstract class step {
      * The constructor of the class.
      *
      * @param workshop $workshop The workshop object
-     * @param string $step The current step of the wizard
      * @throws coding_exception A coding exception if the child class does not define NAME const
      */
     public function __construct($workshop) {

@@ -54,6 +54,9 @@ class workshop_submission_form extends moodleform {
 
         $mform->addElement('hidden', 'id', $current->id);
         $mform->setType('id', PARAM_INT);
+        $realsubmission = (isset($current->realsubmission)) ? $current->realsubmission : 1;
+        $mform->addElement('hidden', 'realsubmission', $realsubmission);
+        $mform->setType('realsubmission', PARAM_INT);
 
         $mform->addElement('hidden', 'cmid', $workshop->cm->id);
         $mform->setType('cmid', PARAM_INT);

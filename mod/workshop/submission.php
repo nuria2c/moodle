@@ -168,11 +168,20 @@ if ($assess and $submission->id and !$isreviewer and $canallocate and $workshop-
 if ($edit) {
     require_once(__DIR__.'/submission_form.php');
 
+    if (!$submission->id) {
+        $fakesubmission = $workshop->get_submission_by_author($USER->id, false);
+        if ($fakesubmission) {
+            $submission = $fakesubmission;
+        }
+    }
+
     $submission = file_prepare_standard_editor($submission, 'content', $workshop->submission_content_options(),
         $workshop->context, 'mod_workshop', 'submission_content', $submission->id);
 
     $submission = file_prepare_standard_filemanager($submission, 'attachment', $workshop->submission_attachment_options(),
         $workshop->context, 'mod_workshop', 'submission_attachment', $submission->id);
+    // Get fake submission it none given.
+   
 
     $mform = new workshop_submission_form($PAGE->url, array('current' => $submission, 'workshop' => $workshop,
         'contentopts' => $workshop->submission_content_options(), 'attachmentopts' => $workshop->submission_attachment_options()));
@@ -195,6 +204,10 @@ if ($edit) {
             $formdata->timecreated    = $timenow;
             $formdata->feedbackauthorformat = editors_get_preferred_format();
         }
+        if ($formdata->realsubmission == 0) {
+            $formdata->timecreated    = $timenow;
+        }
+        $formdata->realsubmission       = 1;
         $formdata->timemodified       = $timenow;
         $formdata->title              = trim($formdata->title);
         $formdata->content            = '';          // updated later

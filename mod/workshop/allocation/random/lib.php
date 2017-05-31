@@ -321,7 +321,7 @@ class workshop_random_allocator implements workshop_allocator {
 
         $newallocations = $this->get_unique_allocations($newallocations);
         $authorids      = $this->get_author_ids($newallocations);
-        $submissions    = $this->workshop->get_submissions($authorids);
+        $submissions    = $this->workshop->get_submissions($authorids, 0, 0, 0, false);
         $submissions    = $this->index_submissions_by_authors($submissions);
         foreach ($newallocations as $newallocation) {
             list($reviewerid, $authorid) = each($newallocation);

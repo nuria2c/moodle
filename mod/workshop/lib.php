@@ -536,6 +536,7 @@ function workshop_print_recent_activity($course, $viewfullnames, $timestart) {
         INNER JOIN {course_modules} cm ON cm.instance = w.id
         INNER JOIN {modules} md ON md.id = cm.module
         INNER JOIN {workshop_submissions} s ON s.workshopid = w.id
+                   AND s.realsubmission = 1
         INNER JOIN {user} author ON s.authorid = author.id
          LEFT JOIN {workshop_assessments} a ON a.submissionid = s.id
          LEFT JOIN {user} reviewer ON a.reviewerid = reviewer.id
@@ -789,6 +790,7 @@ function workshop_get_recent_mod_activity(&$activities, &$index, $timestart, $co
                    AND s.example = 0
                    $userselect $groupselect
                    AND (s.timemodified > :submissionmodified OR a.timemodified > :assessmentmodified)
+                   AND s.realsubmission = 1
           ORDER BY s.timemodified ASC, a.timemodified ASC";
 
     $rs = $DB->get_recordset_sql($sql, $params);

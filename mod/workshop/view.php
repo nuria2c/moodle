@@ -211,7 +211,9 @@ case workshop::PHASE_SUBMISSION:
             }
         } else {
             echo $output->container(get_string('noyoursubmission', 'workshop'));
+            $anysubmission = $workshop->get_submission_by_author($USER->id, false);
             if ($workshop->creating_submission_allowed($USER->id)) {
+                $idsubmission = (isset($anysubmission->id)) ? $anysubmission->id : 0;
                 $btnurl = new moodle_url($workshop->submission_url(), array('edit' => 'on'));
                 $btntxt = get_string('createsubmission', 'workshop');
             }

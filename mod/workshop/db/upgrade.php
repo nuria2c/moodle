@@ -68,12 +68,12 @@ function xmldb_workshop_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016022200, 'workshop');
     }
 
-    if ($oldversion < 2017050100) {
+    if ($oldversion < 2017051806) {
         // Add field submissionfiletypes to the table workshop.
         $table = new xmldb_table('workshop');
 
         // Add field assessmentype to the table workshop.
-        $field = new xmldb_field('assessmentype', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, null);
+        $field = new xmldb_field('assessmenttype', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, null);
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -96,19 +96,15 @@ function xmldb_workshop_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2017050100, 'workshop');
-
-    }
-
-    if ($oldversion < 2017051100) {
-        $table = new xmldb_table('workshop');
-
-        // Rename field assessmentype to assessmenttype in table workshop.
-        $field = new xmldb_field('assessmentype', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, 1, null);
-        if ($dbman->field_exists($table, $field)) {
-            $dbman->rename_field($table, $field, "assessmenttype");
+        // Add field realsubmission to the table workshop.
+        $tablesubmission = new xmldb_table('workshop_submissions');
+        $field = new xmldb_field('realsubmission', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 1, null);
+        if (!$dbman->field_exists($tablesubmission, $field)) {
+            $dbman->add_field($tablesubmission, $field);
         }
-        upgrade_mod_savepoint(true, 2017051100, 'workshop');
+
+        upgrade_mod_savepoint(true, 2017051806, 'workshop');
+
     }
 
     // Moodle v3.1.0 release upgrade line.

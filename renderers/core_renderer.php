@@ -387,17 +387,10 @@ class theme_cleanudem_core_renderer extends theme_bootstrapbase_core_renderer {
             } else {
                 $method = 'get';
                 $content .= html_writer::start_div('login-buttons pull-right');
-                $loginurl->param('authCAS', 'CAS');
-                $content .= $OUTPUT->single_button($loginurl, get_string('acceslogincas', 'local_custompages'), $method,
-                        array('class' => 'login login-cas buttonemphasis',
-                        'tooltip' => get_string('acceslogincastitle', 'local_custompages')));
-                if (udem_is_multiauth_cas()) {
-                    $loginurl->param('authCAS', 'NOCAS');
-                    $content .= $OUTPUT->single_button($loginurl, get_string('accesloginnocas', 'local_custompages'), $method,
-                            array('class' => 'login login-nocas',
-                                'tooltip' => get_string('accesloginnocastitle', 'local_custompages')));
-                    $content .= $OUTPUT->help_icon('accesloginnocas', 'local_custompages');
-                }
+
+                $content .= $OUTPUT->single_button($loginurl, get_string('login'), $method,
+                        array('class' => 'login login-udem buttonemphasis'));
+
                 $content .= html_writer::end_div();
             }
         }

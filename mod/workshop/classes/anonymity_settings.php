@@ -39,7 +39,7 @@ class anonymity_settings {
     /** @var context The workshop context */
     protected $context;
 
-    /** @const STUDENT_ROLE_ID student role id */
+    /** @var STUDENT_ROLE_ID student role id */
     const STUDENT_ROLE_ID = 5;
 
     /**

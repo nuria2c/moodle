@@ -539,7 +539,7 @@ function workshop_print_recent_activity($course, $viewfullnames, $timestart) {
 
     $sql = "SELECT s.id AS submissionid, s.title AS submissiontitle, s.timemodified AS submissionmodified,
                    author.id AS authorid, $authoramefields, a.id AS assessmentid, a.timemodified AS assessmentmodified,
-                   reviewer.id AS reviewerid, $reviewerfields, cm.id AS cmid
+                   reviewer.id AS reviewerid, $reviewerfields, cm.id AS cmid, w.allowsubmission
               FROM {workshop} w
         INNER JOIN {course_modules} cm ON cm.instance = w.id
         INNER JOIN {modules} md ON md.id = cm.module
@@ -592,7 +592,7 @@ function workshop_print_recent_activity($course, $viewfullnames, $timestart) {
             $s->authorid = $activity->authorid;
             $s->timemodified = $activity->submissionmodified;
             $s->cmid = $activity->cmid;
-            if ($activity->authorid == $USER->id || has_capability('mod/workshop:viewauthornames', $context)) {
+            if ($activity->authorid == $USER->id || !$activity->allowsubmission || has_capability('mod/workshop:viewauthornames', $activity)) {
                 $s->authornamevisible = true;
             } else {
                 $s->authornamevisible = false;
@@ -756,6 +756,8 @@ function workshop_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 
     $cm = $modinfo->cms[$cmid];
 
+    $workshop= $DB->get_record('workshop', array('id' => $cm->instance, '*', MUST_EXIST));
+
     $params = array();
     if ($userid) {
         $userselect = "AND (author.id = :authorid OR reviewer.id = :reviewerid)";
@@ -807,7 +809,7 @@ function workshop_get_recent_mod_activity(&$activities, &$index, $timestart, $co
     $context         = context_module::instance($cm->id);
     $grader          = has_capability('moodle/grade:viewall', $context);
     $accessallgroups = has_capability('moodle/site:accessallgroups', $context);
-    $viewauthors     = has_capability('mod/workshop:viewauthornames', $context);
+    $viewauthors     = (!$workshop->allowsubmission || has_capability('mod/workshop:viewauthornames', $context));
     $viewreviewers   = has_capability('mod/workshop:viewreviewernames', $context);
 
     $submissions = array(); // recent submissions indexed by submission id
@@ -836,7 +838,7 @@ function workshop_get_recent_mod_activity(&$activities, &$index, $timestart, $co
             $s->title = $activity->submissiontitle;
             $s->authorid = $activity->authorid;
             $s->timemodified = $activity->submissionmodified;
-            if ($activity->authorid == $USER->id || has_capability('mod/workshop:viewauthornames', $context)) {
+            if ($activity->authorid == $USER->id || $viewauthors) {
                 $s->authornamevisible = true;
             } else {
                 $s->authornamevisible = false;

@@ -302,19 +302,25 @@ if (!$edit and ($canoverride or $canpublish)) {
 $PAGE->set_title($workshop->name);
 $PAGE->set_heading($course->fullname);
 if ($edit) {
-    $PAGE->navbar->add(get_string('mysubmission', 'workshop'), $workshop->submission_url(), navigation_node::TYPE_CUSTOM);
-    $PAGE->navbar->add(get_string('editingsubmission', 'workshop'));
+    $text = $workshop->allowsubmission ? get_string('mysubmission', 'workshop') : get_string('myassessment', 'workshop');
+    $PAGE->navbar->add($text, $workshop->submission_url(), navigation_node::TYPE_CUSTOM);
+    $text = $workshop->allowsubmission ? get_string('editingsubmission', 'workshop') : get_string('editingassessment', 'workshop');
+    $PAGE->navbar->add($text, 'workshop');
 } elseif ($ownsubmission) {
-    $PAGE->navbar->add(get_string('mysubmission', 'workshop'));
+    $text = $workshop->allowsubmission ? get_string('mysubmission', 'workshop') : get_string('myassessment', 'workshop');
+    $PAGE->navbar->add($text);
 } else {
-    $PAGE->navbar->add(get_string('submission', 'workshop'));
+    $text = $workshop->allowsubmission ? get_string('submission', 'workshop') : get_string('assessment', 'workshop');
+    $PAGE->navbar->add($text);
 }
 
 // Output starts here
 $output = $PAGE->get_renderer('mod_workshop');
 echo $output->header();
 echo $output->heading(format_string($workshop->name), 2);
-echo $output->heading(get_string('mysubmission', 'workshop'), 3);
+if ($workshop->allowsubmission ) {
+    echo $output->heading(get_string('mysubmission', 'workshop'), 3);
+}
 
 // show instructions for submitting as thay may contain some list of questions and we need to know them
 // while reading the submitted answer
@@ -356,7 +362,7 @@ if ($submission->id) {
     if ($seenaspublished) {
         $showauthor = has_capability('mod/workshop:viewauthorpublished', $workshop->context);
     } else {
-        $showauthor = has_capability('mod/workshop:viewauthornames', $workshop->context);
+        $showauthor = $workshop->can_view_author_names();
     }
     echo $output->render($workshop->prepare_submission($submission, $showauthor));
 } else {
@@ -380,7 +386,9 @@ if (!$delete) {
     // Display delete button.
     if ($submission->id and $deletable) {
         $url = new moodle_url($PAGE->url, array('delete' => 1));
-        echo $output->single_button($url, get_string('deletesubmission', 'workshop'), 'get');
+        $text = $workshop->allowsubmission ? get_string('deletesubmission', 'workshop') :
+            get_string('deleteassessment', 'workshop');
+        echo $output->single_button($url, $text, 'get');
     }
 
     // Display assess button.

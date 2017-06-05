@@ -262,7 +262,7 @@ case workshop::PHASE_SUBMISSION:
 
             // Populate the display options for the submissions report.
             $reportopts                     = new stdclass();
-            $reportopts->showauthornames     = has_capability('mod/workshop:viewauthornames', $workshop->context);
+            $reportopts->showauthornames     = $workshop->can_view_author_names();
             $reportopts->showreviewernames   = has_capability('mod/workshop:viewreviewernames', $workshop->context);
             $reportopts->sortby              = $sortby;
             $reportopts->sorthow             = $sorthow;
@@ -284,7 +284,7 @@ case workshop::PHASE_SUBMISSION:
 case workshop::PHASE_ASSESSMENT:
 
     $ownsubmissionexists = null;
-    if (has_capability('mod/workshop:submit', $PAGE->context)) {
+    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
         if ($ownsubmission = $workshop->get_submission_by_author($USER->id)) {
             print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'), false, true);
             echo $output->box_start('generalbox ownsubmission');
@@ -312,7 +312,7 @@ case workshop::PHASE_ASSESSMENT:
         $groupid = groups_get_activity_group($workshop->cm, true);
         $data = $workshop->prepare_grading_report_data($USER->id, $groupid, $page, $perpage, $sortby, $sorthow);
         if ($data) {
-            $showauthornames    = has_capability('mod/workshop:viewauthornames', $workshop->context);
+            $showauthornames = $workshop->can_view_author_names();
             $showreviewernames  = has_capability('mod/workshop:viewreviewernames', $workshop->context);
 
             // prepare paging bar
@@ -399,19 +399,23 @@ case workshop::PHASE_ASSESSMENT:
         print_collapsible_region_end();
     }
     if (!$examplesmust or $examplesdone) {
-        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', get_string('assignedassessments', 'workshop'));
+        $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
+        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
         if (! $assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
             echo $output->box_start('generalbox assessment-none');
-            echo $output->notification(get_string('assignedassessmentsnone', 'workshop'));
+            $text = $workshop->allowsubmission ? get_string('assignedassessmentsnone', 'workshop') :
+                get_string('assignedpeernone', 'workshop');
+            echo $output->notification($text);
             echo $output->box_end();
         } else {
-            $shownames = has_capability('mod/workshop:viewauthornames', $PAGE->context);
+            $shownames = $workshop->can_view_author_names();
             foreach ($assessments as $assessment) {
                 $submission                     = new stdClass();
                 $submission->id                 = $assessment->submissionid;
                 $submission->title              = $assessment->submissiontitle;
                 $submission->timecreated        = $assessment->submissioncreated;
                 $submission->timemodified       = $assessment->submissionmodified;
+                $submission->realsubmission     = $workshop->allowsubmission;
                 $userpicturefields = explode(',', user_picture::fields());
                 foreach ($userpicturefields as $userpicturefield) {
                     $prefixedusernamefield = 'author' . $userpicturefield;
@@ -447,7 +451,7 @@ case workshop::PHASE_EVALUATION:
         $groupid = groups_get_activity_group($workshop->cm, true);
         $data = $workshop->prepare_grading_report_data($USER->id, $groupid, $page, $perpage, $sortby, $sorthow);
         if ($data) {
-            $showauthornames    = has_capability('mod/workshop:viewauthornames', $workshop->context);
+            $showauthornames = $workshop->can_view_author_names();
             $showreviewernames  = has_capability('mod/workshop:viewreviewernames', $workshop->context);
 
             if (has_capability('mod/workshop:overridegrades', $PAGE->context)) {
@@ -516,7 +520,7 @@ case workshop::PHASE_EVALUATION:
         echo $output->box_end();
         print_collapsible_region_end();
     }
-    if (has_capability('mod/workshop:submit', $PAGE->context)) {
+    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
         print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
         echo $output->box_start('generalbox ownsubmission');
         if ($submission = $workshop->get_submission_by_author($USER->id)) {
@@ -528,14 +532,16 @@ case workshop::PHASE_EVALUATION:
         print_collapsible_region_end();
     }
     if ($assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
-        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', get_string('assignedassessments', 'workshop'));
-        $shownames = has_capability('mod/workshop:viewauthornames', $PAGE->context);
+        $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
+        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
+        $shownames = $workshop->can_view_author_names();
         foreach ($assessments as $assessment) {
             $submission                     = new stdclass();
             $submission->id                 = $assessment->submissionid;
             $submission->title              = $assessment->submissiontitle;
             $submission->timecreated        = $assessment->submissioncreated;
             $submission->timemodified       = $assessment->submissionmodified;
+            $submission->realsubmission     = $workshop->allowsubmission;
             $userpicturefields = explode(',', user_picture::fields());
             foreach ($userpicturefields as $userpicturefield) {
                 $prefixedusernamefield = 'author' . $userpicturefield;
@@ -579,7 +585,7 @@ case workshop::PHASE_CLOSED:
         $groupid = groups_get_activity_group($workshop->cm, true);
         $data = $workshop->prepare_grading_report_data($USER->id, $groupid, $page, $perpage, $sortby, $sorthow);
         if ($data) {
-            $showauthornames    = has_capability('mod/workshop:viewauthornames', $workshop->context);
+            $showauthornames = $workshop->can_view_author_names();
             $showreviewernames  = has_capability('mod/workshop:viewreviewernames', $workshop->context);
 
             // prepare paging bar
@@ -607,7 +613,7 @@ case workshop::PHASE_CLOSED:
             print_collapsible_region_end();
         }
     }
-    if (has_capability('mod/workshop:submit', $PAGE->context)) {
+    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
         print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
         echo $output->box_start('generalbox ownsubmission');
         if ($submission = $workshop->get_submission_by_author($USER->id)) {
@@ -636,14 +642,16 @@ case workshop::PHASE_CLOSED:
         }
     }
     if ($assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
-        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', get_string('assignedassessments', 'workshop'));
-        $shownames = has_capability('mod/workshop:viewauthornames', $PAGE->context);
+        $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
+        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
+        $shownames = $workshop->can_view_author_names();
         foreach ($assessments as $assessment) {
             $submission                     = new stdclass();
             $submission->id                 = $assessment->submissionid;
             $submission->title              = $assessment->submissiontitle;
             $submission->timecreated        = $assessment->submissioncreated;
             $submission->timemodified       = $assessment->submissionmodified;
+            $submission->realsubmission     = $workshop->allowsubmission;
             $userpicturefields = explode(',', user_picture::fields());
             foreach ($userpicturefields as $userpicturefield) {
                 $prefixedusernamefield = 'author' . $userpicturefield;

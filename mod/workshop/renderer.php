@@ -110,39 +110,43 @@ class mod_workshop_renderer extends plugin_renderer_base {
             $a                  = new stdclass();
             $a->name            = fullname($author);
             $a->url             = $userurl->out();
-            $byfullname         = get_string('byfullname', 'workshop', $a);
+            $byfullname = $submission->realsubmission ? get_string('byfullname', 'workshop', $a) :
+                get_string('fullname', 'workshop', $a);
             $oo  = $this->output->container($userpic, 'picture');
             $oo .= $this->output->container($byfullname, 'fullname');
 
             $o .= $this->output->container($oo, 'author');
         }
 
-        $created = get_string('userdatecreated', 'workshop', userdate($submission->timecreated));
-        $o .= $this->output->container($created, 'userdate created');
+        if ($submission->realsubmission) {
+            $created = get_string('userdatecreated', 'workshop', userdate($submission->timecreated));
+            $o .= $this->output->container($created, 'userdate created');
 
-        if ($submission->timemodified > $submission->timecreated) {
-            $modified = get_string('userdatemodified', 'workshop', userdate($submission->timemodified));
-            $o .= $this->output->container($modified, 'userdate modified');
+            if ($submission->timemodified > $submission->timecreated) {
+                $modified = get_string('userdatemodified', 'workshop', userdate($submission->timemodified));
+                $o .= $this->output->container($modified, 'userdate modified');
+            }
         }
 
         $o .= $this->output->container_end(); // end of header
 
-        $content = file_rewrite_pluginfile_urls($submission->content, 'pluginfile.php', $this->page->context->id,
-                                                        'mod_workshop', 'submission_content', $submission->id);
-        $content = format_text($content, $submission->contentformat, array('overflowdiv'=>true));
-        if (!empty($content)) {
-            if (!empty($CFG->enableplagiarism)) {
-                require_once($CFG->libdir.'/plagiarismlib.php');
-                $content .= plagiarism_get_links(array('userid' => $submission->authorid,
-                    'content' => $submission->content,
-                    'cmid' => $this->page->cm->id,
-                    'course' => $this->page->course));
+        if ($submission->realsubmission) {
+            $content = file_rewrite_pluginfile_urls($submission->content, 'pluginfile.php', $this->page->context->id,
+                                                    'mod_workshop', 'submission_content', $submission->id);
+            $content = format_text($content, $submission->contentformat, array('overflowdiv'=>true));
+            if (!empty($content)) {
+                if (!empty($CFG->enableplagiarism)) {
+                    require_once($CFG->libdir.'/plagiarismlib.php');
+                        $content .= plagiarism_get_links(array('userid' => $submission->authorid,
+                        'content' => $submission->content,
+                        'cmid' => $this->page->cm->id,
+                        'course' => $this->page->course));
+                }
             }
+            $o .= $this->output->container($content, 'content');
+
+            $o .= $this->helper_submission_attachments($submission->id, 'html');
         }
-        $o .= $this->output->container($content, 'content');
-
-        $o .= $this->helper_submission_attachments($submission->id, 'html');
-
         $o .= $this->output->container_end(); // end of submission-full
 
         return $o;
@@ -188,19 +192,22 @@ class mod_workshop_renderer extends plugin_renderer_base {
             $a                  = new stdClass();
             $a->name            = fullname($author);
             $a->url             = $userurl->out();
-            $byfullname         = get_string('byfullname', 'workshop', $a);
+            $byfullname = $summary->realsubmission ? get_string('byfullname', 'workshop', $a) :
+                get_string('fullname', 'workshop', $a);
 
             $oo  = $this->output->container($userpic, 'picture');
             $oo .= $this->output->container($byfullname, 'fullname');
             $o  .= $this->output->container($oo, 'author');
         }
 
-        $created = get_string('userdatecreated', 'workshop', userdate($summary->timecreated));
-        $o .= $this->output->container($created, 'userdate created');
+        if ($summary->realsubmission) {
+            $created = get_string('userdatecreated', 'workshop', userdate($summary->timecreated));
+            $o .= $this->output->container($created, 'userdate created');
 
-        if ($summary->timemodified > $summary->timecreated) {
-            $modified = get_string('userdatemodified', 'workshop', userdate($summary->timemodified));
-            $o .= $this->output->container($modified, 'userdate modified');
+            if ($summary->timemodified > $summary->timecreated) {
+                $modified = get_string('userdatemodified', 'workshop', userdate($summary->timemodified));
+                $o .= $this->output->container($modified, 'userdate modified');
+            }
         }
 
         $o .= $gradestatus;
@@ -283,8 +290,9 @@ class mod_workshop_renderer extends plugin_renderer_base {
     protected function render_workshop_user_plan(workshop_user_plan $plan) {
         $o  = '';    // Output HTML code.
         $numberofphases = count($plan->phases);
+        $addclass = ' nbphases' . $numberofphases;
         $o .= html_writer::start_tag('div', array(
-            'class' => 'userplan',
+            'class' => 'userplan' . $addclass,
             'aria-labelledby' => 'mod_workshop-userplanheading',
             'aria-describedby' => 'mod_workshop-userplanaccessibilitytitle',
         ));
@@ -293,7 +301,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
         $o .= html_writer::link('#mod_workshop-userplancurrenttasks', get_string('userplanaccessibilityskip', 'workshop'),
             array('class' => 'accesshide'));
         foreach ($plan->phases as $phasecode => $phase) {
-            $o .= html_writer::start_tag('dl', array('class' => 'phase'));
+            $o .= html_writer::start_tag('dl', array('class' => 'phase',));
             $actions = '';
 
             if ($phase->active) {
@@ -443,13 +451,16 @@ class mod_workshop_renderer extends plugin_renderer_base {
 
         $table->head = array();
         $table->head[] = $sortbyname;
-        $table->head[] = $sortbysubmisstion;
+        if ($data->realsubmission) {
+            $table->head[] = $sortbysubmisstion;
+        }
 
         // If we are in submission phase ignore the following headers (columns).
         if ($options->workshopphase != workshop::PHASE_SUBMISSION) {
             $table->head[] = $this->helper_sortable_heading(get_string('receivedgrades', 'workshop'));
             if ($options->showsubmissiongrade) {
-                $table->head[] = $this->helper_sortable_heading(get_string('submissiongradeof', 'workshop', $data->maxgrade),
+                $string = $data->realsubmission ? 'submissiongradeof' : 'assessmentgradeof';
+                $table->head[] = $this->helper_sortable_heading(get_string($string, 'workshop', $data->maxgrade),
                         'submissiongrade', $options->sortby, $options->sorthow);
             }
             $table->head[] = $this->helper_sortable_heading(get_string('givengrades', 'workshop'));
@@ -458,6 +469,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
                         'gradinggrade', $options->sortby, $options->sorthow);
             }
         }
+
         $table->rowclasses  = array();
         $table->colclasses  = array();
         $table->data        = array();
@@ -495,12 +507,15 @@ class mod_workshop_renderer extends plugin_renderer_base {
                 if ($tr == 0) {
                     $cell = new html_table_cell();
                     $cell->text = $this->helper_grading_report_participant($participant, $userinfo);
+                    if (!$data->realsubmission) {
+                        $cell->text .= $this->helper_grading_report_no_submission($participant);
+                    }
                     $cell->rowspan = $numoftrs;
                     $cell->attributes['class'] = 'participant';
                     $row->cells[] = $cell;
                 }
                 // column #2 - submission - spans over all rows
-                if ($tr == 0) {
+                if ($data->realsubmission && $tr == 0) {
                     $cell = new html_table_cell();
                     $cell->text = $this->helper_grading_report_submission($participant);
                     $cell->rowspan = $numoftrs;
@@ -653,7 +668,8 @@ class mod_workshop_renderer extends plugin_renderer_base {
             $a          = new stdClass();
             $a->name    = fullname($reviewer);
             $a->url     = $userurl->out();
-            $byfullname = get_string('assessmentby', 'workshop', $a);
+            $byfullname = $assessment->realsubmission ? get_string('assessmentby', 'workshop', $a) :
+                get_string('fullname', 'workshop', $a);;
             $oo         = $this->output->container($userpic, 'picture');
             $oo        .= $this->output->container($byfullname, 'fullname');
 
@@ -826,9 +842,11 @@ class mod_workshop_renderer extends plugin_renderer_base {
             if ($grades->submissiongrade->hidden) {
                 $cssclass .= ' hiddengrade';
             }
+            $gradetext = $grades->realsubmission ? get_string('submissiongrade', 'mod_workshop') :
+                get_string('assessmentgrade', 'mod_workshop');
             $out .= html_writer::tag(
                 'div',
-                html_writer::tag('div', get_string('submissiongrade', 'mod_workshop'), array('class' => 'gradetype')) .
+                html_writer::tag('div', $gradetext, array('class' => 'gradetype')) .
                 html_writer::tag('div', $grades->submissiongrade->str_long_grade, array('class' => 'gradevalue')),
                 array('class' => $cssclass)
             );
@@ -1062,6 +1080,22 @@ class mod_workshop_renderer extends plugin_renderer_base {
             $lastmodified = get_string('userdatemodified', 'workshop', userdate($participant->submissionmodified));
             $out .= html_writer::tag('div', $lastmodified, array('class' => 'lastmodified'));
         }
+
+        return $out;
+    }
+
+    /**
+     * @param stdClass $participant
+     * @return string
+     */
+    protected function helper_grading_report_no_submission(stdclass $participant) {
+        global $CFG;
+
+        $url = new moodle_url('/mod/workshop/submission.php',
+                              array('cmid' => $this->page->context->instanceid, 'id' => $participant->submissionid));
+
+        $out = html_writer::tag('div', $this->output->single_button($url, get_string('assess', 'workshop'), 'get'),
+                array('class' => 'assessbutton'));
 
         return $out;
     }

@@ -53,7 +53,8 @@ $workshop = new workshop($workshop, $cm, $course);
 $PAGE->set_url($workshop->assess_url($assessment->id));
 $PAGE->set_title($workshop->name);
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('assessingsubmission', 'workshop'));
+$text = $workshop->allowsubmission ? get_string('assessingsubmission', 'workshop') : get_string('assessingpeer', 'workshop');
+$PAGE->navbar->add($text);
 
 $canviewallassessments  = has_capability('mod/workshop:viewallassessments', $workshop->context);
 $canviewallsubmissions  = has_capability('mod/workshop:viewallsubmissions', $workshop->context);
@@ -243,10 +244,12 @@ if ($canoverridegrades or $cansetassessmentweight) {
 $output = $PAGE->get_renderer('mod_workshop');      // workshop renderer
 echo $output->header();
 echo $output->heading(format_string($workshop->name));
-echo $output->heading(get_string('assessedsubmission', 'workshop'), 3);
+$head = $workshop->allowsubmission ? get_string('assessedsubmission', 'workshop') : get_string('assessedpeer', 'workshop');
+echo $output->heading($head, 3);
 
 $submission = $workshop->get_submission_by_id($submission->id);     // reload so can be passed to the renderer
-echo $output->render($workshop->prepare_submission($submission, has_capability('mod/workshop:viewauthornames', $workshop->context)));
+$canviewauthornames = $workshop->can_view_author_names();
+echo $output->render($workshop->prepare_submission($submission, $canviewauthornames));
 
 // show instructions for assessing as they may contain important information
 // for evaluating the assessment
@@ -264,18 +267,19 @@ $assessment = $workshop->get_assessment_by_id($assessment->id);
 if ($isreviewer) {
     $options    = array(
         'showreviewer'  => true,
-        'showauthor'    => has_capability('mod/workshop:viewauthornames', $workshop->context),
+        'showauthor'    => $canviewauthornames,
         'showform'      => $assessmenteditable or !is_null($assessment->grade),
         'showweight'    => true,
     );
     $assessment = $workshop->prepare_assessment($assessment, $mform, $options);
     $assessment->title = get_string('assessmentbyyourself', 'workshop');
+    $assessment->realsubmission = $submission->realsubmission;
     echo $output->render($assessment);
 
 } else {
     $options    = array(
         'showreviewer'  => has_capability('mod/workshop:viewreviewernames', $workshop->context),
-        'showauthor'    => has_capability('mod/workshop:viewauthornames', $workshop->context),
+        'showauthor'    => $canviewauthornames,
         'showform'      => $assessmenteditable or !is_null($assessment->grade),
         'showweight'    => true,
     );

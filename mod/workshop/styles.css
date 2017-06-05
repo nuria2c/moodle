@@ -267,6 +267,10 @@
     margin: 0;
 }
 
+.path-mod-workshop .userplan.nbphases4 dl {
+    width: 25%;
+}
+
 /**
  * Wizard
  */
@@ -836,4 +840,16 @@ path-mod-workshop .wizard-navigation ol:before {
 }
 .path-mod-workshop .mform .wizard-summary .fitem {
     margin-bottom: 0;
+}
+
+.path-mod-workshop div.assessbutton div.singlebutton {
+    text-align: left;
+}
+
+.path-mod-workshop div.assessbutton div.singlebutton div {
+    margin-left: 0;
+    display: block;
+}
+.path-mod-workshop div.assessbutton div.singlebutton input[type="submit"] {
+    margin-left: 2px;
 }

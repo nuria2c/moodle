@@ -17,8 +17,8 @@ Feature: Provide example submission
       | user     | course | role           |
       | teacher1 | c1     | editingteacher |
     And the following "activities" exist:
-      | activity | name         | intro                     | course | idnumber  | useexamples |
-      | workshop | TestWorkshop | Test workshop description | c1     | workshop1 | 1           |
+      | activity | name         | intro                     | course | idnumber  | useexamples | allowsubmission |
+      | workshop | TestWorkshop | Test workshop description | c1     | workshop1 | 1           | 1               |
     # As a teacher, define the assessment form to be used in the workshop.
     When I log in as "teacher1"
     And I am on "Course1" course homepage

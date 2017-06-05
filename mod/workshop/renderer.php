@@ -301,14 +301,14 @@ class mod_workshop_renderer extends plugin_renderer_base {
         $o .= html_writer::link('#mod_workshop-userplancurrenttasks', get_string('userplanaccessibilityskip', 'workshop'),
             array('class' => 'accesshide'));
         foreach ($plan->phases as $phasecode => $phase) {
-            $o .= html_writer::start_tag('dl', array('class' => 'phase',));
             $actions = '';
 
+            $classes = 'phase' . $phasecode;
             if ($phase->active) {
                 // Mark the section as the current one.
                 $icon = $this->output->pix_icon('i/marked', '', 'moodle', ['role' => 'presentation']);
                 $actions .= get_string('userplancurrentphase', 'workshop').' '.$icon;
-
+                $classes .= ' active';
             } else {
                 // Display a control widget to switch to the given phase or mark the phase as the current one.
                 foreach ($phase->actions as $action) {
@@ -322,23 +322,32 @@ class mod_workshop_renderer extends plugin_renderer_base {
                         $actions .= $this->output->action_icon($action->url, $icon, null, null, true);
                     }
                 }
+                $classes .= ' nonactive';
             }
+
+            $o .= html_writer::start_tag('dl', array('class' => $classes));
 
             if (!empty($actions)) {
                 $actions = $this->output->container($actions, 'actions');
             }
-            $classes = 'phase' . $phasecode;
             if ($phase->active) {
                 $title = html_writer::span($phase->title, 'phasetitle', ['id' => 'mod_workshop-userplancurrenttasks']);
-                $classes .= ' active';
             } else {
                 $title = html_writer::span($phase->title, 'phasetitle');
-                $classes .= ' nonactive';
             }
             $o .= html_writer::start_tag('dt', array('class' => $classes));
             $o .= $this->output->container($title . $actions);
             $o .= html_writer::start_tag('dd', array('class' => $classes. ' phasetasks'));
             $o .= $this->helper_user_plan_tasks($phase->tasks);
+            // Switch to next phase button.
+            if (isset($phase->tasks['switchtonextphase'])) {
+                $accessibilitytext = get_string('tasktodo', 'workshop') . ' ';
+                $o .= html_writer::start_tag('div', array('class' => 'switchtonextphase'));
+                $o .= html_writer::tag('span', $accessibilitytext, array('class' => 'accesshide'));
+                $o .= html_writer::link($phase->tasks['switchtonextphase']->link,
+                    $phase->tasks['switchtonextphase']->title, array('class' => 'btn btn-primary'));
+                $o .= html_writer::end_tag('div');
+            }
             $o .= html_writer::end_tag('dd');
             $o .= html_writer::end_tag('dl');
         }
@@ -984,6 +993,9 @@ class mod_workshop_renderer extends plugin_renderer_base {
     protected function helper_user_plan_tasks(array $tasks) {
         $out = '';
         foreach ($tasks as $taskcode => $task) {
+            if ($taskcode == 'switchtonextphase') {
+                continue;
+            }
             $classes = '';
             $accessibilitytext = '';
             $icon = null;

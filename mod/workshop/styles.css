@@ -373,7 +373,22 @@ path-mod-workshop .wizard-navigation ol:before {
 .path-mod-workshop .wizard-navigation .current ~ li:after {
     background-color: #ddd;
 }
-
+@media screen and (min-width: 900px) {
+    .path-mod-workshop .userplan dd.active {
+        display: flex;
+        flex: 1 1 0;
+        flex-wrap: wrap;
+    }
+    .path-mod-workshop .userplan .phasetasks .switchtonextphase,
+    .path-mod-workshop .userplan .phasetasks .switchtonextphase .btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .path-mod-workshop .userplan .phasetasks .switchtonextphase {
+        align-self: flex-end;
+        margin-top: 10px;
+    }
+}
 
 @media only screen and (max-width: 768px) {
     .path-mod-workshop .userplan {
@@ -852,4 +867,13 @@ path-mod-workshop .wizard-navigation ol:before {
 }
 .path-mod-workshop div.assessbutton div.singlebutton input[type="submit"] {
     margin-left: 2px;
+}
+.path-mod-workshop .userplan .phasetasks .switchtonextphase {
+    padding: 0 20px;
+}
+.path-mod-workshop .userplan .phasetasks .switchtonextphase .btn {
+    color: #fff;
+    font-size: 100%;
+    padding-left: 8%;
+    padding-right: 8%;
 }

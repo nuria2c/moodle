@@ -19,6 +19,7 @@
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,6 +35,7 @@ require_once($CFG->libdir . '/formslib.php');
  *
  * @package    mod_workshop
  * @author     Gilles-Philippe Leblanc <gilles-philippe.leblanc@umontreal.ca>
+ * @author     Issam Taboubi <issam.taboubi@umontreal.ca>
  * @copyright  2017 Université de Montréal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,6 +45,50 @@ class peerallocation_step_form extends step_form {
      * The step form definition.
      */
     public function step_definition() {
+        $mform = $this->_form;
+        $mform->removeElement('stepname');
+    }
+
+    /**
+     * Displays the HTML to the screen
+     *
+     * @access    public
+     */
+    public function display() {
+        global $PAGE;
+        $html = '';
+        $output = $PAGE->get_renderer('mod_workshop');
+        // Random allocation.
+        $allocatorrandom  = $this->workshop->allocator_instance("random");
+        $initrandomresult = $allocatorrandom->init();
+        $html .= $output->container_start('allocator-random');
+        $html .= $allocatorrandom->ui();
+        $html .= $output->container_end();
+
+        // Manual allocation.
+        $allocator  = $this->workshop->allocator_instance("manual");
+        $initresult = $allocator->init();
+
+        if (!is_null($initrandomresult->get_status()) and
+                $initrandomresult->get_status() != \workshop_allocation_result::STATUS_VOID) {
+            $html .= $output->container_start('allocator-init-results');
+            $html .= $output->render($initrandomresult);
+            $html .= $output->container_end();
+        }
+
+        if (is_null($initresult->get_status()) or
+                $initresult->get_status() == \workshop_allocation_result::STATUS_VOID) {
+            $html .= $output->container_start('allocator-ui');
+            $html .= $allocator->ui();
+            $html .= $output->container_end();
+        } else {
+            $html .= $output->container_start('allocator-init-results');
+            $html .= $output->render($initresult);
+            $html .= $output->continue_button($this->workshop->allocation_url("manual"));
+            $html .= $output->container_end();
+        }
+        print $html;
+        parent::display();
     }
 
 }

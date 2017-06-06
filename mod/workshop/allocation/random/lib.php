@@ -192,15 +192,7 @@ class workshop_random_allocator implements workshop_allocator {
 
         $output = $PAGE->get_renderer('mod_workshop');
 
-        $m = optional_param('m', null, PARAM_INT);  // status message code
-        $message = new workshop_message();
-        if ($m == self::MSG_SUCCESS) {
-            $message->set_text(get_string('randomallocationdone', 'workshopallocation_random'));
-            $message->set_type(workshop_message::TYPE_OK);
-        }
-
         $out  = $output->container_start('random-allocator');
-        $out .= $output->render($message);
         // the nasty hack follows to bypass the sad fact that moodle quickforms do not allow to actually
         // return the HTML content, just to display it
         ob_start();

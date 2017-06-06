@@ -77,16 +77,23 @@ if ($mform->is_cancelled()) {
 }
 
 // Output for the page.
-
 $output = $PAGE->get_renderer('mod_workshop');
 
-echo $output->header();
-echo $output->heading_with_help($wizardtitle, 'setupwizard', 'workshop');
+$header = $output->header();
+$heading = $output->heading_with_help($wizardtitle, 'setupwizard', 'workshop');
 
 $page = new mod_workshop\output\wizard_navigation_page($workshop);
 
-echo $output->render_workshop_wizard_navigation_page($page);
+$navigation = $output->render_workshop_wizard_navigation_page($page);
 
+ob_start();
 $mform->display();
+$formoutput = ob_get_contents();
+ob_end_clean();
+
+echo $header;
+echo $heading;
+echo $navigation;
+echo $formoutput;
 
 echo $output->footer();

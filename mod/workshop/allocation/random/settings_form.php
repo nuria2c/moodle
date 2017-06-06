@@ -46,25 +46,11 @@ class workshop_random_allocator_form extends moodleform {
         $workshop       = $this->_customdata['workshop'];
         $plugindefaults = get_config('workshopallocation_random');
 
-        $mform->addElement('header', 'randomallocationsettings', get_string('allocationsettings', 'workshopallocation_random'));
-
         $gmode = groups_get_activity_groupmode($workshop->cm, $workshop->course);
-        switch ($gmode) {
-        case NOGROUPS:
-            $grouplabel = get_string('groupsnone', 'group');
-            break;
-        case VISIBLEGROUPS:
-            $grouplabel = get_string('groupsvisible', 'group');
-            break;
-        case SEPARATEGROUPS:
-            $grouplabel = get_string('groupsseparate', 'group');
-            break;
-        }
-        $mform->addElement('static', 'groupmode', get_string('groupmode', 'group'), $grouplabel);
 
         $options_numper = array(
-            workshop_random_allocator_setting::NUMPER_SUBMISSION => get_string('numperauthor', 'workshopallocation_random'),
-            workshop_random_allocator_setting::NUMPER_REVIEWER   => get_string('numperreviewer', 'workshopallocation_random')
+            workshop_random_allocator_setting::NUMPER_SUBMISSION => get_string('byreviewee', 'workshopallocation_random'),
+            workshop_random_allocator_setting::NUMPER_REVIEWER   => get_string('byreviewer', 'workshopallocation_random')
         );
         $grpnumofreviews = array();
         $grpnumofreviews[] = $mform->createElement('select', 'numofreviews', '',
@@ -72,7 +58,7 @@ class workshop_random_allocator_form extends moodleform {
         $mform->setDefault('numofreviews', $plugindefaults->numofreviews);
         $grpnumofreviews[] = $mform->createElement('select', 'numper', '', $options_numper);
         $mform->setDefault('numper', workshop_random_allocator_setting::NUMPER_SUBMISSION);
-        $mform->addGroup($grpnumofreviews, 'grpnumofreviews', get_string('numofreviews', 'workshopallocation_random'),
+        $mform->addGroup($grpnumofreviews, 'grpnumofreviews', get_string('assessmentnumber', 'workshopallocation_random'),
                 array(' '), false);
 
         if (VISIBLEGROUPS == $gmode) {
@@ -86,19 +72,22 @@ class workshop_random_allocator_form extends moodleform {
         $mform->addElement('checkbox', 'removecurrent', get_string('removecurrentallocations', 'workshopallocation_random'));
         $mform->setDefault('removecurrent', 0);
 
-        $mform->addElement('checkbox', 'assesswosubmission', get_string('assesswosubmission', 'workshopallocation_random'));
-        $mform->setDefault('assesswosubmission', 0);
-
         $mform->addElement('hidden', 'addselfassessment');
         $mform->setType('addselfassessment', PARAM_BOOL);
+
+        $mform->addElement('hidden', 'view');
+        $mform->setType('view', PARAM_ALPHANUMEXT);
 
         if ($workshop->assessmenttype == workshop::PEER_ASSESSMENT) {
             $mform->setDefault('addselfassessment', 0);
         } else {
             $mform->setDefault('addselfassessment', 1);
-            $mform->addElement('html', \html_writer::tag('span', get_string('includeselfassessment', 'workshopallocation_random')));
+            $mform->addElement('static',
+                'selfassessmenthelp',
+                get_string('selfassessment', 'workshop'),
+                get_string('selfassessmenthelp', 'workshopallocation_random'));
         }
 
-        $this->add_action_buttons();
+        $this->add_action_buttons(true, get_string('apply', 'workshopallocation_random'));
     }
 }

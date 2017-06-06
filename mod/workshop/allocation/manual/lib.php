@@ -62,7 +62,12 @@ class workshop_manual_allocator implements workshop_allocator {
 
         $mode = optional_param('mode', 'display', PARAM_ALPHA);
         $perpage = optional_param('perpage', null, PARAM_INT);
+        $view = optional_param('view', null, PARAM_ALPHANUMEXT);
+        $PAGE->requires->js_call_amd('mod_workshop/allocation', 'init', array());
 
+        if ($view) {
+            set_user_preference('workshopallocation_manual_view', $view);
+        }
         if ($perpage and $perpage > 0 and $perpage <= 1000) {
             require_sesskey();
             set_user_preference('workshopallocation_manual_perpage', $perpage);
@@ -164,7 +169,7 @@ class workshop_manual_allocator implements workshop_allocator {
             case self::MSG_ADDED:
                 $hlauthorid     = $m[1];
                 $hlreviewerid   = $m[2];
-                $message        = new workshop_message(get_string('allocationadded', 'workshopallocation_manual'),
+                $message        = new workshop_message(get_string('allocationdonedetail', 'workshop', ''),
                     workshop_message::TYPE_OK);
                 break;
             case self::MSG_EXISTS:

@@ -882,3 +882,49 @@ path-mod-workshop .wizard-navigation ol:before {
     padding-left: 8%;
     padding-right: 8%;
 }
+.path-mod-workshop .allocations .form-autocomplete-selection {
+    display: none;
+}
+.path-mod-workshop .allocations [role="listitem"] {
+    margin-bottom: 5px;
+}
+.path-mod-workshop .allocations [role="listitem"] .delete-user-allocation a {
+    color: #fff;
+    padding-right: 0.5em;
+    vertical-align: middle;
+    text-decoration: none;
+}
+.path-mod-workshop .allocations [role="listitem"] img {
+    padding-right: 0.5em;
+}
+.path-mod-workshop .header-allocation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.path-mod-workshop .header-allocation .allocation-view-switcher > label {
+    font-weight: bold;
+}
+.path-mod-workshop .header-allocation .allocation-view-switcher > span {
+    display: block;
+}
+.path-mod-workshop .allocator-random {
+    display:none;
+}
+.moodle-dialogue-content .random-allocator #fgroup_id_buttonar {
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 19px 10px 10px 0;
+}
+.moodle-dialogue-content .random-allocator .fitem_actionbuttons .fgroup {
+    text-align: right;
+    margin-left: 0;
+}
+.path-mod-workshop .allocations.reviewee .reviewerof,
+.path-mod-workshop .allocations.reviewer .reviewedby,
+.path-mod-workshop .allocation-results-container {
+    display: none;
+}
+.path-mod-workshop .allocator-ui .message {
+    width: auto;
+}

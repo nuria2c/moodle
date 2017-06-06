@@ -4318,7 +4318,7 @@ class workshop_message implements renderable {
      * @return string
      */
     public function get_message() {
-        return s($this->text);
+        return $this->text;
     }
 
     /**

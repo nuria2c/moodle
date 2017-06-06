@@ -25,7 +25,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
+require_once($CFG->libdir . '/form/autocomplete.php');
 /**
  * Manual allocation renderer class
  */
@@ -33,6 +33,9 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
 
     /** @var workshop module instance */
     protected $workshop;
+
+    /** @var string allocation view */
+    protected $view;
 
     ////////////////////////////////////////////////////////////////////////////
     // External rendering API
@@ -45,8 +48,10 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function render_workshopallocation_manual_allocations(workshopallocation_manual_allocations $data) {
-
+        global $PAGE;
+        $output     = $PAGE->get_renderer('workshopallocation_manual');
         $this->workshop     = $data->workshop;
+        $this->view         = get_user_preferences('workshopallocation_manual_view', 'reviewedby');
 
         $allocations        = $data->allocations;       // array prepared array of all allocations data
         $userinfo           = $data->userinfo;          // names and pictures of all required users
@@ -63,19 +68,20 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         // convert user collections into drop down menus
         $authors    = array_map('fullname', $authors);
         $reviewers  =  array_map('fullname', $reviewers);
+        $classtableviewselected = ($this->view == 'reviewedby') ? 'reviewee' : 'reviewer';
 
         $table              = new html_table();
-        $table->attributes['class'] = 'allocations';
-        $table->head        = array(get_string('participantreviewedby', 'workshop'),
-                                    get_string('participant', 'workshop'),
+        $table->attributes['class'] = 'allocations' . ' ' . $classtableviewselected;
+        $table->head        = array(get_string('participant', 'workshop'),
+                                    get_string('participantreviewedby', 'workshop'),
                                     get_string('participantrevierof', 'workshop'));
         $table->rowclasses  = array();
-        $table->colclasses  = array('reviewedby', 'peer', 'reviewerof');
+        $table->colclasses  = array('peer', 'reviewedby', 'reviewerof');
         $table->data        = array();
         foreach ($allocations as $allocation) {
             $row = array();
-            $row[] = $this->helper_reviewers_of_participant($allocation, $userinfo, $reviewers, $selfassessment);
             $row[] = $this->helper_participant($allocation, $userinfo);
+            $row[] = $this->helper_reviewers_of_participant($allocation, $userinfo, $reviewers, $selfassessment);
             $row[] = $this->helper_reviewees_of_participant($allocation, $userinfo, $authors, $selfassessment);
             $thisrowclasses = array();
             if ($allocation->userid == $hlauthorid) {
@@ -87,8 +93,67 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
             $table->rowclasses[] = implode(' ', $thisrowclasses);
             $table->data[] = $row;
         }
+        // Allocation header.
+        $header = html_writer::start_tag('fieldset');
+        $header .= html_writer::start_tag('legend');
+        $header .= get_string(\mod_workshop\wizard\peerallocation_step::NAME, 'workshop');
+        $header .= html_writer::end_tag('legend');
+        if ($this->workshop->assessmenttype != \workshop::SELF_ASSESSMENT) {
+            $header .= $this->helper_header_allocation();
+        }
 
-        return $this->output->container(html_writer::table($table), 'manual-allocator');
+        $html = $header . html_writer::table($table);
+        $html .= html_writer::end_tag('fieldset');
+
+        return $this->output->container($html, 'manual-allocator');
+    }
+
+    /**
+     * Get Html header allocation (view switcher and random allocation button).
+     *
+     * @return string Html header allocation
+     */
+    protected function helper_header_allocation() {
+        $header = html_writer::start_tag('div', array('class' => 'header-allocation'));
+        $header .= html_writer::start_tag('div', array('class' => 'allocation-view-switcher'));
+        $label = get_string('allocateaccordingto', 'workshop');
+        $header .= html_writer::label($label, 'allocation-view-switcher');
+
+        $checkreviewedby = ($this->view == 'reviewedby') ? 'checked' : null;
+        $checkreviewerof = ($this->view == 'reviewerof') ? 'checked' : null;
+        $radioattributes = array(
+            'class' => 'radio-view-switcher',
+            'id' => 'id_allocationreviewer',
+            'type' => 'radio',
+            'name' => 'allocationview',
+            'checked' => $checkreviewedby,
+            'value' => 'reviewee'
+        );
+        $radioreviewedby = html_writer::empty_tag('input', $radioattributes);
+        $radioreviewedby .= html_writer::label(get_string('reviewer', 'workshopallocation_manual'), 'id_allocationreviewer');
+        $radioreviewedby = html_writer::span($radioreviewedby);
+
+        $radioattributes = array(
+            'class' => 'radio-view-switcher',
+            'id' => 'id_allocationreviewee',
+            'type' => 'radio',
+            'name' => 'allocationview',
+            'checked' => $checkreviewerof,
+            'value' => 'reviewer'
+        );
+        $radioreviewerof = html_writer::empty_tag('input', $radioattributes);
+        $radioreviewerof .= html_writer::label(get_string('reviewee', 'workshopallocation_manual'), 'id_allocationreviewee');
+        $radioreviewerof = html_writer::span($radioreviewerof);
+
+        $header .= $radioreviewedby . $radioreviewerof;
+
+        $header .= html_writer::end_tag('div');
+        $header .= html_writer::start_tag('div', array('class' => 'random-allocation-button'));
+        $header .= html_writer::link('#',
+            get_string('pluginname', 'workshopallocation_random'), array('class' => 'btn btn-default'));
+        $header .= html_writer::end_tag('div');
+        $header .= html_writer::end_tag('div');
+        return $header;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -125,48 +190,65 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function helper_reviewers_of_participant(stdclass $allocation, array $userinfo, array $reviewers, $selfassessment) {
+        global $PAGE;
         $o = '';
-        if (is_null($allocation->submissionid)) {
-            $o .= $this->output->container(get_string('nothingtoreview', 'workshop'), 'info');
-        } else {
-            // Build a list of possible reviewers.
-            if ($this->workshop->assessmenttype != workshop::SELF_ASSESSMENT) {
-                $exclude = array();
-                if ($this->workshop->assessmenttype == workshop::PEER_ASSESSMENT) {
-                    $exclude[$allocation->userid] = true;
-                }
-                foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
-                    $exclude[$reviewerid] = true;
-                }
-                $options = array_diff_key($reviewers, $exclude);
-                if ($options) {
-                    $handler = new moodle_url($this->page->url, array('mode' => 'new', 'of' => $allocation->userid,
-                        'sesskey' => sesskey()));
-                    $select = new single_select($handler, 'by', $options, '', array('' => get_string('chooseuser', 'workshop')),
-                            'addreviewof' . $allocation->userid);
-                    $select->set_label(get_string('addreviewer', 'workshopallocation_manual'));
-                    $o .= $this->output->render($select);
-                }
-            }
-        }
         $o .= html_writer::start_tag('ul', array());
         foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
             $o .= html_writer::start_tag('li', array());
+            $o .= html_writer::start_tag('span',
+                array('role' => 'listitem', 'aria-selected' => true, 'class' => "label label-info"));
+
+            // Delete icon.
+            if ($reviewerid != $allocation->userid) {
+                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
+                        'sesskey' => sesskey(), 'view' => 'reviewedby'));
+                $link = $this->helper_remove_allocation_icon($handler);
+                $o .= html_writer::span($link, 'delete-user-allocation', array('aria-hidden' => "true"));
+            }
+            $o .= html_writer::start_tag('span');
+            $o .= $this->output->user_picture($userinfo[$reviewerid],
+                array('courseid' => $this->page->course->id, 'size' => 16));
+            $o .= html_writer::end_tag('span');
+            $o .= html_writer::start_tag('span');
             if ($reviewerid == $allocation->userid) {
                 $o .= get_string('selfassessment', 'workshop');
             } else {
-                $o .= $this->output->user_picture($userinfo[$reviewerid], array('courseid' => $this->page->course->id,
-                    'size' => 16));
                 $o .= fullname($userinfo[$reviewerid]);
-                // Delete icon.
-                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
-                    'sesskey' => sesskey()));
-                $o .= $this->helper_remove_allocation_icon($handler);
             }
-
+            $o .= html_writer::end_tag('span');
+            $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('li');
         }
         $o .= html_writer::end_tag('ul');
+        
+        // Build a list of possible reviewers.
+        if ($this->workshop->assessmenttype != workshop::SELF_ASSESSMENT) {
+            $exclude = array();
+            if ($this->workshop->assessmenttype == workshop::PEER_ASSESSMENT) {
+                $exclude[$allocation->userid] = true;
+            }
+            foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
+                $exclude[$reviewerid] = true;
+            }
+            $options = array_diff_key($reviewers, $exclude);
+            if ($options) {
+                $options = array('' => '') + $options;
+                $handler = new moodle_url($this->page->url,
+                        array('mode' => 'new', 'of' => $allocation->userid, 'sesskey' => sesskey(), 'view' => 'reviewedby'));
+                $select = new single_select($handler, 'by', $options, '', array(), 'addreviewof' . $allocation->userid);
+                $select->attributes['id'] = uniqid();
+                $PAGE->requires->js_call_amd('core/form-autocomplete',
+                    'enhance',
+                    $params = array('#' . $select->attributes['id'],
+                        false,
+                        false,
+                        get_string('addreviewer', 'workshopallocation_manual')
+                        )
+                    );
+                $o .= $this->output->render($select);
+            }
+        }
+
         return $o;
     }
 
@@ -176,10 +258,35 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function helper_reviewees_of_participant(stdclass $allocation, array $userinfo, array $authors, $selfassessment) {
+        global $PAGE;
         $o = '';
-        if (is_null($allocation->submissionid)) {
-            $o .= $this->output->container(get_string('withoutsubmission', 'workshop'), 'info');
+        $o .= html_writer::start_tag('ul', array());
+        foreach ($allocation->reviewerof as $authorid => $assessmentid) {
+            $o .= html_writer::start_tag('li', array());
+            $o .= html_writer::start_tag('span',
+                array('role' => 'listitem', 'aria-selected' => true, 'class' => "label label-info"));
+
+            // Delete icon.
+            if ($authorid != $allocation->userid) {
+                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
+                        'sesskey' => sesskey(), 'view' => 'reviewedby'));
+                $link = $this->helper_remove_allocation_icon($handler);
+                $o .= html_writer::span($link, 'delete-user-allocation', array('aria-hidden' => "true"));
+            }
+            $o .= html_writer::start_tag('span');
+            $o .= $this->output->user_picture($userinfo[$authorid], array('courseid' => $this->page->course->id, 'size' => 16));
+            $o .= html_writer::end_tag('span');
+            $o .= html_writer::start_tag('span');
+             if ($authorid == $allocation->userid) {
+                $o .= get_string('selfassessment', 'workshop');
+            } else {
+                $o .= fullname($userinfo[$authorid]);
+            }
+            $o .= html_writer::end_tag('span');
+            $o .= html_writer::end_tag('span');
+            $o .= html_writer::end_tag('li');
         }
+        $o .= html_writer::end_tag('ul');
 
         // Build a list of possible reviewees.
         if ($this->workshop->assessmenttype != workshop::SELF_ASSESSMENT) {
@@ -192,31 +299,23 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
             }
             $options = array_diff_key($authors, $exclude);
             if ($options) {
-                $handler = new moodle_url($this->page->url, array('mode' => 'new', 'by' => $allocation->userid,
-                    'sesskey' => sesskey()));
-                $select = new single_select($handler, 'of', $options, '', array('' => get_string('chooseuser', 'workshop')),
-                    'addreviewby' . $allocation->userid);
-                $select->set_label(get_string('addreviewee', 'workshopallocation_manual'));
+                $options = array('' => '') + $options;
+                $handler = new moodle_url($this->page->url,
+                    array('mode' => 'new', 'by' => $allocation->userid, 'sesskey' => sesskey(), 'view' => 'reviewerof'));
+                $select = new single_select($handler,
+                    'of', $options, '', array('' => get_string('chooseuser', 'workshop')), 'addreviewby' . $allocation->userid);
+                $select->attributes['id'] = uniqid();
+                $PAGE->requires->js_call_amd('core/form-autocomplete',
+                        'enhance',
+                        $params = array('#' . $select->attributes['id'],
+                            false,
+                            false,
+                            get_string('addreviewee', 'workshopallocation_manual')
+                            )
+                        );
                 $o .= $this->output->render($select);
             }
         }
-        $o .= html_writer::start_tag('ul', array());
-        foreach ($allocation->reviewerof as $authorid => $assessmentid) {
-            if ($authorid == $allocation->userid) {
-                $o .= get_string('selfassessment', 'workshop');
-            } else {
-                $o .= html_writer::start_tag('li', array());
-                $o .= $this->output->user_picture($userinfo[$authorid], array('courseid' => $this->page->course->id, 'size' => 16));
-                $o .= fullname($userinfo[$authorid]);
-
-                // Delete icon.
-                $handler = new moodle_url($this->page->url, array('mode' => 'del', 'what' => $assessmentid,
-                    'sesskey' => sesskey()));
-                $o .= $this->helper_remove_allocation_icon($handler);
-            }
-            $o .= html_writer::end_tag('li');
-        }
-        $o .= html_writer::end_tag('ul');
         return $o;
     }
 
@@ -227,6 +326,6 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return html code to be displayed
      */
     protected function helper_remove_allocation_icon($link) {
-        return $this->output->action_icon($link, new pix_icon('t/delete', 'X'));
+        return $this->output->action_link($link, 'X');
     }
 }

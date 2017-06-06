@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\output\notification;
+
 /**
  * Workshop module renderer class
  *
@@ -55,22 +57,28 @@ class mod_workshop_renderer extends plugin_renderer_base {
 
         switch ($message->get_type()) {
         case workshop_message::TYPE_OK:
-            $sty = 'ok';
+            $sty = notification::NOTIFY_SUCCESS;
             break;
         case workshop_message::TYPE_ERROR:
-            $sty = 'error';
+            $sty = notification::NOTIFY_ERROR;
             break;
         default:
-            $sty = 'info';
+            $sty = notification::NOTIFY_INFO;
         }
-
-        $o = html_writer::tag('span', $message->get_message());
 
         if (!is_null($url) and !is_null($label)) {
-            $o .= $this->output->single_button($url, $label, 'get');
+            $html = html_writer::start_div('alert alert-info alert-block fade in', array('role' => 'alert'));
+            $html .= html_writer::start_tag('button',
+                    array('class' => 'close', 'type' => 'button', 'data-dismiss' => 'alert'));
+            $html .= 'x';
+            $html .= html_writer::end_tag('button');
+            $html .= $text;
+            $html .= $this->output->single_button($url, $label, 'get');
+            $html .= html_writer::end_div();
+            return $html;
+        } else {
+            return parent::render(new notification($text, $sty));
         }
-
-        return $this->output->container($o, array('message', $sty));
     }
 
 
@@ -392,7 +400,9 @@ class mod_workshop_renderer extends plugin_renderer_base {
             if ($message = $result->get_message()) {
                 $message = new workshop_message($message, workshop_message::TYPE_OK);
             } else {
-                $message = new workshop_message(get_string('allocationdone', 'workshop'), workshop_message::TYPE_OK);
+                $link = html_writer::link('#', get_string('seeresults', 'workshopallocation_random'), array('class' => 'allocation-see-results'));
+                $text = get_string('allocationdonedetail', 'workshop', $link);
+                $message = new workshop_message($text, workshop_message::TYPE_OK);
             }
             break;
 
@@ -406,6 +416,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
         // display the details about the process if available
         $logs = $result->get_logs();
         if (is_array($logs) and !empty($logs)) {
+            $o .= html_writer::start_tag('div', array('class' => 'allocation-results-container'));
             $o .= html_writer::start_tag('ul', array('class' => 'allocation-init-results'));
             foreach ($logs as $log) {
                 if ($log->type == 'debug' and !$CFG->debugdeveloper) {
@@ -419,6 +430,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
                 $o .= html_writer::tag('li', $log->message, array('class' => $class)).PHP_EOL;
             }
             $o .= html_writer::end_tag('ul');
+            $o .= html_writer::end_tag('div');
         }
 
         return $o;

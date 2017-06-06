@@ -46,45 +46,45 @@ require_capability('mod/workshop:allocate', $context);
 
 $PAGE->set_title($workshop->name);
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('allocation', 'workshop'));
-
-$allocator  = $workshop->allocator_instance($method);
-$initresult = $allocator->init();
+$PAGE->navbar->add(get_string(\mod_workshop\wizard\peerallocation_step::NAME, 'workshop'));
 
 //
 // Output starts here
 //
 $output = $PAGE->get_renderer('mod_workshop');
+$html = '';
+
+// Random allocation.
+$allocatorrandom  = $workshop->allocator_instance("random");
+$initrandomresult = $allocatorrandom->init();
+$html .= $output->container_start('allocator-random');
+$html .= $allocatorrandom->ui();
+$html .= $output->container_end();
+
+
+// Manual allocation.
+$allocator  = $workshop->allocator_instance("manual");
+$initresult = $allocator->init();
+
+
+if (!is_null($initrandomresult->get_status()) and $initrandomresult->get_status() != \workshop_allocation_result::STATUS_VOID) {
+    $html .= $output->container_start('allocator-init-results');
+    $html .= $output->render($initrandomresult);
+    $html .= $output->container_end();
+}
+
+if (is_null($initresult->get_status()) or $initresult->get_status() == \workshop_allocation_result::STATUS_VOID) {
+    $html .= $output->container_start('allocator-ui');
+    $html .= $allocator->ui();
+    $html .= $output->container_end();
+} else {
+    $html .= $output->container_start('allocator-init-results');
+    $html .= $output->render($initresult);
+    $html .= $output->continue_button($workshop->allocation_url($method));
+    $html .= $output->container_end();
+}
+
 echo $output->header();
 echo $OUTPUT->heading(format_string($workshop->name));
-
-$allocators = workshop::installed_allocators();
-if (!empty($allocators)) {
-    $tabs       = array();
-    $row        = array();
-    $inactive   = array();
-    $activated  = array();
-    foreach ($allocators as $methodid => $methodname) {
-        if ($workshop->assessmenttype == workshop::SELF_ASSESSMENT && $methodid != "manual") {
-            continue;
-        }
-        $row[] = new tabobject($methodid, $workshop->allocation_url($methodid)->out(), $methodname);
-        if ($methodid == $method) {
-            $currenttab = $methodid;
-        }
-    }
-}
-$tabs[] = $row;
-print_tabs($tabs, $currenttab, $inactive, $activated);
-
-if (is_null($initresult->get_status()) or $initresult->get_status() == workshop_allocation_result::STATUS_VOID) {
-    echo $output->container_start('allocator-ui');
-    echo $allocator->ui();
-    echo $output->container_end();
-} else {
-    echo $output->container_start('allocator-init-results');
-    echo $output->render($initresult);
-    echo $output->continue_button($workshop->allocation_url($method));
-    echo $output->container_end();
-}
+echo $html;
 echo $output->footer();

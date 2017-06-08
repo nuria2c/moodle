@@ -386,7 +386,12 @@ path-mod-workshop .wizard-navigation ol:before {
     }
     .path-mod-workshop .userplan .phasetasks .switchtonextphase {
         align-self: flex-end;
-        margin-top: 10px;
+        margin: 10px auto 0;
+    }
+    .path-mod-workshop .userplan .phasetasks .switchtonextphase:first-child {
+        align-self: center;
+        margin-top: 0;
+        width: auto;
     }
 }
 

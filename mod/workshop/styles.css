@@ -348,7 +348,7 @@ path-mod-workshop .wizard-navigation ol:before {
 .path-mod-workshop .wizard-navigation li .container:before {
     counter-increment: wizard;
     content: counter(wizard);
-    display: block;
+    display: inline-block;
     color: #fff;
     font-size: 1.5em;
     background-color: #3498db;
@@ -359,9 +359,7 @@ path-mod-workshop .wizard-navigation ol:before {
     line-height: 2em;
     border-radius: 2em;
     position: relative;
-    left: 50%;
     margin-bottom: 0.2em;
-    margin-left: -1em;
     z-index: 1;
 }
 .path-mod-workshop .wizard-navigation .current ~ li .container:before {
@@ -372,6 +370,9 @@ path-mod-workshop .wizard-navigation ol:before {
 
 .path-mod-workshop .wizard-navigation .current ~ li:after {
     background-color: #ddd;
+}
+.path-mod-workshop .wizard-navigation li .container .legend {
+    display: block;
 }
 @media screen and (min-width: 900px) {
     .path-mod-workshop .userplan dd.active {
@@ -401,8 +402,9 @@ path-mod-workshop .wizard-navigation ol:before {
         border-top: none;
     }
 
-    .path-mod-workshop .userplan dl {
-        width: 102%;
+    .path-mod-workshop .userplan dl,
+    .path-mod-workshop .userplan.nbphases4 dl {
+        width: 100%;
         border-right: none;
     }
 
@@ -411,6 +413,7 @@ path-mod-workshop .wizard-navigation ol:before {
         width: 30%;
         border-bottom: none;
         border-top: 1px solid #ddd;
+        box-sizing: border-box;
     }
     .path-mod-workshop .userplan dt.active {
         border: none;
@@ -418,7 +421,8 @@ path-mod-workshop .wizard-navigation ol:before {
 
     .path-mod-workshop .userplan dd {
         float: left;
-        width: 65%;
+        width: 70%;
+        box-sizing: border-box;
         border-left: 1px solid #ddd;
         border-top: 1px solid #ddd;
     }
@@ -905,7 +909,10 @@ path-mod-workshop .wizard-navigation ol:before {
     text-decoration: none;
 }
 .path-mod-workshop .allocations [role="listitem"].selfassessment {
-    filter: brightness(125%);
+    background-color: #fff;
+    border: 1px solid #3a87ad;
+    color: #3a87ad;
+    text-shadow: none;
 }
 .path-mod-workshop .allocations [role="listitem"] img {
     padding-right: 0.5em;
@@ -944,6 +951,16 @@ path-mod-workshop .wizard-navigation ol:before {
 .path-mod-workshop .allocation-popup-content {
     display: none;
 }
+.path-mod-workshop .allocator-ui .addreviewer .form-inline,
+.path-mod-workshop .allocator-ui .addreviewee .form-inline {
+    white-space: nowrap;
+}
+.path-mod-workshop .allocator-ui .addreviewer .form-inline .form-autocomplete-downarrow,
+.path-mod-workshop .allocator-ui .addreviewee .form-inline .form-autocomplete-downarrow {
+    top: 0.1em;
+}
+
+
 .path-mod-workshop .currentphase {
     overflow: hidden;
 }

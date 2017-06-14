@@ -635,6 +635,10 @@ class workshop {
             return 0;
         }
 
+        if ($musthavesubmission && $this->assesswithoutsubmission) {
+            $sql .= " JOIN {workshop_assessments} wa ON (wa.submissionid = ws.id) ";
+        }
+
         $sql = "SELECT COUNT(*)
                   FROM ($sql) tmp";
 
@@ -686,6 +690,10 @@ class workshop {
             return 0;
         }
 
+        if ($musthavesubmission && $this->assesswithoutsubmission) {
+            $sql .= " JOIN {workshop_assessments} wa ON (wa.submissionid = ws.id) ";
+        }
+        
         $sql = "SELECT COUNT(*)
                   FROM ($sql) tmp";
 
@@ -3533,7 +3541,7 @@ class workshop_user_plan implements renderable {
         $phase->title = get_string('phaseevaluation', 'workshop');
         $phase->tasks = array();
         if (has_capability('mod/workshop:overridegrades', $workshop->context)) {
-            $expected = $workshop->count_potential_authors(false);
+            $expected = $workshop->count_potential_authors();
             $calculated = $DB->count_records_select('workshop_submissions',
                     'workshopid = ? AND (grade IS NOT NULL OR gradeover IS NOT NULL)', array($workshop->id));
             $task = new stdclass();
@@ -3550,7 +3558,7 @@ class workshop_user_plan implements renderable {
             }
             $phase->tasks['calculatesubmissiongrade'] = $task;
 
-            $expected = $workshop->count_potential_reviewers(false);
+            $expected = $workshop->count_potential_reviewers(true);
             $calculated = $DB->count_records_select('workshop_aggregations',
                     'workshopid = ? AND gradinggrade IS NOT NULL', array($workshop->id));
             $task = new stdclass();
@@ -3726,10 +3734,33 @@ class workshop_user_plan implements renderable {
             $task = new stdclass();
             $task->title = get_string('allocate', 'workshop');
             $task->link = $workshop->allocation_url();
-            $numofauthors = $workshop->count_potential_authors(false);
+            $numofauthors = $workshop->count_potential_authors();
             $numofsubmissions = 0;
             $sqlrealsubmission = '';
+            $numwaitingassess = 0;
+            $numcannotassess = 0;
             if ($workshop->allowsubmission) {
+                // Number of participants who should be evaluated but did not submit their work.
+                $sql = 'SELECT COUNT(DISTINCT s.authorid) AS nosubmission
+                          FROM {workshop_submissions} s
+                          JOIN {workshop_assessments} a ON (a.submissionid = s.id)
+                         WHERE s.workshopid = :workshopid AND s.example=0 AND s.realsubmission = 0';
+                $params['workshopid'] = $workshop->id;
+                $numwaitingassess = $DB->count_records_sql($sql, $params);
+
+                if (!$workshop->assesswithoutsubmission) {
+                    // Number of participants who should evaluate someone but did not submit their own work.
+                    $sql = 'SELECT COUNT(DISTINCT s.authorid) AS nosubmission
+                              FROM {workshop_submissions} s
+                             WHERE s.workshopid = :workshopid AND s.example=0 AND s.realsubmission = 0
+                               AND s.authorid IN (SELECT DISTINCT a2.reviewerid
+                                                    FROM {workshop_submissions} s2
+                                                    JOIN {workshop_assessments} a2 ON (s2.id = a2.submissionid)
+                                                   WHERE s2.workshopid = :workshopid2 AND s2.example=0)';
+                    $params['workshopid'] = $workshop->id;
+                    $params['workshopid2'] = $workshop->id;
+                    $numcannotassess = $DB->count_records_sql($sql, $params);
+                }
                 $numofsubmissions = $DB->count_records('workshop_submissions',
                     array('workshopid' => $workshop->id, 'example' => 0, 'realsubmission' => 1));
                 $sqlrealsubmission = ' AND s.realsubmission = 1';
@@ -3740,21 +3771,38 @@ class workshop_user_plan implements renderable {
                      WHERE s.workshopid = :workshopid AND s.example=0 AND a.submissionid IS NULL' . $sqlrealsubmission;
             $params['workshopid'] = $workshop->id;
             $numnonallocated = $DB->count_records_sql($sql, $params);
-            if ($numofsubmissions == 0) {
-                $task->completed = null;
-            } else if ($numnonallocated == 0) {
+
+            if ($numofsubmissions == 0 && !$workshop->allowsubmission) {
                 $task->completed = true;
-            } else if ($workshop->phase > workshop::PHASE_SUBMISSION) {
-                $task->completed = false;
             } else {
-                $task->completed = null;    // Still has a chance to allocate.
+                $task->completed = null; // Still has a chance to allocate.
+                if ($numwaitingassess != 0 || $numcannotassess != 0 || $numnonallocated != 0 || $numofsubmissions == 0) {
+                    if ($workshop->phase > workshop::PHASE_SUBMISSION) {
+                        $task->completed = false;
+                    }
+                } else {
+                    if ($numofsubmissions != 0) {
+                        $task->completed = true;
+                    }
+                }
             }
+
             $a = new stdclass();
             $a->expected    = $numofauthors;
             $a->submitted   = $numofsubmissions;
             $a->allocate    = $numnonallocated;
+            $a->waiting = $numwaitingassess;
+            $a->cannotassess = $numcannotassess;
             if ($workshop->allowsubmission) {
                 $task->details  = get_string('allocatedetails', 'workshop', $a);
+                if ($numwaitingassess && ($workshop->phase > workshop::PHASE_SUBMISSION ||
+                        ($workshop->phase == workshop::PHASE_SUBMISSION && $workshop->assessassoonsubmitted))) {
+                    $task->details  .= get_string('allocatewaitingtoassess', 'workshop', $a);
+                }
+                if ($numcannotassess && ($workshop->phase > workshop::PHASE_SUBMISSION ||
+                        ($workshop->phase == workshop::PHASE_SUBMISSION && $workshop->assessassoonsubmitted))) {
+                    $task->details  .= get_string('allocatecannotassess', 'workshop', $a);
+                }
             } else {
                 $task->details  = get_string('allocatedetailsnosubmission', 'workshop', $a);
             }
@@ -3767,6 +3815,20 @@ class workshop_user_plan implements renderable {
                     $task->title = get_string('someuserswosubmission', 'workshop');
                     $task->completed = 'info';
                     $tasks['allocateinfo'] = $task;
+                }
+                if ($numwaitingassess && ($workshop->phase > workshop::PHASE_SUBMISSION ||
+                        ($workshop->phase == workshop::PHASE_SUBMISSION && $workshop->assessassoonsubmitted))) {
+                    $task = new stdclass();
+                    $task->title = get_string('someuserswaitingassess', 'workshop');
+                    $task->completed = 'info';
+                    $tasks['waitinginfo'] = $task;
+                }
+                if ($numcannotassess && ($workshop->phase > workshop::PHASE_SUBMISSION ||
+                        ($workshop->phase == workshop::PHASE_SUBMISSION && $workshop->assessassoonsubmitted))) {
+                    $task = new stdclass();
+                    $task->title = get_string('someuserscannotassess', 'workshop');
+                    $task->completed = 'info';
+                    $tasks['cannotassessinfo'] = $task;
                 }
             }
         }

@@ -357,7 +357,7 @@ case workshop::PHASE_ASSESSMENT:
     // can the examples be assessed?
     $examplesavailable = true;
 
-    if (!$examplesdone and $examplesmust and ($ownsubmissionexists === false)) {
+    if (!$examplesdone and $examplesmust and ($ownsubmissionexists === false) and !$workshop->assesswithoutsubmission) {
         print_collapsible_region_start('', 'workshop-viewlet-examplesfail', get_string('exampleassessments', 'workshop'));
         echo $output->box(get_string('exampleneedsubmission', 'workshop'));
         print_collapsible_region_end();
@@ -398,51 +398,57 @@ case workshop::PHASE_ASSESSMENT:
         echo $output->box_end();
         print_collapsible_region_end();
     }
-    if (!$examplesmust or $examplesdone) {
-        $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
-        print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
-        if (! $assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
-            echo $output->box_start('generalbox assessment-none');
-            $text = $workshop->allowsubmission ? get_string('assignedassessmentsnone', 'workshop') :
-                get_string('assignedpeernone', 'workshop');
-            echo $output->notification($text);
-            echo $output->box_end();
-        } else {
-            $shownames = $workshop->can_view_author_names();
-            foreach ($assessments as $assessment) {
-                $submission                     = new stdClass();
-                $submission->id                 = $assessment->submissionid;
-                $submission->title              = $assessment->submissiontitle;
-                $submission->timecreated        = $assessment->submissioncreated;
-                $submission->timemodified       = $assessment->submissionmodified;
-                $submission->realsubmission     = $workshop->allowsubmission;
-                $userpicturefields = explode(',', user_picture::fields());
-                foreach ($userpicturefields as $userpicturefield) {
-                    $prefixedusernamefield = 'author' . $userpicturefield;
-                    $submission->$prefixedusernamefield = $assessment->$prefixedusernamefield;
-                }
-
-                // transform the submission object into renderable component
-                $submission = $workshop->prepare_submission_summary($submission, $shownames);
-
-                if (is_null($assessment->grade)) {
-                    $submission->status = 'notgraded';
-                    $class = ' notgraded';
-                    $buttontext = get_string('assess', 'workshop');
-                } else {
-                    $submission->status = 'graded';
-                    $class = ' graded';
-                    $buttontext = get_string('reassess', 'workshop');
-                }
-
-                echo $output->box_start('generalbox assessment-summary' . $class);
-                echo $output->render($submission);
-                $aurl = $workshop->assess_url($assessment->id);
-                echo $output->single_button($aurl, $buttontext, 'get');
+    if ($workshop->allowsubmission && !$ownsubmissionexists && !$workshop->assesswithoutsubmission) {
+        echo $output->box_start('generalbox assessment-none');
+        echo $output->notification(get_string('submissionrequired', 'workshop'));
+        echo $output->box_end();
+    } else {
+        if (!$examplesmust or $examplesdone) {
+            $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
+            print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
+            if (! $assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
+                echo $output->box_start('generalbox assessment-none');
+                $text = $workshop->allowsubmission ? get_string('assignedassessmentsnone', 'workshop') :
+                    get_string('assignedpeernone', 'workshop');
+                echo $output->notification($text);
                 echo $output->box_end();
+            } else {
+                $shownames = $workshop->can_view_author_names();
+                foreach ($assessments as $assessment) {
+                    $submission                     = new stdClass();
+                    $submission->id                 = $assessment->submissionid;
+                    $submission->title              = $assessment->submissiontitle;
+                    $submission->timecreated        = $assessment->submissioncreated;
+                    $submission->timemodified       = $assessment->submissionmodified;
+                    $submission->realsubmission     = $workshop->allowsubmission;
+                    $userpicturefields = explode(',', user_picture::fields());
+                    foreach ($userpicturefields as $userpicturefield) {
+                        $prefixedusernamefield = 'author' . $userpicturefield;
+                        $submission->$prefixedusernamefield = $assessment->$prefixedusernamefield;
+                    }
+
+                    // transform the submission object into renderable component
+                    $submission = $workshop->prepare_submission_summary($submission, $shownames);
+
+                    if (is_null($assessment->grade)) {
+                        $submission->status = 'notgraded';
+                        $class = ' notgraded';
+                        $buttontext = get_string('assess', 'workshop');
+                    } else {
+                        $submission->status = 'graded';
+                        $class = ' graded';
+                        $buttontext = get_string('reassess', 'workshop');
+                    }
+
+                    echo $output->box_start('generalbox assessment-summary' . $class);
+                    echo $output->render($submission);
+                    $aurl = $workshop->assess_url($assessment->id);
+                    echo $output->single_button($aurl, $buttontext, 'get');
+                    echo $output->box_end();
+                }
             }
+            print_collapsible_region_end();
         }
-        print_collapsible_region_end();
     }
     break;
 case workshop::PHASE_EVALUATION:

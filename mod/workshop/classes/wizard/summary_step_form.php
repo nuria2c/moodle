@@ -123,9 +123,10 @@ class summary_step_form extends step_form {
         }
 
         // Asssess without submission.
-        if ($record->allowsubmission && $record->assesswithoutsubmission) {
+        if ($record->allowsubmission) {
+            $yesno = $record->assesswithoutsubmission ? get_string('yes') : get_string('no');
             $mform->addElement('static',
-                'summary_assesswithoutsubmission', get_string('assesswithoutsubmission', 'workshop'), get_string('yes'));
+                'summary_assesswithoutsubmission', get_string('assesswithoutsubmission', 'workshop'), $yesno);
         }
 
         // Assessment start.

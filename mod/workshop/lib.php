@@ -86,6 +86,7 @@ function workshop_add_instance(stdclass $workshop) {
     $workshop->phaseswitchassessment = (int)!empty($workshop->phaseswitchassessment);
     $workshop->allowsubmission       = (int)!empty($workshop->allowsubmission);
     $workshop->assessassoonsubmitted = (int)!empty($workshop->assessassoonsubmitted);
+    $workshop->assesswithoutsubmission = (int)!empty($workshop->assesswithoutsubmission);
     $workshop->evaluation            = 'best';
 
     if ($workshop->allowsubmission == 0) {
@@ -98,6 +99,7 @@ function workshop_add_instance(stdclass $workshop) {
         $workshop->nattachments = 1;
         $workshop->maxbytes = 0;
         $workshop->submissionfiletypes = '';
+        $workshop->assesswithoutsubmission = 0;
     }
 
     if ($workshop->submissionend == 0) {
@@ -195,6 +197,7 @@ function workshop_update_instance(stdclass $workshop) {
     $workshop->phaseswitchassessment = (int)!empty($workshop->phaseswitchassessment);
     $workshop->allowsubmission       = (int)!empty($workshop->allowsubmission);
     $workshop->assessassoonsubmitted = (int)!empty($workshop->assessassoonsubmitted);
+    $workshop->assesswithoutsubmission = (int)!empty($workshop->assesswithoutsubmission);
 
     if ($workshop->allowsubmission == 0) {
         $workshop->assessassoonsubmitted = 0;
@@ -206,6 +209,7 @@ function workshop_update_instance(stdclass $workshop) {
         $workshop->nattachments = 1;
         $workshop->maxbytes = 0;
         $workshop->submissionfiletypes = '';
+        $workshop->assesswithoutsubmission = 0;
     }
 
     if ($workshop->submissionend == 0) {

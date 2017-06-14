@@ -204,6 +204,13 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addHelpButton('displayappraisersname', 'displayappraisersname', 'workshop');
         $mform->setDefault('displayappraisersname', $anonymitysettings->display_appraisers_name());
 
+         // Do not display assess without submission if allow submission is false.
+        $mform->addElement('html', $divsubmissioninfo);
+        $label = get_string('assesswithoutsubmission', 'workshop');
+        $mform->addElement('checkbox', 'assesswithoutsubmission', $label);
+        $mform->addHelpButton('assesswithoutsubmission', 'assesswithoutsubmission', 'workshop');
+        $mform->addElement('html', \html_writer::end_div());
+
         $label = get_string('instructreviewers', 'workshop');
         $mform->addElement('editor', 'instructreviewerseditor', $label, null,
                             workshop::instruction_editors_options($this->context));

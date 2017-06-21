@@ -122,7 +122,7 @@ class summary_step_form extends step_form {
             $mform->addElement('static', 'summary_displayappraisersname', $label, $yesno);
         }
 
-        // Asssess without submission.
+        // Assess without submission.
         if ($record->allowsubmission) {
             $yesno = $record->assesswithoutsubmission ? get_string('yes') : get_string('no');
             $mform->addElement('static',

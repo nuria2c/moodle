@@ -59,6 +59,10 @@ $PAGE->navbar->add(get_string('switchingphase', 'workshop'));
 //
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($workshop->name));
-echo $OUTPUT->confirm(get_string('switchphase' . $phase . 'info', 'workshop'),
+$text = 'info';
+if ($phase == $workshop::PHASE_SUBMISSION && $workshop->assessassoonsubmitted) {
+    $text = 'mixed';
+}
+echo $OUTPUT->confirm(get_string('switchphase' . $phase . $text, 'workshop'),
                         new moodle_url($PAGE->url, array('confirm' => 1)), $workshop->view_url());
 echo $OUTPUT->footer();

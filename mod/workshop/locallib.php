@@ -1196,6 +1196,7 @@ class workshop {
         $assessment             = new workshop_example_assessment($this, $record, $options);
         $assessment->url        = $this->exassess_url($record->id);
         $assessment->maxgrade   = $this->real_grade(100);
+        $assessment->realsubmission = 0;
 
         if (!empty($options['showform']) and !($form instanceof workshop_assessment_form)) {
             debugging('Not a valid instance of workshop_assessment_form supplied', DEBUG_DEVELOPER);
@@ -1972,7 +1973,7 @@ class workshop {
      */
     public function assessing_allowed($userid) {
 
-        if ($this->phase != self::PHASE_ASSESSMENT) {
+        if ($this->phase != self::PHASE_ASSESSMENT && !($this->phase = self::PHASE_SUBMISSION && $this->assessassoonsubmitted)) {
             // assessing is allowed in the assessment phase only, unless the user is a teacher
             // providing additional assessment during the evaluation phase
             if ($this->phase != self::PHASE_EVALUATION or !has_capability('mod/workshop:overridegrades', $this->context, $userid)) {
@@ -2011,7 +2012,8 @@ class workshop {
         if (self::EXAMPLES_VOLUNTARY == $this->examplesmode) {
             return true;
         }
-        if (self::EXAMPLES_BEFORE_SUBMISSION == $this->examplesmode and self::PHASE_SUBMISSION == $this->phase) {
+        if (self::PHASE_SUBMISSION == $this->phase && (self::EXAMPLES_BEFORE_SUBMISSION == $this->examplesmode ||
+                (self::EXAMPLES_BEFORE_ASSESSMENT == $this->examplesmode && $this->assessassoonsubmitted))) {
             return true;
         }
         if (self::EXAMPLES_BEFORE_ASSESSMENT == $this->examplesmode and self::PHASE_ASSESSMENT == $this->phase) {
@@ -2323,6 +2325,7 @@ class workshop {
 
         $data = new stdclass();
         $data->realsubmission = $this->allowsubmission;
+        $data->assessassoonsubmitted = $this->assessassoonsubmitted;
         $data->grades = $grades;
         $data->userinfo = $userinfo;
         $data->totalcount = $numofparticipants;
@@ -3360,7 +3363,11 @@ class workshop_user_plan implements renderable {
         //---------------------------------------------------------
         if ($workshop->allowsubmission) {
             $phase = new stdclass();
-            $phase->title = get_string('phasesubmission', 'workshop');
+            if ($workshop->assessassoonsubmitted) {
+                $phase->title = get_string('phasesubmissionandassessment', 'workshop');
+            } else {
+                $phase->title = get_string('phasesubmission', 'workshop');
+            }
             $phase->tasks = array();
             $phase->tasks = array_merge($phase->tasks, $this->add_tasks_instructreviewers($userid));
             if ($workshop->useexamples and $workshop->examplesmode == workshop::EXAMPLES_BEFORE_SUBMISSION

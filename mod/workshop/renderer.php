@@ -477,7 +477,8 @@ class mod_workshop_renderer extends plugin_renderer_base {
         }
 
         // If we are in submission phase ignore the following headers (columns).
-        if ($options->workshopphase != workshop::PHASE_SUBMISSION) {
+        if ($options->workshopphase != workshop::PHASE_SUBMISSION ||
+                ($options->workshopphase == workshop::PHASE_SUBMISSION && $data->assessassoonsubmitted)) {
             $table->head[] = $this->helper_sortable_heading(get_string('receivedgrades', 'workshop'));
             if ($options->showsubmissiongrade) {
                 $string = $data->realsubmission ? 'submissiongradeof' : 'assessmentgradeof';
@@ -545,7 +546,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
                 }
 
                 // If we are in submission phase ignore the following columns.
-                if ($options->workshopphase == workshop::PHASE_SUBMISSION) {
+                if ($options->workshopphase == workshop::PHASE_SUBMISSION && !$data->assessassoonsubmitted) {
                     $table->data[] = $row;
                     continue;
                 }

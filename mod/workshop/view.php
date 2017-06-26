@@ -124,6 +124,7 @@ echo $output->heading(format_string($currentphasetitle), 3, null, 'mod_workshop-
 echo $output->render_workshop_wizard_button($workshop->wizard_url());
 echo $output->render($userplan);
 
+$ownsubmissionshown = false;
 switch ($workshop->phase) {
 case workshop::PHASE_SETUP:
     if (trim($workshop->intro)) {
@@ -186,18 +187,20 @@ case workshop::PHASE_SUBMISSION:
         } else {
             $examplesdone = true;
         }
-        print_collapsible_region_start('', 'workshop-viewlet-examples', get_string('exampleassessments', 'workshop'), false, $examplesdone);
-        echo $output->box_start('generalbox exampleassessments');
-        if ($total == 0) {
-            echo $output->heading(get_string('noexamples', 'workshop'), 3);
-        } else {
-            foreach ($examples as $example) {
-                $summary = $workshop->prepare_example_summary($example);
-                echo $output->render($summary);
+        if ($examplesmust) {
+            print_collapsible_region_start('', 'workshop-viewlet-examples', get_string('exampleassessments', 'workshop'), false, $examplesdone);
+            echo $output->box_start('generalbox exampleassessments');
+            if ($total == 0) {
+                echo $output->heading(get_string('noexamples', 'workshop'), 3);
+            } else {
+                foreach ($examples as $example) {
+                    $summary = $workshop->prepare_example_summary($example);
+                    echo $output->render($summary);
+                }
             }
+            echo $output->box_end();
+            print_collapsible_region_end();
         }
-        echo $output->box_end();
-        print_collapsible_region_end();
     }
 
     if (has_capability('mod/workshop:submit', $PAGE->context) and (!$examplesmust or $examplesdone)) {
@@ -223,88 +226,98 @@ case workshop::PHASE_SUBMISSION:
         }
         echo $output->box_end();
         print_collapsible_region_end();
+        $ownsubmissionshown = true;
     }
 
-    if (has_capability('mod/workshop:viewallsubmissions', $PAGE->context)) {
-        $groupmode = groups_get_activity_groupmode($workshop->cm);
-        $groupid = groups_get_activity_group($workshop->cm, true);
+    if (!$workshop->assessassoonsubmitted) {
+        if (has_capability('mod/workshop:viewallsubmissions', $PAGE->context)) {
+            $groupmode = groups_get_activity_groupmode($workshop->cm);
+            $groupid = groups_get_activity_group($workshop->cm, true);
 
-        if ($groupmode == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $workshop->context)) {
-            $allowedgroups = groups_get_activity_allowed_groups($workshop->cm);
-            if (empty($allowedgroups)) {
-                echo $output->container(get_string('groupnoallowed', 'mod_workshop'), 'groupwidget error');
-                break;
+            if ($groupmode == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $workshop->context)) {
+                $allowedgroups = groups_get_activity_allowed_groups($workshop->cm);
+                if (empty($allowedgroups)) {
+                    echo $output->container(get_string('groupnoallowed', 'mod_workshop'), 'groupwidget error');
+                    break;
+                }
+                if (! in_array($groupid, array_keys($allowedgroups))) {
+                    echo $output->container(get_string('groupnotamember', 'core_group'), 'groupwidget error');
+                    break;
+                }
             }
-            if (! in_array($groupid, array_keys($allowedgroups))) {
-                echo $output->container(get_string('groupnotamember', 'core_group'), 'groupwidget error');
-                break;
+
+            print_collapsible_region_start('', 'workshop-viewlet-allsubmissions', get_string('submissionsreport', 'workshop'));
+
+            $perpage = get_user_preferences('workshop_perpage', 10);
+            $data = $workshop->prepare_grading_report_data($USER->id, $groupid, $page, $perpage, $sortby, $sorthow);
+            if ($data) {
+                $countparticipants = $workshop->count_participants();
+                $countsubmissions = $workshop->count_submissions(array_keys($data->grades), $groupid);
+                $a = new stdClass();
+                $a->submitted = $countsubmissions;
+                $a->notsubmitted = $data->totalcount - $countsubmissions;
+
+                echo html_writer::tag('div', get_string('submittednotsubmitted', 'workshop', $a));
+
+                echo $output->container(groups_print_activity_menu($workshop->cm, $PAGE->url, true), 'groupwidget');
+
+                // Prepare the paging bar.
+                $baseurl = new moodle_url($PAGE->url, array('sortby' => $sortby, 'sorthow' => $sorthow));
+                $pagingbar = new paging_bar($data->totalcount, $page, $perpage, $baseurl, 'page');
+
+                // Populate the display options for the submissions report.
+                $reportopts                     = new stdclass();
+                $reportopts->showauthornames     = $workshop->can_view_author_names();
+                $reportopts->showreviewernames   = has_capability('mod/workshop:viewreviewernames', $workshop->context);
+                $reportopts->sortby              = $sortby;
+                $reportopts->sorthow             = $sorthow;
+                $reportopts->showsubmissiongrade = false;
+                $reportopts->showgradinggrade    = false;
+                $reportopts->workshopphase       = $workshop->phase;
+
+                echo $output->render($pagingbar);
+                echo $output->render(new workshop_grading_report($data, $reportopts));
+                echo $output->render($pagingbar);
+                echo $output->perpage_selector($perpage);
+            } else {
+                echo html_writer::tag('div', get_string('nothingfound', 'workshop'), array('class' => 'nothingfound'));
             }
+            print_collapsible_region_end();
         }
 
-        print_collapsible_region_start('', 'workshop-viewlet-allsubmissions', get_string('submissionsreport', 'workshop'));
-
-        $perpage = get_user_preferences('workshop_perpage', 10);
-        $data = $workshop->prepare_grading_report_data($USER->id, $groupid, $page, $perpage, $sortby, $sorthow);
-        if ($data) {
-            $countparticipants = $workshop->count_participants();
-            $countsubmissions = $workshop->count_submissions(array_keys($data->grades), $groupid);
-            $a = new stdClass();
-            $a->submitted = $countsubmissions;
-            $a->notsubmitted = $data->totalcount - $countsubmissions;
-
-            echo html_writer::tag('div', get_string('submittednotsubmitted', 'workshop', $a));
-
-            echo $output->container(groups_print_activity_menu($workshop->cm, $PAGE->url, true), 'groupwidget');
-
-            // Prepare the paging bar.
-            $baseurl = new moodle_url($PAGE->url, array('sortby' => $sortby, 'sorthow' => $sorthow));
-            $pagingbar = new paging_bar($data->totalcount, $page, $perpage, $baseurl, 'page');
-
-            // Populate the display options for the submissions report.
-            $reportopts                     = new stdclass();
-            $reportopts->showauthornames     = $workshop->can_view_author_names();
-            $reportopts->showreviewernames   = has_capability('mod/workshop:viewreviewernames', $workshop->context);
-            $reportopts->sortby              = $sortby;
-            $reportopts->sorthow             = $sorthow;
-            $reportopts->showsubmissiongrade = false;
-            $reportopts->showgradinggrade    = false;
-            $reportopts->workshopphase       = $workshop->phase;
-
-            echo $output->render($pagingbar);
-            echo $output->render(new workshop_grading_report($data, $reportopts));
-            echo $output->render($pagingbar);
-            echo $output->perpage_selector($perpage);
-        } else {
-            echo html_writer::tag('div', get_string('nothingfound', 'workshop'), array('class' => 'nothingfound'));
-        }
-        print_collapsible_region_end();
+        /* When assessassoonsubmitted is allowed Submission phase must include the data that are normally
+           displayed in assessment phase so user can submit and asses in one phase. */
+        break;
     }
-    break;
 
 case workshop::PHASE_ASSESSMENT:
-
     $ownsubmissionexists = null;
     if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
         if ($ownsubmission = $workshop->get_submission_by_author($USER->id)) {
-            print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'), false, true);
-            echo $output->box_start('generalbox ownsubmission');
-            echo $output->render($workshop->prepare_submission_summary($ownsubmission, true));
             $ownsubmissionexists = true;
         } else {
-            print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
-            echo $output->box_start('generalbox ownsubmission');
-            echo $output->container(get_string('noyoursubmission', 'workshop'));
             $ownsubmissionexists = false;
-            if ($workshop->creating_submission_allowed($USER->id)) {
-                $btnurl = new moodle_url($workshop->submission_url(), array('edit' => 'on'));
-                $btntxt = get_string('createsubmission', 'workshop');
+        }
+        if (!$ownsubmissionshown) {
+            if ($ownsubmissionexists) {
+                print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'), false, true);
+                echo $output->box_start('generalbox ownsubmission');
+                echo $output->render($workshop->prepare_submission_summary($ownsubmission, true));
+            } else {
+                print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
+                echo $output->box_start('generalbox ownsubmission');
+                echo $output->container(get_string('noyoursubmission', 'workshop'));
+                if ($workshop->creating_submission_allowed($USER->id)) {
+                    $btnurl = new moodle_url($workshop->submission_url(), array('edit' => 'on'));
+                    $btntxt = get_string('createsubmission', 'workshop');
+                }
             }
+            if (!empty($btnurl)) {
+                echo $output->single_button($btnurl, $btntxt, 'get');
+            }
+            echo $output->box_end();
+            print_collapsible_region_end();
         }
-        if (!empty($btnurl)) {
-            echo $output->single_button($btnurl, $btntxt, 'get');
-        }
-        echo $output->box_end();
-        print_collapsible_region_end();
     }
 
     if (has_capability('mod/workshop:viewallassessments', $PAGE->context)) {
@@ -329,7 +342,12 @@ case workshop::PHASE_ASSESSMENT:
             $reportopts->showgradinggrade       = false;
             $reportopts->workshopphase          = $workshop->phase;
 
-            print_collapsible_region_start('', 'workshop-viewlet-gradereport', get_string('gradesreport', 'workshop'));
+            if ($workshop->phase == $workshop::PHASE_ASSESSMENT) {
+                $text = 'gradesreport';
+            } else {
+                $text = $workshop->assessassoonsubmitted ? 'submissionassessmentreport' : 'gradesreport';
+            }
+            print_collapsible_region_start('', 'workshop-viewlet-gradereport', get_string($text, 'workshop'));
             echo $output->box_start('generalbox gradesreport');
             echo $output->container(groups_print_activity_menu($workshop->cm, $PAGE->url, true), 'groupwidget');
             echo $output->render($pagingbar);
@@ -340,6 +358,7 @@ case workshop::PHASE_ASSESSMENT:
             print_collapsible_region_end();
         }
     }
+
     if (trim($workshop->instructreviewers)) {
         $instructions = file_rewrite_pluginfile_urls($workshop->instructreviewers, 'pluginfile.php', $PAGE->context->id,
             'mod_workshop', 'instructreviewers', null, workshop::instruction_editors_options($PAGE->context));
@@ -385,18 +404,21 @@ case workshop::PHASE_ASSESSMENT:
         } else {
             $examplesdone = true;
         }
-        print_collapsible_region_start('', 'workshop-viewlet-examples', get_string('exampleassessments', 'workshop'), false, $examplesdone);
-        echo $output->box_start('generalbox exampleassessments');
-        if ($total == 0) {
-            echo $output->heading(get_string('noexamples', 'workshop'), 3);
-        } else {
-            foreach ($examples as $example) {
-                $summary = $workshop->prepare_example_summary($example);
-                echo $output->render($summary);
+        if ($examplesmust) {
+            print_collapsible_region_start('', 'workshop-viewlet-examples', get_string('exampleassessments', 'workshop'),
+                    false, $examplesdone);
+            echo $output->box_start('generalbox exampleassessments');
+            if ($total == 0) {
+                echo $output->heading(get_string('noexamples', 'workshop'), 3);
+            } else {
+                foreach ($examples as $example) {
+                    $summary = $workshop->prepare_example_summary($example);
+                    echo $output->render($summary);
+                }
             }
+            echo $output->box_end();
+            print_collapsible_region_end();
         }
-        echo $output->box_end();
-        print_collapsible_region_end();
     }
     if ($workshop->allowsubmission && !$ownsubmissionexists && !$workshop->assesswithoutsubmission) {
         echo $output->box_start('generalbox assessment-none');

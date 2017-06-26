@@ -944,3 +944,56 @@ path-mod-workshop .wizard-navigation ol:before {
 .path-mod-workshop .allocation-popup-content {
     display: none;
 }
+.path-mod-workshop .currentphase {
+    overflow: hidden;
+}
+.path-mod-workshop .completedstatus {
+    background-image: url([[pix:mod_workshop|userplan/task-todo]]);
+    background-position: top left;
+    background-repeat: no-repeat;
+    min-height: 16px;
+    margin: .3em 0;
+    padding-left: 20px;
+}
+
+.dir-rtl.path-mod-workshop .completedstatus {
+    background-position: top right;
+}
+
+.path-mod-workshop .completedstatus.completed {
+    background-image: url([[pix:mod_workshop|userplan/task-done]]);
+}
+
+.path-mod-workshop .completedstatus.fail {
+    background-image: url([[pix:mod_workshop|userplan/task-fail]]);
+}
+
+.path-mod-workshop .completedstatus.info {
+    background-image: url([[pix:mod_workshop|userplan/task-info]]);
+}
+.path-mod-workshop .otherphases li {
+    background-image: url([[pix:mod_workshop|userplan/task-todo]]);
+    background-position: top left;
+    background-repeat: no-repeat;
+    list-style-type: none;
+    min-height: 16px;
+    margin: .3em 0;
+    padding-left: 20px;
+}
+.dir-rtl.path-mod-workshop .otherphases li {
+    background-position: top right;
+}
+.path-mod-workshop .otherphases li.completed {
+    background-image: url([[pix:mod_workshop|userplan/task-done]]);
+}
+
+.path-mod-workshop .otherphases li.fail {
+    background-image: url([[pix:mod_workshop|userplan/task-fail]]);
+}
+.path-mod-workshop .otherphases li.info {
+    background-image: url([[pix:mod_workshop|userplan/task-info]]);
+}
+.path-mod-workshop .otherphases span.phasename {
+    font-size: 1.1em;
+    font-weight: bold;
+}

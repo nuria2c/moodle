@@ -296,71 +296,161 @@ class mod_workshop_renderer extends plugin_renderer_base {
      * @return string html code to be displayed
      */
     protected function render_workshop_user_plan(workshop_user_plan $plan) {
-        $o  = '';    // Output HTML code.
-        $numberofphases = count($plan->phases);
-        $addclass = ' nbphases' . $numberofphases;
-        $o .= html_writer::start_tag('div', array(
-            'class' => 'userplan' . $addclass,
-            'aria-labelledby' => 'mod_workshop-userplanheading',
-            'aria-describedby' => 'mod_workshop-userplanaccessibilitytitle',
-        ));
-        $o .= html_writer::span(get_string('userplanaccessibilitytitle', 'workshop', $numberofphases),
-            'accesshide', array('id' => 'mod_workshop-userplanaccessibilitytitle'));
-        $o .= html_writer::link('#mod_workshop-userplancurrenttasks', get_string('userplanaccessibilityskip', 'workshop'),
-            array('class' => 'accesshide'));
-        foreach ($plan->phases as $phasecode => $phase) {
-            $actions = '';
-
-            $classes = 'phase' . $phasecode;
-            if ($phase->active) {
-                // Mark the section as the current one.
-                $icon = $this->output->pix_icon('i/marked', '', 'moodle', ['role' => 'presentation']);
-                $actions .= get_string('userplancurrentphase', 'workshop').' '.$icon;
-                $classes .= ' active';
-            } else {
-                // Display a control widget to switch to the given phase or mark the phase as the current one.
+        if (has_capability('moodle/course:manageactivities', $plan->workshop->context, $plan->userid)) {
+            // Output HTML code.
+            $o  = '';
+            $numberofphases = count($plan->phases);
+            $addclass = ' nbphases' . $numberofphases;
+            $o .= html_writer::start_tag('div', array(
+                'class' => 'userplan' . $addclass,
+                'aria-labelledby' => 'mod_workshop-userplanheading',
+                'aria-describedby' => 'mod_workshop-userplanaccessibilitytitle',
+            ));
+            $o .= html_writer::span(get_string('userplanaccessibilitytitle', 'workshop', $numberofphases),
+                'accesshide', array('id' => 'mod_workshop-userplanaccessibilitytitle'));
+            $o .= html_writer::link('#mod_workshop-userplancurrenttasks', get_string('userplanaccessibilityskip', 'workshop'),
+                array('class' => 'accesshide'));
+            foreach ($plan->phases as $phasecode => $phase) {
+                $classes = 'phase' . $phasecode;
+                if ($phase->active) {
+                    $classes .= ' active';
+                } else {
+                    $classes .= ' nonactive';
+                }
+                $o .= html_writer::start_tag('dl', array('class' => $classes));
+                $actions = '';
                 foreach ($phase->actions as $action) {
-                    if ($action->type === 'switchphase') {
-                        if ($phasecode == workshop::PHASE_ASSESSMENT && $plan->workshop->phase == workshop::PHASE_SUBMISSION
-                                && $plan->workshop->phaseswitchassessment) {
-                            $icon = new pix_icon('i/scheduled', get_string('switchphaseauto', 'mod_workshop'));
-                        } else {
-                            $icon = new pix_icon('i/marker', get_string('switchphase'.$phasecode, 'mod_workshop'));
-                        }
-                        $actions .= $this->output->action_icon($action->url, $icon, null, null, true);
+                    switch ($action->type) {
+                        case 'switchphase':
+                            $icon = 'i/marker';
+                            if ($phasecode == workshop::PHASE_ASSESSMENT
+                                and $plan->workshop->phase == workshop::PHASE_SUBMISSION
+                                and $plan->workshop->phaseswitchassessment) {
+                                $icon = 'i/scheduled';
+                            }
+                            $actions .= $this->output->action_icon($action->url,
+                                new pix_icon($icon, get_string('switchphase', 'workshop')));
+                            break;
                     }
                 }
-                $classes .= ' nonactive';
+                if (!empty($actions)) {
+                    $actions = $this->output->container($actions, 'actions');
+                }
+                $title = html_writer::span($phase->title, '', array('id' => 'mod_workshop-userplancurrenttasks'));
+                if ($phase->active) {
+                    $title .= ' ' . html_writer::span(get_string('userplancurrentphase', 'workshop'), 'accesshide');
+                }
+                $o .= html_writer::start_tag('dt', array('class' => $classes));
+                $o .= $this->output->container($title . $actions);
+                $o .= html_writer::start_tag('dd', array('class' => $classes. ' phasetasks'));
+                $o .= $this->helper_user_plan_tasks($phase->tasks);
+                // Switch to next phase button.
+                if (isset($phase->tasks['switchtonextphase'])) {
+                    $accessibilitytext = get_string('tasktodo', 'workshop') . ' ';
+                    $o .= html_writer::start_tag('div', array('class' => 'switchtonextphase'));
+                    $o .= html_writer::tag('span', $accessibilitytext, array('class' => 'accesshide'));
+                    $o .= html_writer::link($phase->tasks['switchtonextphase']->link,
+                        $phase->tasks['switchtonextphase']->title, array('class' => 'btn btn-primary'));
+                    $o .= html_writer::end_tag('div');
+                }
+                $o .= html_writer::end_tag('dd');
+                $o .= html_writer::end_tag('dl');
             }
-
-            $o .= html_writer::start_tag('dl', array('class' => $classes));
-
-            if (!empty($actions)) {
-                $actions = $this->output->container($actions, 'actions');
-            }
-            if ($phase->active) {
-                $title = html_writer::span($phase->title, 'phasetitle', ['id' => 'mod_workshop-userplancurrenttasks']);
-            } else {
-                $title = html_writer::span($phase->title, 'phasetitle');
-            }
-            $o .= html_writer::start_tag('dt', array('class' => $classes));
-            $o .= $this->output->container($title . $actions);
-            $o .= html_writer::start_tag('dd', array('class' => $classes. ' phasetasks'));
-            $o .= $this->helper_user_plan_tasks($phase->tasks);
-            // Switch to next phase button.
-            if (isset($phase->tasks['switchtonextphase'])) {
-                $accessibilitytext = get_string('tasktodo', 'workshop') . ' ';
-                $o .= html_writer::start_tag('div', array('class' => 'switchtonextphase'));
-                $o .= html_writer::tag('span', $accessibilitytext, array('class' => 'accesshide'));
-                $o .= html_writer::link($phase->tasks['switchtonextphase']->link,
-                    $phase->tasks['switchtonextphase']->title, array('class' => 'btn btn-primary'));
-                $o .= html_writer::end_tag('div');
-            }
-            $o .= html_writer::end_tag('dd');
-            $o .= html_writer::end_tag('dl');
+            $o .= html_writer::end_tag('div');
+            return $o;
+        } else {
+            return $this->render_workshop_student_user_plan($plan);
         }
-        $o .= html_writer::end_tag('div');
-        return $o;
+    }
+
+    /**
+     * Renders the user plannner tool for student.
+     *
+     * @param workshop_user_plan $plan prepared for the user
+     * @return string html code to be displayed
+     */
+    private function render_workshop_student_user_plan(workshop_user_plan $plan) {
+
+        $currentphase = null;
+        $otherphases = $plan->phases;
+        if (isset($plan->phases[workshop::PHASE_SETUP]) && $plan->phases[workshop::PHASE_SETUP]->active) {
+            $currentphase = $plan->phases[workshop::PHASE_SETUP];
+            $otherphases = array();
+        } else {
+            $emptyphases = true;
+            foreach ($plan->phases as $phasecode => $phase) {
+                if ($phase->active) {
+                    $currentphase = $phase;
+                    unset($otherphases[$phasecode]);
+                } else {
+                    if (!empty($phase->tasks)) {
+                        $emptyphases = false;
+                    }
+                }
+            }
+        }
+        $html = html_writer::start_div();
+        $html .= html_writer::start_tag('div', array('class' => 'currentphase'));
+        // Current phase.
+        if (isset($currentphase->tasks)) {
+            foreach ($currentphase->tasks as $taskcode => $task) {
+                $classes = '';
+                $accessibilitytext = '';
+                $messagestatus = notification::NOTIFY_INFO;
+
+                if ($task->completed === true) {
+                    $classes .= ' completed';
+                    $accessibilitytext .= get_string('taskdone', 'workshop') . ' ';
+                    $messagestatus = notification::NOTIFY_SUCCESS;
+                } else if ($task->completed === false) {
+                    $classes .= ' fail';
+                    $accessibilitytext .= get_string('taskfail', 'workshop') . ' ';
+                    $messagestatus = notification::NOTIFY_ERROR;
+                } else if ($task->completed === 'warning') {
+                    $classes .= ' info';
+                    $messagestatus = notification::NOTIFY_WARNING;
+                } else if ($task->completed === 'info') {
+                    $classes .= ' info';
+                    $accessibilitytext .= get_string('taskinfo', 'workshop') . ' ';
+                } else {
+                    $accessibilitytext .= get_string('tasktodo', 'workshop') . ' ';
+                }
+                if (is_null($task->link)) {
+                    $title = html_writer::tag('span', $accessibilitytext, array('class' => 'accesshide'));
+                    $title .= $task->title;
+                } else {
+                    $title = html_writer::tag('span', $accessibilitytext, array('class' => 'accesshide'));
+                    $title .= html_writer::link($task->link, $task->title);
+                }
+                $title = $this->output->container($title, 'title');
+                $details = $this->output->container($task->details, 'details');
+                $out = html_writer::tag('div', $title . $details, array('class' => "completedstatus $classes"));
+                $message = new notification($out, $messagestatus);
+                $html .= $this->render($message);
+            }
+        }
+        $html .= html_writer::end_div();
+
+        // Other phases.
+        if (!empty($otherphases) && !$emptyphases) {
+            $html .= html_writer::start_tag('div', array('class' => 'otherphases'));
+            $html .= print_collapsible_region_start('', 'workshop-viewlet-allexamples',
+                    get_string('otherphases', 'workshop'), '', true, true);
+            $html .= $this->box_start('generalbox');
+            foreach ($otherphases as $phase) {
+                if (!empty($phase->tasks)) {
+                    $html .= html_writer::span($phase->title, 'phasename');
+                    $html .= $this->helper_user_plan_tasks($phase->tasks);
+                }
+            }
+            $html .= $this->box_end();
+
+            $html .= print_collapsible_region_end(true);
+            $html .= html_writer::end_div();
+        }
+        $html .= html_writer::end_div();
+
+        return $html;
     }
 
     /**

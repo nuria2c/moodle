@@ -1440,11 +1440,11 @@ class workshop {
      * @param int $reviewerid
      * @return array
      */
-    public function get_assessments_by_reviewer($reviewerid) {
+    public function get_assessments_by_reviewer($reviewerid, $realsubmission = true) {
         global $DB;
 
         $sqlrealsubmission = "";
-        if ($this->allowsubmission) {
+        if ($this->allowsubmission && $realsubmission) {
             $sqlrealsubmission = " AND s.realsubmission = 1";
         }
         $reviewerfields = user_picture::fields('reviewer', null, 'revieweridx', 'reviewer');
@@ -1452,7 +1452,7 @@ class workshop {
         $overbyfields   = user_picture::fields('overby', null, 'gradinggradeoverbyx', 'overby');
         $sql = "SELECT a.*, $reviewerfields, $authorfields, $overbyfields,
                        s.id AS submissionid, s.title AS submissiontitle, s.timecreated AS submissioncreated,
-                       s.timemodified AS submissionmodified
+                       s.timemodified AS submissionmodified, s.realsubmission
                   FROM {workshop_assessments} a
             INNER JOIN {user} reviewer ON (a.reviewerid = reviewer.id)
             INNER JOIN {workshop_submissions} s ON (a.submissionid = s.id $sqlrealsubmission)
@@ -3418,6 +3418,9 @@ class workshop_user_plan implements renderable {
         //---------------------------------------------------------
         // setup | * SUBMISSION | assessment | evaluation | closed
         //---------------------------------------------------------
+        $submitted = $DB->record_exists('workshop_submissions',
+                        array('workshopid' => $workshop->id, 'example' => 0, 'authorid' => $userid, 'realsubmission' => 1));
+        $canassess = ($workshop->allowsubmission and ($submitted || $workshop->assesswithoutsubmission));
         if ($workshop->allowsubmission) {
             $phase = new stdclass();
             if ($workshop->assessassoonsubmitted) {
@@ -3451,18 +3454,79 @@ class workshop_user_plan implements renderable {
             }
             if (has_capability('mod/workshop:submit', $workshop->context, $userid, false)) {
                 $task = new stdclass();
-                $task->title = get_string('tasksubmit', 'workshop');
-                $task->link = $workshop->submission_url();
-                if ($DB->record_exists('workshop_submissions',
-                        array('workshopid' => $workshop->id, 'example' => 0, 'authorid' => $userid, 'realsubmission' => 1))) {
+                $task->title = get_string('worknotsubmitted', 'workshop');
+                if ($submitted) {
                     $task->completed = true;
+                    $task->title = get_string('worksubmitted', 'workshop');
                 } else if ($workshop->phase >= workshop::PHASE_ASSESSMENT) {
                     $task->completed = false;
                 } else {
-                    $task->completed = null;    // Still has a chance to submit.
+                    // Still has a chance to submit.
+                    $task->completed = 'warning';
                 }
                 $phase->tasks['submit'] = $task;
             }
+
+            if ($workshop->assessassoonsubmitted and $workshop->phase == workshop::PHASE_SUBMISSION) {
+                $phase->assessments = $workshop->get_assessments_by_reviewer($userid, false);
+                // Number of allocated peer-assessments.
+                $numofpeers      = 0;
+                // Number of peer-assessments to do.
+                $numofpeerstodo  = 0;
+                // Number of allocated self-assessments - should be 0 or 1.
+                $numofself       = 0;
+                // Number of self-assessments to do - should be 0 or 1.
+                $numofselftodo   = 0;
+                $numnotsubmitted = 0;
+
+                foreach ($phase->assessments as $a) {
+                    if ($a->authorid == $userid) {
+                        $numofself++;
+                        if (is_null($a->grade)) {
+                            $numofselftodo++;
+                        }
+                    } else {
+                        $numofpeers++;
+                        if (is_null($a->grade)) {
+                            $numofpeerstodo++;
+                            if ($a->realsubmission == 0) {
+                                $numnotsubmitted++;
+                            }
+                        }
+
+                    }
+                }
+                unset($a);
+                if ($numofpeers and ($submitted or $workshop->assesswithoutsubmission)) {
+                    $task = new stdclass();
+                    $task->completed = 'warning';
+                    $a = new stdclass();
+                    $a->total = $numofpeers;
+                    $a->todo  = $numofpeerstodo;
+                    $task->title = get_string('taskallpeersnotassessed', 'workshop');
+                    if ($numofpeerstodo == 0) {
+                        $task->completed = true;
+                        $task->title = get_string('taskallpeersassessed', 'workshop');
+                    } else if ($numnotsubmitted > 0 and $canassess) {
+                        $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
+                        $a->todo = $numnotsubmitted;
+                    }
+                    
+                    $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                    unset($a);
+                    $phase->tasks['assesspeers'] = $task;
+                }
+                if ($workshop->useselfassessment and $numofself) {
+                    $task = new stdclass();
+                    $task->completed = 'warning';
+                    if ($numofselftodo == 0) {
+                        $task->completed = true;
+                    }
+                    $task->title = get_string('taskassessself', 'workshop');
+                    $phase->tasks['assessself'] = $task;
+                }
+            }
+
             $phase->tasks = array_merge($phase->tasks, $this->add_tasks_allocate($userid));
             if ($workshop->submissionstart) {
                 $task = new stdclass();
@@ -3531,11 +3595,16 @@ class workshop_user_plan implements renderable {
             $phase->tasks['examples'] = $task;
         }
         if (empty($phase->tasks['examples']) or !empty($phase->tasks['examples']->completed)) {
-            $phase->assessments = $workshop->get_assessments_by_reviewer($userid);
-            $numofpeers     = 0;    // number of allocated peer-assessments
-            $numofpeerstodo = 0;    // number of peer-assessments to do
-            $numofself      = 0;    // number of allocated self-assessments - should be 0 or 1
-            $numofselftodo  = 0;    // number of self-assessments to do - should be 0 or 1
+            $phase->assessments = $workshop->get_assessments_by_reviewer($userid, false);
+            // Number of allocated peer-assessments.
+            $numofpeers      = 0;
+            // Number of peer-assessments to do.
+            $numofpeerstodo  = 0;
+            // Number of allocated self-assessments - should be 0 or 1.
+            $numofself       = 0;
+            // Number of self-assessments to do - should be 0 or 1.
+            $numofselftodo   = 0;
+            $numnotsubmitted = 0;
             foreach ($phase->assessments as $a) {
                 if ($a->authorid == $userid) {
                     $numofself++;
@@ -3546,27 +3615,41 @@ class workshop_user_plan implements renderable {
                     $numofpeers++;
                     if (is_null($a->grade)) {
                         $numofpeerstodo++;
+                        if ($a->realsubmission == 0) {
+                            $numnotsubmitted++;
+                        }
                     }
                 }
             }
             unset($a);
-            if ($numofpeers) {
+            $conditionshowassessment = $workshop->phase > workshop::PHASE_SUBMISSION;
+            if ($numofpeers and $conditionshowassessment) {
                 $task = new stdclass();
-                if ($numofpeerstodo == 0) {
-                    $task->completed = true;
-                } elseif ($workshop->phase > workshop::PHASE_ASSESSMENT) {
-                    $task->completed = false;
-                }
+                $task->title = get_string('taskallpeersnotassessed', 'workshop');
+                $task->completed = 'warning';
                 $a = new stdclass();
                 $a->total = $numofpeers;
                 $a->todo  = $numofpeerstodo;
-                $task->title = get_string('taskassesspeers', 'workshop');
+                if ($numofpeerstodo == 0) {
+                    $task->completed = true;
+                    $task->title = get_string('taskallpeersassessed', 'workshop');
+                } else if ($numnotsubmitted > 0 and $canassess) {
+                    $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
+                    $task->completed = false;
+                    $a->todo = $numnotsubmitted;
+                } else {
+                    if ($workshop->phase > workshop::PHASE_ASSESSMENT) {
+                        $task->completed = false;
+                    }
+                }
+
                 $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
                 unset($a);
                 $phase->tasks['assesspeers'] = $task;
             }
-            if ($workshop->useselfassessment and $numofself) {
+            if ($workshop->useselfassessment and $numofself and $conditionshowassessment) {
                 $task = new stdclass();
+                $task->completed = 'warning';
                 if ($numofselftodo == 0) {
                     $task->completed = true;
                 } elseif ($workshop->phase > workshop::PHASE_ASSESSMENT) {

@@ -121,7 +121,9 @@ $output = $PAGE->get_renderer('mod_workshop');
 echo $output->header();
 echo $output->heading_with_help(format_string($workshop->name), 'userplan', 'workshop');
 echo $output->heading(format_string($currentphasetitle), 3, null, 'mod_workshop-userplanheading');
-echo $output->render_workshop_wizard_button($workshop->wizard_url());
+if (has_capability('moodle/course:manageactivities', $workshop->context, $USER->id)) {
+    echo $output->render_workshop_wizard_button($workshop->wizard_url());
+}
 echo $output->render($userplan);
 
 $ownsubmissionshown = false;

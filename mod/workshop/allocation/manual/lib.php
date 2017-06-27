@@ -242,6 +242,7 @@ class workshop_manual_allocator implements workshop_allocator {
                     $userinfo[$submission->authorid]->$addname = $submission->$temp;
                 }
             }
+            $userinfo[$submission->authorid]->realsubmission = $submission->realsubmission;
         }
 
         // get current reviewers
@@ -318,6 +319,7 @@ class workshop_manual_allocator implements workshop_allocator {
             $allocations[$submission->authorid]->submissionid = $submission->id;
             $allocations[$submission->authorid]->submissiontitle = $submission->title;
             $allocations[$submission->authorid]->submissiongrade = $submission->grade;
+            $allocations[$submission->authorid]->realsubmission = $submission->realsubmission;
         }
         unset($submissions);
         foreach($reviewers as $reviewer) {

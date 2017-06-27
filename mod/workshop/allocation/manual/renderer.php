@@ -26,6 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/form/autocomplete.php');
+
+use core\output\notification as notif;
 /**
  * Manual allocation renderer class
  */
@@ -80,7 +82,7 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         $table->data        = array();
         foreach ($allocations as $allocation) {
             $row = array();
-            $row[] = $this->helper_participant($allocation, $userinfo);
+            $row[] = $this->helper_participant($allocation, $userinfo, $allocations);
             $row[] = $this->helper_reviewers_of_participant($allocation, $userinfo, $reviewers, $selfassessment);
             $row[] = $this->helper_reviewees_of_participant($allocation, $userinfo, $authors, $selfassessment);
             $thisrowclasses = array();
@@ -163,23 +165,82 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
     /**
      * Returns information about the workshop participant
      *
+     * @param stdclass $allocation current user allocation
+     * @param array $userinfo user information
+     * @param array $allocations all allocations
+     *
      * @return string HTML code
      */
-    protected function helper_participant(stdclass $allocation, array $userinfo) {
+    protected function helper_participant(stdclass $allocation, array $userinfo, array $allocations) {
         $o  = $this->output->user_picture($userinfo[$allocation->userid], array('courseid' => $this->page->course->id));
         $o .= fullname($userinfo[$allocation->userid]);
         $o .= $this->output->container_start(array('submission'));
-        if (is_null($allocation->submissionid)) {
-            $o .= $this->output->container(get_string('nosubmissionfound', 'workshop'), 'info');
-        } else {
-            $link = $this->workshop->submission_url($allocation->submissionid);
-            $o .= $this->output->container(html_writer::link($link, format_string($allocation->submissiontitle)), 'title');
+
+        if ($this->workshop->phase > workshop::PHASE_SETUP) {
+            $msg = '';
+            $msgtype = $this->workshop->phase > workshop::PHASE_SUBMISSION ? notif::NOTIFY_ERROR : notif::NOTIFY_WARNING;
+            if ($this->workshop->allowsubmission) {
+                if (!is_null($allocation->submissionid) && $allocation->realsubmission) {
+                    $link = $this->workshop->submission_url($allocation->submissionid);
+                    $o .= $this->output->container(html_writer::link($link, format_string($allocation->submissiontitle)), 'title');
+                } else {
+                    // Reviewer impacted by the missing submission.
+                    $msg = get_string('nosubmissionfound', 'workshop');
+                    $listreviewers = array();
+                    $selfreviewer = false;
+                    foreach ($allocation->reviewedby as $reviewrid => $assementid) {
+                        if ($reviewrid == $allocation->userid) {
+                            $selfreviewer = true;
+                        } else {
+                            $url = new moodle_url('/user/view.php', array('id' => $reviewrid, 'course' => $this->page->course->id));
+                            $listreviewers[] = html_writer::link($url, fullname($userinfo[$reviewrid]));
+                        }
+                    }
+                    if ($selfreviewer) {
+                        $listreviewers[] = get_string('himself', 'workshopallocation_manual');
+                    }
+                    if (!empty($listreviewers)) {
+                        $msg .= '<br/>' . get_string('preventassessment', 'workshopallocation_manual',
+                                implode(', ', $listreviewers));
+                    }
+                }
+                // Check if the user should asses someone who did not submit his work.
+                $listreviewees = array();
+                $selfreviewee = false;
+                foreach ($allocation->reviewerof as $revieweeid => $assementid) {
+                    if (array_key_exists($revieweeid, $allocations) && !$allocations[$revieweeid]->realsubmission) {
+                        if ($revieweeid == $allocation->userid) {
+                            $selfreviewee = true;
+                        } else {
+                            $url = new moodle_url('/user/view.php', array('id' => $revieweeid,
+                                'course' => $this->page->course->id));
+                            $listreviewees[] = html_writer::link($url, fullname($userinfo[$revieweeid]));
+                        }
+                    }
+                }
+                if ($selfreviewee) {
+                    $listreviewees[] = get_string('himself', 'workshopallocation_manual');
+                }
+                if (!empty($listreviewees)) {
+                    $msg .= !empty($msg) ? '<br/>' : '';
+                    $msg .= get_string('awaitingsubmission', 'workshopallocation_manual', implode(', ', $listreviewees));
+                }
+            }
+
             if (is_null($allocation->submissiongrade)) {
                 $o .= $this->output->container(get_string('nogradeyet', 'workshop'), array('grade', 'missing'));
             } else {
                 $o .= $this->output->container(get_string('alreadygraded', 'workshop'), array('grade', 'missing'));
             }
+
+            if (!empty($msg)) {
+                $msg = new notif($msg, $msgtype);
+                $msg->set_show_closebutton();
+                $msg = $this->output->render($msg);
+                $o .= $this->output->container($msg);
+            }
         }
+
         $o .= $this->output->container_end();
         return $o;
     }

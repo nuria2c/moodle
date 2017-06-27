@@ -437,12 +437,52 @@ class mod_workshop_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Get html grading report view switcher.
+     *
+     * @return string html
+     */
+    protected function helper_workshop_grading_report_view_switcher() {
+        global $USER;
+
+        $html = html_writer::start_tag('div', array('class' => 'grading-report-view-switcher clearfix'));
+        $views = array('receivedgrades', 'givengrades');
+
+        $pref = 'mod_workshop_gradingreportview';
+
+        $sameuser = (isset($USER->realuser)) ? false : true;
+        if ($sameuser) {
+            user_preference_allow_ajax_update($pref, PARAM_ALPHA);
+        }
+
+        foreach ($views as $view) {
+            $checked = (get_user_preferences($pref, 'receivedgrades') == $view) ? 'checked' : null;
+            $id = "id_$view";
+            $attributes = array(
+                'class' => 'grading-report-view-radio',
+                'id' => $id,
+                'type' => 'radio',
+                'name' => 'gradingreportview',
+                'checked' => $checked,
+                'value' => $view
+            );
+            $option = html_writer::empty_tag('input', $attributes);
+            $option .= html_writer::label(get_string($view, 'workshop'), $id);
+            $option = html_writer::span($option);
+            $html .= $option;
+        }
+
+        $html .= html_writer::end_tag('div');
+        return $html;
+    }
+
+    /**
      * Renders the workshop grading report
      *
      * @param workshop_grading_report $gradingreport
      * @return string html code
      */
     protected function render_workshop_grading_report(workshop_grading_report $gradingreport) {
+        global $PAGE;
 
         $data       = $gradingreport->get_data();
         $options    = $gradingreport->get_options();
@@ -471,29 +511,45 @@ class mod_workshop_renderer extends plugin_renderer_base {
         $sortbysubmisstion = $sortbysubmisstiontitle . ' / ' . $sortbysubmisstionlastmodified;
 
         $table->head = array();
+        $table->colclasses  = array();
+        
         $table->head[] = $sortbyname;
+        $table->colclasses[] = '';
         if ($data->realsubmission) {
             $table->head[] = $sortbysubmisstion;
+            $table->colclasses[] = '';
         }
+
+        $gradeviewswitcher = '';
 
         // If we are in submission phase ignore the following headers (columns).
         if ($options->workshopphase != workshop::PHASE_SUBMISSION ||
                 ($options->workshopphase == workshop::PHASE_SUBMISSION && $data->assessassoonsubmitted)) {
+
+            $receivedgrades = 'receivedgrades';
+            $givengrades = 'givengrades';
+
+            $gradeviewswitcher = $this->helper_workshop_grading_report_view_switcher();
+            $PAGE->requires->js_call_amd('mod_workshop/gradingreport', 'init');
+
             $table->head[] = $this->helper_sortable_heading(get_string('receivedgrades', 'workshop'));
+            $table->colclasses[] = $receivedgrades;
             if ($options->showsubmissiongrade) {
                 $string = $data->realsubmission ? 'submissiongradeof' : 'assessmentgradeof';
                 $table->head[] = $this->helper_sortable_heading(get_string($string, 'workshop', $data->maxgrade),
                         'submissiongrade', $options->sortby, $options->sorthow);
+                $table->colclasses[] = $receivedgrades;
             }
             $table->head[] = $this->helper_sortable_heading(get_string('givengrades', 'workshop'));
+            $table->colclasses[] = $givengrades;
             if ($options->showgradinggrade) {
                 $table->head[] = $this->helper_sortable_heading(get_string('gradinggradeof', 'workshop', $data->maxgradinggrade),
                         'gradinggrade', $options->sortby, $options->sorthow);
+                $table->colclasses[] = $receivedgrades;
             }
         }
 
         $table->rowclasses  = array();
-        $table->colclasses  = array();
         $table->data        = array();
 
         foreach ($grades as $participant) {
@@ -604,7 +660,9 @@ class mod_workshop_renderer extends plugin_renderer_base {
             }
         }
 
-        return html_writer::table($table);
+        $html = $gradeviewswitcher . html_writer::table($table);
+
+        return $html;
     }
 
     /**

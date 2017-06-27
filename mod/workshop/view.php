@@ -508,7 +508,7 @@ case workshop::PHASE_EVALUATION:
             $reportopts->sortby                 = $sortby;
             $reportopts->sorthow                = $sorthow;
             $reportopts->showsubmissiongrade    = true;
-            $reportopts->showgradinggrade       = true;
+            $reportopts->showgradinggrade       = !empty($data->maxgradinggrade);
             $reportopts->workshopphase          = $workshop->phase;
 
             print_collapsible_region_start('', 'workshop-viewlet-gradereport', get_string('gradesreport', 'workshop'));
@@ -627,7 +627,7 @@ case workshop::PHASE_CLOSED:
             $reportopts->sortby                 = $sortby;
             $reportopts->sorthow                = $sorthow;
             $reportopts->showsubmissiongrade    = true;
-            $reportopts->showgradinggrade       = true;
+            $reportopts->showgradinggrade       = !empty($data->maxgradinggrade);
             $reportopts->workshopphase          = $workshop->phase;
 
             print_collapsible_region_start('', 'workshop-viewlet-gradereport', get_string('gradesreport', 'workshop'));

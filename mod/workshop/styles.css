@@ -722,6 +722,16 @@ path-mod-workshop .wizard-navigation ol:before {
     color: #e00;
 }
 
+.path-mod-workshop .grading-report-view-switcher {
+    float: right;
+    margin-bottom: 10px;
+}
+
+.path-mod-workshop .grading-report-view-switcher span {
+    display: inline-block;
+    margin-left: 20px;
+}
+
 /**
  * Final grades
  */

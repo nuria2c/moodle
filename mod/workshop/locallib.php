@@ -3340,7 +3340,9 @@ class workshop_user_plan implements renderable {
         if ($workshop->allowsubmission && has_capability('moodle/course:manageactivities', $workshop->context, $userid)) {
             $task = new stdclass();
             $task->title = get_string('taskinstructauthors', 'workshop');
-            $task->link = $workshop->updatemod_url();
+            $url = $workshop->updatemod_url();
+            $url->params(array('displayadvanced' => 'submissionsettings'));
+            $task->link = $url;
             $task->completed = !(trim($workshop->instructauthors) == '');
             $phase->tasks['instructauthors'] = $task;
         }
@@ -3613,7 +3615,9 @@ class workshop_user_plan implements renderable {
         if (has_capability('moodle/course:manageactivities', $workshop->context, $userid)) {
             $task = new stdclass();
             $task->title = get_string('taskconclusion', 'workshop');
-            $task->link = $workshop->updatemod_url();
+            $url = $workshop->updatemod_url();
+            $url->params(array('displayadvanced' => 'feedbacksettings'));
+            $task->link = $url;
             if (trim($workshop->conclusion)) {
                 $task->completed = true;
             } elseif ($workshop->phase >= workshop::PHASE_EVALUATION) {
@@ -3718,7 +3722,9 @@ class workshop_user_plan implements renderable {
         if (has_capability('moodle/course:manageactivities', $workshop->context, $userid)) {
             $task = new stdclass();
             $task->title = get_string('taskinstructreviewers', 'workshop');
-            $task->link = $workshop->updatemod_url();
+            $url = $workshop->updatemod_url();
+            $url->params(array('displayadvanced' => 'assessmentsettings'));
+            $task->link = $url;
             if (trim($workshop->instructreviewers)) {
                 $task->completed = true;
             } else {

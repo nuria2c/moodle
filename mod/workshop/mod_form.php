@@ -66,6 +66,7 @@ class mod_workshop_mod_form extends moodleform_mod {
             user_preference_allow_ajax_update("workshop_form_showadvanced", PARAM_BOOL);
         }
         $displayadvancedsettings = get_user_preferences('workshop_form_showadvanced', null);
+        $displayadvanced = optional_param('displayadvanced', null, PARAM_ALPHA);
 
         // Workshop name
         $label = get_string('workshopname', 'workshop');
@@ -315,9 +316,19 @@ class mod_workshop_mod_form extends moodleform_mod {
         $this->add_action_buttons();
         $fieldsetarray = array('#id_gradingsettings', '#id_submissionsettings', '#id_assessmentsettings', '#id_feedbacksettings',
             '#id_examplesubmissionssettings', '#id_accesscontrol');
+        $scrollto = null;
+        if ($displayadvanced) {
+            $scrollto = "#id_" . $displayadvanced;
+            $mform->setExpanded($displayadvanced);
+            $key = array_search($scrollto, $fieldsetarray);
+            if ($key !== false) {
+                unset($fieldsetarray[$key]);
+            }
+        }
         $fieldsets = implode(',', $fieldsetarray);
         $inputadvancedsettingselector = "input[name='advancedsettingdisplayed']";
-        $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector, $fieldsets, \workshop::SELF_ASSESSMENT));
+        $PAGE->requires->js_call_amd('mod_workshop/workshopform', 'init', array($inputadvancedsettingselector,
+            $fieldsets, \workshop::SELF_ASSESSMENT, $scrollto));
 
         $inputallowsubmissionselector = "input[name='allowsubmission']";
         $submissionendselector = "input[name='submissionend[enabled]']";

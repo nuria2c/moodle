@@ -35,8 +35,9 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
      * @param {String} inputadvancedsettingselector Input containing advancedsetting state.
      * @param {String} fieldsets List of filedsets to hide/show ex:#f1,#f2.
      * @param {Int} selfassessmentvalue Self assessment value
+     * @param {String} fieldsets Id of element to scroll to.
      */
-    var workshopform = function(inputadvancedsettingselector, fieldsets, selfassessmentvalue) {
+    var workshopform = function(inputadvancedsettingselector, fieldsets, selfassessmentvalue, scrollto) {
         this.fieldsets = fieldsets;
         this.inputadvancedsettingselector = inputadvancedsettingselector;
         this.selfassessment = selfassessmentvalue;
@@ -94,6 +95,13 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         $(self.assessmenttypeSelector + ", " + self.allowsubmissionSelector).on('change', function() {
             self.showHideAnonymity();
         });
+        $(document).ready(function() {
+            if (scrollto) {
+                $('html, body').animate({
+                    scrollTop: $(scrollto).offset().top
+                }, 0);
+            }
+        });
     };
 
     /** @var {String} The show advanced settings string. */
@@ -139,9 +147,9 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
     };
 
     return /** @alias module:mod_workshop/workshopform*/ {
-        init: function(inputadvancedsettingselector, fieldsets, selfassessmentvalue) {
+        init: function(inputadvancedsettingselector, fieldsets, selfassessmentvalue, scrollto) {
             // Create instance.
-            new workshopform(inputadvancedsettingselector, fieldsets, selfassessmentvalue);
+            new workshopform(inputadvancedsettingselector, fieldsets, selfassessmentvalue, scrollto);
         }
     };
 });

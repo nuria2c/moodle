@@ -76,9 +76,11 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
                 if (parseInt(inputhidden.val()) === 1) {
                     inputhidden.val(0);
                     $("input[name='submitbutton']").val(self.wizardbuttonvalue);
+                    M.util.set_user_preference('workshop_form_showadvanced', 0);
                 } else {
                     inputhidden.val(1);
                     $("input[name='submitbutton']").val(self.submitbuttonvalue);
+                    M.util.set_user_preference('workshop_form_showadvanced', 1);
                 }
                 e.preventDefault();
                 var element = $(e.target);

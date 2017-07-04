@@ -54,13 +54,18 @@ class mod_workshop_mod_form extends moodleform_mod {
      * @return void
      */
     public function definition() {
-        global $CFG, $PAGE;
+        global $CFG, $PAGE, $USER;
 
         $workshopconfig = get_config('workshop');
         $mform = $this->_form;
 
         // General --------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
+        $sameuser = (isset($USER->realuser)) ? false : true;
+        if ($sameuser) {
+            user_preference_allow_ajax_update("workshop_form_showadvanced", PARAM_BOOL);
+        }
+        $displayadvancedsettings = get_user_preferences('workshop_form_showadvanced', null);
 
         // Workshop name
         $label = get_string('workshopname', 'workshop');
@@ -74,7 +79,7 @@ class mod_workshop_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
         // Save advanced setting state.
-        $mform->addElement('hidden', 'advancedsettingdisplayed', 0);
+        $mform->addElement('hidden', 'advancedsettingdisplayed', $displayadvancedsettings ? 1 : 0);
         $mform->setType('advancedsettingdisplayed', PARAM_INT);
         // Introduction
         $this->standard_intro_elements(get_string('introduction', 'workshop'));

@@ -68,7 +68,7 @@ class gradingmethod_step_form extends step_form {
         }
 
         $html = \html_writer::start_div('strategybuttoncontainer');
-        $img = \html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url($imgsrc), 'class' => 'action-icon'));
+        $img = \html_writer::empty_tag('img', array('src' => $OUTPUT->image_url($imgsrc), 'class' => 'action-icon'));
         $txt = \html_writer::tag('div', $textbutton, array('class' => 'action-text'));
         $html .= \html_writer::link($url, $img . $txt, array('class' => 'action'));
         $html .= \html_writer::end_div();

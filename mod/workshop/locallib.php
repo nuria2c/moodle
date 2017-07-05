@@ -1995,7 +1995,7 @@ class workshop {
      */
     public function assessing_allowed($userid) {
 
-        if ($this->phase != self::PHASE_ASSESSMENT && !($this->phase = self::PHASE_SUBMISSION && $this->assessassoonsubmitted)) {
+        if ($this->phase != self::PHASE_ASSESSMENT && !($this->phase == self::PHASE_SUBMISSION && $this->assessassoonsubmitted)) {
             // assessing is allowed in the assessment phase only, unless the user is a teacher
             // providing additional assessment during the evaluation phase
             if ($this->phase != self::PHASE_EVALUATION or !has_capability('mod/workshop:overridegrades', $this->context, $userid)) {

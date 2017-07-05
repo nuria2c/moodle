@@ -23,8 +23,8 @@ Feature: Workshop submission and assessment
       | student4 | c1     | student        |
       | teacher1 | c1     | editingteacher |
     And the following "activities" exist:
-      | activity | name         | intro                     | course | idnumber  | allowsubmission |
-      | workshop | TestWorkshop | Test workshop description | c1     | workshop1 | 1               |
+      | activity | name         | intro                     | course | idnumber  | allowsubmission | displayappraiseesname | displayappraisersname |
+      | workshop | TestWorkshop | Test workshop description | c1     | workshop1 | 1               | 1                     | 1                     |
 # teacher1 sets up assessment form and changes the phase to submission
     When I log in as "teacher1"
     And I am on "Course1" course homepage
@@ -42,7 +42,7 @@ Feature: Workshop submission and assessment
     And I add a submission in workshop "TestWorkshop" as:"
       | Title              | Submission1  |
       | Submission content | Some content |
-    And "//div[@class='submission-full' and contains(.,'Submission1') and contains(.,'submitted on')]" "xpath_element" should exist
+    And "//div[contains(@class, 'submission-full') and contains(.,'Submission1') and contains(.,'submitted on')]" "xpath_element" should exist
     And I log out
 # student2 submits
     And I log in as "student2"
@@ -62,8 +62,8 @@ Feature: Workshop submission and assessment
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I should see "to allocate: 3"
-    And I should see "There is at least one author who has not yet submitted their work"
+    And I should see "to allocate: 4"
+    And I should see "There is at least one author who has not yet submitted his work"
     Then I should see "Workshop submissions report"
     And I should see "Submitted (3) / not submitted (1)"
     And I should see "Submission1" in the "Sam1 Student1" "table_row"
@@ -77,7 +77,7 @@ Feature: Workshop submission and assessment
       | Sam3 Student3 | Sam1 Student1 |
       | Sam2 Student2 | Sam4 Student4 |
     And I follow "TestWorkshop"
-    And I should see "to allocate: 0"
+    And I should see "to allocate: 1"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I log out
 # student1 assesses work of student2 and student3

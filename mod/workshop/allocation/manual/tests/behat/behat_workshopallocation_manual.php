@@ -55,7 +55,12 @@ class behat_workshopallocation_manual extends behat_base {
                 "tbody/tr[./td[contains(concat(' ', normalize-space(@class), ' '), ' peer ')]".
                 "[contains(.,$participantnameliteral)]]/".
                 "td[contains(concat(' ', normalize-space(@class), ' '), ' reviewedby ')]";
-        $xpathselect = $xpathtd . "/descendant::select";
+        if (!$this->running_javascript()) {
+            $xpathselect = $xpathtd . "/descendant::select";
+        } else {
+            $xpathselect = $xpathtd . "/descendant::span[contains(@class, 'form-autocomplete-downarrow')]";
+        }
+
         try {
             $selectnode = $this->find('xpath', $xpathselect);
         } catch (Exception $ex) {
@@ -63,20 +68,23 @@ class behat_workshopallocation_manual extends behat_base {
             $selectnode = $this->find('xpath', $xpathselect);
         }
 
-        $selectformfield = behat_field_manager::get_form_field($selectnode, $this->getSession());
-        $selectformfield->set_value($reviewername);
-
         if (!$this->running_javascript()) {
+            $selectformfield = behat_field_manager::get_form_field($selectnode, $this->getSession());
+            $selectformfield->set_value($reviewername);
             // Without Javascript we need to press the "Go" button.
             $go = behat_context_helper::escape(get_string('go'));
             $this->find('xpath', $xpathtd."/descendant::input[@value=$go]")->click();
         } else {
+            $selectnode->click();
+            $path = $xpathtd ."/descendant::ul[@class='form-autocomplete-suggestions']//li[contains(.,'" . $reviewername . "')]";
+            $this->execute('behat_general::i_click_on', [$path, 'xpath_element']);
             // With Javascript we just wait for the page to reload.
             $this->getSession()->wait(self::EXTENDED_TIMEOUT, self::PAGE_READY_JS);
         }
+
         // Check the success string to appear.
         $allocatedtext = behat_context_helper::escape(
-            get_string('allocationadded', 'workshopallocation_manual'));
+            get_string('allocationdone', 'workshop'));
         $this->find('xpath', "//*[contains(.,$allocatedtext)]");
     }
 
@@ -88,7 +96,6 @@ class behat_workshopallocation_manual extends behat_base {
      * @param TableNode $table should have one column with title 'Reviewer' and another with title 'Participant' (or 'Reviewee')
      */
     public function i_allocate_submissions_in_workshop_as($workshopname, TableNode $table) {
-
         $this->find_link($workshopname)->click();
         $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', get_string('allocate', 'workshop'));
         $rows = $table->getRows();

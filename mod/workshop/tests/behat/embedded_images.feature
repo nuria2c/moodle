@@ -37,11 +37,11 @@ Feature: Teachers can embed images into instructions and conclusion fields
     And I click on "Select this file" "button"
     And I set the field "Describe this image for someone who cannot see it" to "How to submit"
     And I click on "Save image" "button"
+    And I wait until "Save and display" "button" exists
     And I press "Save and display"
     # Embed the image into Instructions for assessment.
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    And I click on "Show advanced settings" "link"
     And I set the field "Instructions for assessment" to "<p>Image test</p>"
     And I select the text in the "Instructions for assessment" Atto editor
     And I click on "Image" "button" in the "//*[@data-fieldtype='editor']/*[descendant::*[@id='id_instructreviewerseditor']]" "xpath_element"
@@ -55,7 +55,6 @@ Feature: Teachers can embed images into instructions and conclusion fields
     # Embed the image into Conclusion.
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    And I click on "Show advanced settings" "link"
     And I set the field "Conclusion" to "<p>Image test</p>"
     And I select the text in the "Conclusion" Atto editor
     And I click on "Image" "button" in the "//*[@data-fieldtype='editor']/*[descendant::*[@id='id_conclusioneditor']]" "xpath_element"

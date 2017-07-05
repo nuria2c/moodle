@@ -195,9 +195,15 @@ function workshop_update_instance(stdclass $workshop) {
     $workshop->useselfassessment     = (int)!empty($workshop->useselfassessment);
     $workshop->latesubmissions       = (int)!empty($workshop->latesubmissions);
     $workshop->phaseswitchassessment = (int)!empty($workshop->phaseswitchassessment);
-    $workshop->allowsubmission       = (int)!empty($workshop->allowsubmission);
     $workshop->assessassoonsubmitted = (int)!empty($workshop->assessassoonsubmitted);
     $workshop->assesswithoutsubmission = (int)!empty($workshop->assesswithoutsubmission);
+
+    $originalworkshop = $DB->get_record('workshop', array('id' => $workshop->id));
+    if (\workshop::is_allowsubmission_disabled($originalworkshop)) {
+        $workshop->allowsubmission = $originalworkshop->allowsubmission;
+    } else {
+        $workshop->allowsubmission = (int)!empty($workshop->allowsubmission);
+    }
 
     if ($workshop->allowsubmission == 0) {
         $workshop->assessassoonsubmitted = 0;

@@ -49,8 +49,12 @@ class submissionsettings_step_form extends step_form {
 
         $mform = $this->_form;
 
+        $options = array();
+        if (\workshop::is_allowsubmission_disabled($this->workshop)) {
+            $options = array('disabled' => 'true');
+        }
         $label = get_string('allowsubmission', 'workshop');
-        $mform->addElement('checkbox', 'allowsubmission', $label, ' ');
+        $mform->addElement('checkbox', 'allowsubmission', $label, ' ', $options);
         $mform->addHelpButton('allowsubmission', 'allowsubmission', 'workshop');
 
         $mform->addElement('html',  \html_writer::start_div('fitem submissioninfo'));

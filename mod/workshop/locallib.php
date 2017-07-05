@@ -586,6 +586,28 @@ class workshop {
         return false;
     }
 
+    /**
+     * Check if allowsubmission parameter can be modified or not for the workshop
+     *
+     * @param stdClass $workshop workshop info.
+     * @return bool
+     */
+    public static function is_allowsubmission_disabled($workshop) {
+        global $DB;
+
+        $params = array('workshopid' => $workshop->id);
+        $sql = "SELECT COUNT(s.id)
+                  FROM {workshop_submissions} s
+                 WHERE s.example = 0 AND s.workshopid = :workshopid
+                   AND s.realsubmission = 1";
+
+        if ($workshop->phase != self::PHASE_SETUP || $DB->count_records_sql($sql, $params)) {
+            return true;
+        }
+
+        return false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // Workshop API                                                               //
     ////////////////////////////////////////////////////////////////////////////////

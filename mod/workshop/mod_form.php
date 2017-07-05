@@ -145,8 +145,12 @@ class mod_workshop_mod_form extends moodleform_mod {
         // Submission settings --------------------------------------------------------
         $mform->addElement('header', 'submissionsettings', get_string('submissionsettings', 'workshop'));
 
+        $options = array();
+        if ($this->current->instance && workshop::is_allowsubmission_disabled($this->current)) {
+            $options = array('disabled' => 'true');
+        }
         $label = get_string('allowsubmission', 'workshop');
-        $mform->addElement('checkbox', 'allowsubmission', $label, ' ');
+        $mform->addElement('checkbox', 'allowsubmission', $label, ' ', $options);
         $mform->addHelpButton('allowsubmission', 'allowsubmission', 'workshop');
 
         $divsubmissioninfo = \html_writer::start_div('fitem submissioninfo');

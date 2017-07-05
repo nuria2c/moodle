@@ -49,9 +49,14 @@ class submissionsettings_step extends step {
     public function save_form(\stdclass $data) {
         global $DB;
 
-        $data->allowsubmission = (int)!empty($data->allowsubmission);
         $data->assessassoonsubmitted = (int)!empty($data->assessassoonsubmitted);
         $data->phaseswitchassessment = (int)!empty($data->phaseswitchassessment);
+
+        if (\workshop::is_allowsubmission_disabled($this->workshop)) {
+            $data->allowsubmission = $this->workshop->allowsubmission;
+        } else {
+            $data->allowsubmission = (int)!empty($data->allowsubmission);
+        }
 
         $record = $this->workshop->get_record();
         if ($data->allowsubmission == 0) {

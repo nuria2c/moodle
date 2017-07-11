@@ -22,7 +22,7 @@ Feature: Provide example submission
     # As a teacher, define the assessment form to be used in the workshop.
     When I log in as "teacher1"
     And I am on "Course1" course homepage
-    And I edit assessment form in workshop "TestWorkshop" as:"
+    And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |

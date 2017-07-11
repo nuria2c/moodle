@@ -26,7 +26,7 @@ Feature: Workshop submission removal
     # Teacher sets up assessment form and changes the phase to submission.
     And I log in as "teacher1"
     And I am on "Course1" course homepage
-    And I edit assessment form in workshop "TestWorkshop" as:"
+    And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
@@ -36,14 +36,14 @@ Feature: Workshop submission removal
     And I log in as "student1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
     And I log out
     # Student2 submits.
     And I log in as "student2"
     And I am on "Course1" course homepage
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
     And I log out
@@ -51,7 +51,7 @@ Feature: Workshop submission removal
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I allocate submissions in workshop "TestWorkshop" as:"
+    And I allocate submissions in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam2 Student2 | Sam3 Student3 |
     And I log out

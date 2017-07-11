@@ -58,16 +58,16 @@ class workshop_manual_allocator implements workshop_allocator {
      * @return workshop_allocation_result
      */
     public function init() {
-        global $PAGE;
+        global $PAGE, $USER;
 
         $mode = optional_param('mode', 'display', PARAM_ALPHA);
         $perpage = optional_param('perpage', null, PARAM_INT);
-        $view = optional_param('view', null, PARAM_ALPHANUMEXT);
+        $sameuser = (isset($USER->realuser)) ? false : true;
+        if ($sameuser) {
+            user_preference_allow_ajax_update("workshopallocation_manual_view", PARAM_ALPHAEXT);
+        }
         $PAGE->requires->js_call_amd('mod_workshop/allocation', 'init', array());
 
-        if ($view) {
-            set_user_preference('workshopallocation_manual_view', $view);
-        }
         if ($perpage and $perpage > 0 and $perpage <= 1000) {
             require_sesskey();
             set_user_preference('workshopallocation_manual_perpage', $perpage);
@@ -149,7 +149,7 @@ class workshop_manual_allocator implements workshop_allocator {
      * Prints user interface - current allocation and a form to edit it
      */
     public function ui() {
-        global $PAGE, $DB;
+        global $PAGE;
 
         $output     = $PAGE->get_renderer('workshopallocation_manual');
 
@@ -184,8 +184,6 @@ class workshop_manual_allocator implements workshop_allocator {
                     workshop_message::TYPE_ERROR);
                 break;
             case self::MSG_CONFIRM_DEL:
-                $hlauthorid     = $m[2];
-                $hlreviewerid   = $m[3];
                 if ($m[4] == 0) {
                     $message    = new workshop_message(get_string('areyousuretodeallocate', 'workshopallocation_manual'),
                         workshop_message::TYPE_INFO);
@@ -215,19 +213,39 @@ class workshop_manual_allocator implements workshop_allocator {
         // fetch the list of ids of all workshop participants
         $numofparticipants = $this->workshop->count_participants(false, $groupid);
         $participants = $this->workshop->get_participants(false, $groupid, $perpage * $page, $perpage);
-
+        $content = '';
         if ($hlauthorid > 0 and $hlreviewerid > 0) {
             // display just those two users
-            $participants = array_intersect_key($participants, array($hlauthorid => null, $hlreviewerid => null));
-            $button = $output->single_button($PAGE->url, get_string('showallparticipants', 'workshopallocation_manual'), 'get');
-        } else {
-            $button = '';
+            $participantsaffected = array_intersect_key($participants, array($hlauthorid => null, $hlreviewerid => null));
+            $dataaffected = $this->build_data_for_participants($participantsaffected, $hlauthorid, $hlreviewerid);
+            $content = $output->render($dataaffected);
         }
 
-        // this will hold the information needed to display user names and pictures
+        $data = $this->build_data_for_participants($participants);
+
+        // Prepare the group selector.
+        $groupselector = $output->container(groups_print_activity_menu($this->workshop->cm, $PAGE->url, true), 'groupwidget');
+
+        // Prepare paging bar.
+        $pagingbar              = new paging_bar($numofparticipants, $page, $perpage, $PAGE->url, 'page');
+        $pagingbarout           = $output->render($pagingbar);
+        $perpageselector        = $output->perpage_selector($perpage);
+
+        return $content . $groupselector . $output->render($message) . $output->render($data) . $pagingbarout . $perpageselector;
+    }
+    /**
+     * Build data for participants.
+     *
+     * @param Array $participants users allocation
+     * @param int $hlauthorid highlight author
+     * @param int $hlreviewerid highlight reviewer
+     */
+    protected function build_data_for_participants($participants, $hlauthorid = -1, $hlreviewerid = -1) {
+        global $DB;
+        // This will hold the information needed to display user names and pictures.
         $userinfo = $participants;
 
-        // load the participants' submissions
+        // Load the participants' submissions.
         $submissions = $this->workshop->get_submissions(array_keys($participants), 0, 0, 0, false);
         $allnames = get_all_user_name_fields();
         foreach ($submissions as $submission) {
@@ -245,7 +263,7 @@ class workshop_manual_allocator implements workshop_allocator {
             $userinfo[$submission->authorid]->realsubmission = $submission->realsubmission;
         }
 
-        // get current reviewers
+        // Get current reviewers.
         $reviewers = array();
         if ($submissions) {
             list($submissionids, $params) = $DB->get_in_or_equal(array_keys($submissions), SQL_PARAMS_NAMED);
@@ -271,7 +289,7 @@ class workshop_manual_allocator implements workshop_allocator {
             }
         }
 
-        // get current reviewees
+        // Get current reviewees.
         $reviewees = array();
         if ($participants) {
             list($participantids, $params) = $DB->get_in_or_equal(array_keys($participants), SQL_PARAMS_NAMED);
@@ -303,7 +321,7 @@ class workshop_manual_allocator implements workshop_allocator {
             }
         }
 
-        // the information about the allocations
+        // The information about the allocations.
         $allocations = array();
 
         foreach ($participants as $participant) {
@@ -322,16 +340,16 @@ class workshop_manual_allocator implements workshop_allocator {
             $allocations[$submission->authorid]->realsubmission = $submission->realsubmission;
         }
         unset($submissions);
-        foreach($reviewers as $reviewer) {
+        foreach ($reviewers as $reviewer) {
             $allocations[$reviewer->authorid]->reviewedby[$reviewer->reviewerid] = $reviewer->assessmentid;
         }
         unset($reviewers);
-        foreach($reviewees as $reviewee) {
+        foreach ($reviewees as $reviewee) {
             $allocations[$reviewee->reviewerid]->reviewerof[$reviewee->revieweeid] = $reviewee->assessmentid;
         }
         unset($reviewees);
 
-        // prepare data to be rendered
+        // Prepare data to be rendered.
         $data                   = new workshopallocation_manual_allocations();
         $data->workshop         = $this->workshop;
         $data->allocations      = $allocations;
@@ -341,16 +359,8 @@ class workshop_manual_allocator implements workshop_allocator {
         $data->hlauthorid       = $hlauthorid;
         $data->hlreviewerid     = $hlreviewerid;
         $data->selfassessment   = $this->workshop->useselfassessment;
+        return $data;
 
-        // prepare the group selector
-        $groupselector = $output->container(groups_print_activity_menu($this->workshop->cm, $PAGE->url, true), 'groupwidget');
-
-        // prepare paging bar
-        $pagingbar              = new paging_bar($numofparticipants, $page, $perpage, $PAGE->url, 'page');
-        $pagingbarout           = $output->render($pagingbar);
-        $perpageselector        = $output->perpage_selector($perpage);
-
-        return $groupselector . $pagingbarout . $output->render($message) . $output->render($data) . $button . $pagingbarout . $perpageselector;
     }
 
     /**

@@ -24,8 +24,9 @@
  */
 define(['jquery',
     'core/notification',
+    'core/form-autocomplete',
     'tool_lp/dialogue',
-    'core/str'], function ($, notification, Dialogue, str) {
+    'core/str'], function ($, notification, autocomplete, Dialogue, str) {
 
     /**
      * Allocation form.
@@ -39,6 +40,20 @@ define(['jquery',
             e.preventDefault();
             window.onbeforeunload = null;
             $(e.target).parents('form:first').submit();
+        });
+        $(document).ready(function () {
+            self.showAffectedParticipants();
+            str.get_strings([
+                {key: 'addreviewer', component: 'workshopallocation_manual'},
+                {key: 'addreviewee', component: 'workshopallocation_manual'}
+            ]).done(function (strings) {
+                $('.addreviewer').each(function () {
+                    autocomplete.enhance('#' + $(this).attr('id'), false, false, strings[0]);
+                });
+                $('.addreviewee').each(function () {
+                    autocomplete.enhance('#' + $(this).attr('id'), false, false, strings[1]);
+                });
+            }).fail(notification.exception);
         });
     };
 
@@ -54,10 +69,8 @@ define(['jquery',
         var viewToDisplay = $('input[name="allocationview"]:checked').val();
         if (viewToDisplay == 'reviewee') {
             body.find('select[name="numper"]').val(2);
-            body.find('input[name="view"]').val('reviewerof');
         } else {
             body.find('select[name="numper"]').val(1);
-            body.find('input[name="view"]').val('reviewedby');
         }
         body.find('.btn-cancel').on('click', function (e) {
             e.preventDefault();
@@ -112,9 +125,30 @@ define(['jquery',
         if (viewToDisplay == 'reviewee') {
             $('.allocations .reviewerof').hide();
             $('.allocations .reviewedby').show();
+            M.util.set_user_preference('workshopallocation_manual_view', 'reviewedby');
         } else {
             $('.allocations .reviewedby').hide();
             $('.allocations .reviewerof').show();
+            M.util.set_user_preference('workshopallocation_manual_view', 'reviewerof');
+        }
+    };
+
+    /**
+     * Show affected participants popup.
+     *
+     * @method showAffectedParticipants
+     */
+    Allocation.prototype.showAffectedParticipants = function () {
+        if ($('.allocation-popup-content').length != 0) {
+            str.get_strings([
+                {key: 'affectedparticipants', component: 'workshopallocation_manual'}
+            ]).done(function (strings) {
+                    var html = $('.allocation-popup-content').html();
+                    new Dialogue(
+                            strings[0],
+                            html
+                            );
+            }).fail(notification.exception);
         }
     };
 

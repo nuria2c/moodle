@@ -28,7 +28,7 @@ Feature: Workshop without submission and with assessment
 # teacher1 sets up assessment form and changes the phase to submission
     When I log in as "teacher1"
     And I follow "Course1"
-    And I edit assessment form in workshop "TestWorkshop" as:"
+    And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
@@ -42,7 +42,7 @@ Feature: Workshop without submission and with assessment
     And I should see "Allocate peer"
     And I should see "expected: 4"
     And I should see "to allocate: 4"
-    And I allocate submissions in workshop "TestWorkshop" as:"
+    And I allocate submissions in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam1 Student1 | Sam2 Student2 |
       | Sam2 Student2 | Sam1 Student1 |
@@ -58,7 +58,7 @@ Feature: Workshop without submission and with assessment
     And I follow "Course1"
     And I follow "TestWorkshop"
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]" "xpath_element" should exist
-    And I assess submission "Sam2" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
@@ -66,7 +66,7 @@ Feature: Workshop without submission and with assessment
       | Feedback for the author | Good work         |
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]" "xpath_element" should exist
     And I follow "Course1"
-    And I assess submission "Sam3" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
       | peercomment__idx_0      | Well done   |
       | grade__idx_1            | 8 / 10      |
@@ -79,7 +79,7 @@ Feature: Workshop without submission and with assessment
     And I follow "Course1"
     And I follow "TestWorkshop"
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]" "xpath_element" should exist
-    And I assess submission "Sam1" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |

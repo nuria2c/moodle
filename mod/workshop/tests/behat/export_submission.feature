@@ -32,7 +32,7 @@ Feature: Exporting workshop submissions and assessments to a portfolio
     # Teacher sets up assessment form and changes the phase to submission.
     And I log in as "teacher1"
     And I am on "Course1" course homepage
-    And I edit assessment form in workshop "TestWorkshop" as:"
+    And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
     And I change phase in workshop "TestWorkshop" to "Submission phase"
@@ -41,14 +41,14 @@ Feature: Exporting workshop submissions and assessments to a portfolio
     And I log in as "student1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
     And I log out
     # Student2 submits.
     And I log in as "student2"
     And I am on "Course1" course homepage
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
     And I log out
@@ -61,7 +61,7 @@ Feature: Exporting workshop submissions and assessments to a portfolio
     And I should see "Submitted (2) / not submitted (0)"
     And I should see "Submission1" in the "Sam1 Student1" "table_row"
     And I should see "Submission2" in the "Sam2 Student2" "table_row"
-    And I allocate submissions in workshop "TestWorkshop" as:"
+    And I allocate submissions in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam1 Student1 | Sam2 Student2 |
       | Sam2 Student2 | Sam1 Student1 |

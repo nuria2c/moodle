@@ -86,12 +86,16 @@ class behat_workshopallocation_manual extends behat_base {
         $allocatedtext = behat_context_helper::escape(
             get_string('allocationdone', 'workshop'));
         $this->find('xpath', "//*[contains(.,$allocatedtext)]");
+        if ($this->running_javascript()) {
+            $affectedparticipants = get_string('affectedparticipants', 'workshopallocation_manual');
+            $this->execute('behat_general::i_click_on_in_the', ["Close", "button", $affectedparticipants, "dialogue"]);
+        }
     }
 
     /**
      * Manually allocates multiple reviewers in workshop.
      *
-     * @When /^I allocate submissions in workshop "(?P<workshop_name_string>(?:[^"]|\\")*)" as:"$/
+     * @When /^I allocate submissions in workshop "(?P<workshop_name_string>(?:[^"]|\\")*)" as:$/
      * @param string $workshopname
      * @param TableNode $table should have one column with title 'Reviewer' and another with title 'Participant' (or 'Reviewee')
      */

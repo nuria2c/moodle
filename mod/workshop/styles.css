@@ -904,6 +904,9 @@ path-mod-workshop .wizard-navigation ol:before {
     vertical-align: middle;
     text-decoration: none;
 }
+.path-mod-workshop .allocations [role="listitem"].selfassessment {
+    filter: brightness(125%);
+}
 .path-mod-workshop .allocations [role="listitem"] img {
     padding-right: 0.5em;
 }
@@ -937,4 +940,7 @@ path-mod-workshop .wizard-navigation ol:before {
 }
 .path-mod-workshop .allocator-ui .message {
     width: auto;
+}
+.path-mod-workshop .allocation-popup-content {
+    display: none;
 }

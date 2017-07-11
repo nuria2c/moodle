@@ -28,7 +28,7 @@ Feature: Workshop submission and assessment
 # teacher1 sets up assessment form and changes the phase to submission
     When I log in as "teacher1"
     And I am on "Course1" course homepage
-    And I edit assessment form in workshop "TestWorkshop" as:"
+    And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
@@ -39,7 +39,7 @@ Feature: Workshop submission and assessment
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
     Then I should see "Submit your work"
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
     And "//div[contains(@class, 'submission-full') and contains(.,'Submission1') and contains(.,'submitted on')]" "xpath_element" should exist
@@ -47,14 +47,14 @@ Feature: Workshop submission and assessment
 # student2 submits
     And I log in as "student2"
     And I am on "Course1" course homepage
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
     And I log out
 # student3 submits
     And I log in as "student3"
     And I am on "Course1" course homepage
-    And I add a submission in workshop "TestWorkshop" as:"
+    And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
     And I log out
@@ -70,7 +70,7 @@ Feature: Workshop submission and assessment
     And I should see "Submission2" in the "Sam2 Student2" "table_row"
     And I should see "Submission3" in the "Sam3 Student3" "table_row"
     And I should see "No submission found for this user" in the "Sam4 Student4" "table_row"
-    And I allocate submissions in workshop "TestWorkshop" as:"
+    And I allocate submissions in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam1 Student1 | Sam2 Student2 |
       | Sam2 Student2 | Sam1 Student1 |
@@ -85,7 +85,7 @@ Feature: Workshop submission and assessment
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]" "xpath_element" should exist
-    And I assess submission "Sam2" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
@@ -93,7 +93,7 @@ Feature: Workshop submission and assessment
       | Feedback for the author | Good work         |
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]" "xpath_element" should exist
     And I am on "Course1" course homepage
-    And I assess submission "Sam3" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
       | peercomment__idx_0      | Well done   |
       | grade__idx_1            | 8 / 10      |
@@ -106,7 +106,7 @@ Feature: Workshop submission and assessment
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
     And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]" "xpath_element" should exist
-    And I assess submission "Sam1" in workshop "TestWorkshop" as:"
+    And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |

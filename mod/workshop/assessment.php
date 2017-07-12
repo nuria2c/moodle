@@ -48,7 +48,7 @@ require_login($course, false, $cm);
 if (isguestuser()) {
     print_error('guestsarenotallowed');
 }
-$workshop = new workshop($workshop, $cm, $course);
+$workshop = new workshop($workshop, $cm, $course, null, array(\workshop::SKIP_ALLOCATION_ACTION));
 
 $PAGE->set_url($workshop->assess_url($assessment->id));
 $PAGE->set_title($workshop->name);

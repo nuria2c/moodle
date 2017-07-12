@@ -48,13 +48,17 @@ class assessmenttype_step_form extends step_form {
         global $PAGE;
         $mform = $this->_form;
 
+        $options = array();
+        if (\workshop::is_assessmenttype_disabled($this->workshop->id)) {
+            $options = array('disabled' => 'true');
+        }
         $radio = array();
         $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('peerassessment', 'workshop'),
-                \workshop::PEER_ASSESSMENT);
+                \workshop::PEER_ASSESSMENT, $options);
         $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfassessment', 'workshop'),
-                \workshop::SELF_ASSESSMENT);
+                \workshop::SELF_ASSESSMENT, $options);
         $radio[] = $mform->createElement('radio', 'assessmenttype', null, get_string('selfandpeerassessment', 'workshop'),
-                \workshop::SELF_AND_PEER_ASSESSMENT);
+                \workshop::SELF_AND_PEER_ASSESSMENT, $options);
         $mform->addGroup($radio, 'assessmenttype', get_string('assessmenttype', 'workshop'), array('<br />'), false);
         $mform->addHelpButton('assessmenttype', 'assessmenttype', 'workshop');
         $mform->setType('assessmenttype', PARAM_INT);

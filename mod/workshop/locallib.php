@@ -63,8 +63,11 @@ class workshop {
     /** @var string SELF_ASSESSMENT Value for self asssessment */
     const SELF_ASSESSMENT = 2;
 
-    /** @var string SELF_ASSESSMENT Value for self and peer asssessment */
+    /** @var string SELF_AND_PEER_ASSESSMENT Value for self and peer asssessment */
     const SELF_AND_PEER_ASSESSMENT = 3;
+
+    /** @var string SKIP_ALLOCATION_ACTION Action that indicate to constructor to skip allocation */
+    const SKIP_ALLOCATION_ACTION = "skip_allocation";
 
     /** @var cm_info course module record */
     public $cm;
@@ -226,8 +229,9 @@ class workshop {
      * @param stdClass|cm_info $cm Course module record
      * @param stdClass $course Course record from {course} table
      * @param stdClass $context The context of the workshop instance
+     * @param array $actions Action to execute in constructor
      */
-    public function __construct(stdclass $dbrecord, $cm, $course, stdclass $context=null) {
+    public function __construct(stdclass $dbrecord, $cm, $course, stdclass $context=null, $actions = array()) {
 
         $this->fieldnames = array();
 
@@ -253,7 +257,8 @@ class workshop {
             $this->context = $context;
         }
 
-        if (self::$allocationsgenerated == false) {
+        if (self::$allocationsgenerated == false && !self::is_assessmenttype_disabled($this->id) &&
+                !in_array($actions, self::SKIP_ALLOCATION_ACTION)) {
             if ($this->assessmenttype == self::PEER_ASSESSMENT) {
                 $this->remove_allocations(true);
             } else {
@@ -602,6 +607,34 @@ class workshop {
                    AND s.realsubmission = 1";
 
         if ($workshop->phase != self::PHASE_SETUP || $DB->count_records_sql($sql, $params)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if assessmenttype parameter can be modified or not for the workshop
+     *
+     * @param int $id ID of workshop.
+     * @return bool
+     */
+    public static function is_assessmenttype_disabled($id) {
+        global $DB;
+
+        $params = array('workshopid' => $id);
+        $submissionsql = "SELECT COUNT(s.id)
+                            FROM {workshop_submissions} s
+                           WHERE s.example = 0 AND s.workshopid = :workshopid
+                             AND s.realsubmission = 1";
+
+        $assessmentsql = "SELECT COUNT(a.id)
+                            FROM {workshop_assessments} a
+                            JOIN {workshop_submissions} s ON (a.submissionid = s.id)
+                           WHERE s.example = 0 AND s.workshopid = :workshopid
+                             AND a.grade IS NOT NULL";
+
+        if ($DB->count_records_sql($submissionsql, $params) || $DB->count_records_sql($assessmentsql, $params)) {
             return true;
         }
 

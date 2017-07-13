@@ -56,6 +56,5 @@ $string['resultnotenoughpeers'] = 'Not enough peers available';
 $string['resultnumperauthor'] = 'Trying to allocate {$a} review(s) per author';
 $string['resultnumperreviewer'] = 'Trying to allocate {$a} review(s) per reviewer';
 $string['removecurrentallocations'] = 'Remove current allocations';
-$string['seeresults'] = 'See results';
 $string['selfassessmenthelp'] = 'Allocations do not include self-assessments because they are already allocated.';
 $string['stats'] = 'Current allocation statistics';

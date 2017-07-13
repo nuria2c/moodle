@@ -83,13 +83,10 @@ class behat_workshopallocation_manual extends behat_base {
         }
 
         // Check the success string to appear.
+        $seeresults = get_string('seeresults', 'workshop');
         $allocatedtext = behat_context_helper::escape(
-            get_string('allocationdone', 'workshop'));
+            get_string('allocationdonedetail', 'workshop', $seeresults));
         $this->find('xpath', "//*[contains(.,$allocatedtext)]");
-        if ($this->running_javascript()) {
-            $affectedparticipants = get_string('affectedparticipants', 'workshopallocation_manual');
-            $this->execute('behat_general::i_click_on_in_the', ["Close", "button", $affectedparticipants, "dialogue"]);
-        }
     }
 
     /**

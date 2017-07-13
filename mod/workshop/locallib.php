@@ -258,7 +258,7 @@ class workshop {
         }
 
         if (self::$allocationsgenerated == false && !self::is_assessmenttype_disabled($this->id) &&
-                !in_array($actions, self::SKIP_ALLOCATION_ACTION)) {
+                (!in_array(self::SKIP_ALLOCATION_ACTION, $actions))) {
             if ($this->assessmenttype == self::PEER_ASSESSMENT) {
                 $this->remove_allocations(true);
             } else {

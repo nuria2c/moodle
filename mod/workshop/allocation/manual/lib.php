@@ -169,7 +169,9 @@ class workshop_manual_allocator implements workshop_allocator {
             case self::MSG_ADDED:
                 $hlauthorid     = $m[1];
                 $hlreviewerid   = $m[2];
-                $message        = new workshop_message(get_string('allocationdonedetail', 'workshop', ''),
+                    $link = html_writer::link('#', get_string('seeresults', 'workshop'),
+                            array('class' => 'manual-allocation-see-results'));
+                    $message = new workshop_message(get_string('allocationdonedetail', 'workshop', $link),
                     workshop_message::TYPE_OK);
                 break;
             case self::MSG_EXISTS:
@@ -184,22 +186,32 @@ class workshop_manual_allocator implements workshop_allocator {
                     workshop_message::TYPE_ERROR);
                 break;
             case self::MSG_CONFIRM_DEL:
+                    $hlauthorid   = $m[2];
+                    $hlreviewerid = $m[3];
+                    $a = new \stdClass();
+                    $a->author = $this->get_user_info($hlauthorid);
+                    $a->reviewer = $this->get_user_info($hlreviewerid);
                 if ($m[4] == 0) {
-                    $message    = new workshop_message(get_string('areyousuretodeallocate', 'workshopallocation_manual'),
-                        workshop_message::TYPE_INFO);
+                        $message = new workshop_message(get_string('areyousuretodeallocate', 'workshopallocation_manual', $a),
+                           workshop_message::TYPE_INFO);
                 } else {
-                    $message    = new workshop_message(get_string('areyousuretodeallocategraded', 'workshopallocation_manual'),
-                        workshop_message::TYPE_ERROR);
+                        $message = new workshop_message(get_string('areyousuretodeallocategraded', 'workshopallocation_manual', $a),
+                            workshop_message::TYPE_ERROR);
                 }
                 $url = new moodle_url($PAGE->url, array('mode' => 'del', 'what' => $m[1], 'confirm' => 1, 'sesskey' => sesskey()));
                 $label = get_string('iamsure', 'workshop');
                 $message->set_action($url, $label);
+                    $hlauthorid = -1;
+                    $hlreviewerid = -1;
                 break;
             case self::MSG_DELETED:
                 $hlauthorid     = $m[1];
                 $hlreviewerid   = $m[2];
-                $message        = new workshop_message(get_string('assessmentdeleted', 'workshop'),
-                    workshop_message::TYPE_OK);
+                    $link = html_writer::link('#', get_string('seeresults', 'workshop'),
+                        array('class' => 'manual-allocation-see-results'));
+                    $assessmentdeletedtext = get_string('assessmentdeleted', 'workshop', $link);
+                    $message = new workshop_message($assessmentdeletedtext,
+                        workshop_message::TYPE_OK);
                 break;
             case self::MSG_DELETE_ERROR:
                 $hlauthorid     = $m[1];
@@ -361,6 +373,20 @@ class workshop_manual_allocator implements workshop_allocator {
         $data->selfassessment   = $this->workshop->useselfassessment;
         return $data;
 
+    }
+
+    /**
+     * Get user info for confirmation.
+     *
+     * @param int $userid The user ID.
+     */
+    protected function get_user_info($userid) {
+        global $PAGE;
+        $user = core_user::get_user($userid);
+        $userurl = new moodle_url('/user/view.php',
+            array('id' => $user->id, 'course' => $PAGE->course->id));
+        $html = html_writer::link($userurl, fullname($user), array('class' => 'bold'));
+        return $html;
     }
 
     /**

@@ -35,6 +35,7 @@ define(['jquery',
         var self = this;
         $('input[name="allocationview"]').on('change', self.switchView.bind(self));
         $('.allocation-see-results').on('click', self.renderAllocationResults.bind(self));
+        $('.manual-allocation-see-results').on('click', self.showAffectedParticipants.bind(self));
         $(".random-allocation-button a").on('click', self.renderRandomAllocation.bind(self));
         $('select[name=by], select[name=of]').on('change', function (e) {
             e.preventDefault();
@@ -42,7 +43,6 @@ define(['jquery',
             $(e.target).parents('form:first').submit();
         });
         $(document).ready(function () {
-            self.showAffectedParticipants();
             str.get_strings([
                 {key: 'addreviewer', component: 'workshopallocation_manual'},
                 {key: 'addreviewee', component: 'workshopallocation_manual'}
@@ -139,6 +139,7 @@ define(['jquery',
      * @method showAffectedParticipants
      */
     Allocation.prototype.showAffectedParticipants = function () {
+        var self = this;
         if ($('.allocation-popup-content').length != 0) {
             str.get_strings([
                 {key: 'affectedparticipants', component: 'workshopallocation_manual'}
@@ -146,7 +147,9 @@ define(['jquery',
                     var html = $('.allocation-popup-content').html();
                     new Dialogue(
                             strings[0],
-                            html
+                            html,
+                            null,
+                            self.destroyDialogue
                             );
             }).fail(notification.exception);
         }

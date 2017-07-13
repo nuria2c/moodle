@@ -490,7 +490,8 @@ class mod_workshop_renderer extends plugin_renderer_base {
             if ($message = $result->get_message()) {
                 $message = new workshop_message($message, workshop_message::TYPE_OK);
             } else {
-                $link = html_writer::link('#', get_string('seeresults', 'workshopallocation_random'), array('class' => 'allocation-see-results'));
+                    $link = html_writer::link('#', get_string('seeresults', 'workshop'),
+                        array('class' => 'allocation-see-results'));
                 $text = get_string('allocationdonedetail', 'workshop', $link);
                 $message = new workshop_message($text, workshop_message::TYPE_OK);
             }

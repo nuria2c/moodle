@@ -258,10 +258,13 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         if ($this->workshop->phase > workshop::PHASE_SETUP) {
             $msg = '';
             $msgtype = $this->workshop->phase > workshop::PHASE_SUBMISSION ? notif::NOTIFY_ERROR : notif::NOTIFY_WARNING;
+            $submissionfound = false;
+            $reviewerfound = count($allocation->reviewedby) > 0 ? true : false;
             if ($this->workshop->allowsubmission) {
                 if (!is_null($allocation->submissionid) && $allocation->realsubmission) {
                     $link = $this->workshop->submission_url($allocation->submissionid);
                     $o .= $this->output->container(html_writer::link($link, format_string($allocation->submissiontitle)), 'title');
+                    $submissionfound = true;
                 } else {
                     // Reviewer impacted by the missing submission.
                     $msg = get_string('nosubmissionfound', 'workshop');
@@ -304,6 +307,10 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
                     $msg .= !empty($msg) ? '<br/>' : '';
                     $msg .= get_string('awaitingsubmission', 'workshopallocation_manual', implode(', ', $listreviewees));
                 }
+            }
+            if (!$reviewerfound && (!$this->workshop->allowsubmission || ($this->workshop->allowsubmission && $submissionfound))) {
+                $msg .= !empty($msg) ? '<br/>' : '';
+                $msg .= get_string('usernoreviewer', 'workshopallocation_manual');
             }
 
             if (is_null($allocation->submissiongrade)) {

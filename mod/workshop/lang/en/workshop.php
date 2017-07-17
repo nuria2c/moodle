@@ -298,6 +298,7 @@ $string['setupwizard'] = 'Setup wizard';
 $string['setupwizard_help'] = 'Use this setup wizard to help you set up this activity quickly and easily.';
 $string['showingperpage'] = 'Showing {$a} items per page';
 $string['showingperpagechange'] = 'Change ...';
+$string['someusersnotallocated'] = 'There is at least one author who has no reviewer';
 $string['someusersshouldnotassess'] = 'There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it';
 $string['someuserswosubmission'] = 'There is at least one author who has not yet submitted his work';
 $string['someuserswaitingassess'] = 'There is at least one reviewer who can not assess because it is associated with an author who has not yet submitted his work';

@@ -3974,6 +3974,13 @@ class workshop_user_plan implements renderable {
             unset($a);
             $tasks['allocate'] = $task;
 
+            if ($numnonallocated != 0 && $workshop->phase >= workshop::PHASE_SUBMISSION) {
+                $task = new stdclass();
+                $task->title = get_string('someusersnotallocated', 'workshop');
+                $task->completed = 'info';
+                $tasks['nonallocateinfo'] = $task;
+            }
+
             if ($workshop->allowsubmission) {
                 if ($numofsubmissions < $numofauthors and $workshop->phase >= workshop::PHASE_SUBMISSION) {
                     $task = new stdclass();

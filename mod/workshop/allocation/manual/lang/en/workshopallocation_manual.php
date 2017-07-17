@@ -38,3 +38,4 @@ $string['preventassessment'] = 'Prevent immediate assessement of {$a}';
 $string['reviewee'] = 'The reviewee';
 $string['reviewer'] = 'The reviewer';
 $string['showallparticipants'] = 'Show all participants';
+$string['usernoreviewer'] = 'This participant has no reviewer';

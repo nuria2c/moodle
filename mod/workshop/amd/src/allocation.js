@@ -89,6 +89,7 @@ define(['jquery',
             {key: 'pluginname', component: 'workshopallocation_random'}
         ]).done(function (strings) {
             var html = $('.allocator-random').html();
+            $('.allocator-random').remove();
             new Dialogue(
                     strings[0],
                     html,
@@ -108,6 +109,7 @@ define(['jquery',
             {key: 'allocationresults', component: 'workshopallocation_random'}
         ]).done(function (strings) {
             var html = $('.allocation-results-container').html();
+            $('.allocation-results-container').remove();
             new Dialogue(
                     strings[0],
                     html

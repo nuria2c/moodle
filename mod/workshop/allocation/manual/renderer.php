@@ -127,7 +127,7 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         $table->head        = array(get_string('participant', 'workshop'),
                                     ($this->view == 'reviewedby') ? $threviewedby : $threviewerof);
         $table->rowclasses  = array();
-        $table->colclasses  = array('peer');
+        $table->colclasses  = array('peer', $this->view);
         $table->data        = array();
         foreach ($allocations as $allocation) {
             $row = array();

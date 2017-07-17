@@ -70,7 +70,7 @@ Feature: Workshop submission and assessment
     And I should see "Submission2" in the "Sam2 Student2" "table_row"
     And I should see "Submission3" in the "Sam3 Student3" "table_row"
     And I should see "No submission found for this user" in the "Sam4 Student4" "table_row"
-    And I allocate submissions in workshop "TestWorkshop" as:
+    And I allocate peers in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam1 Student1 | Sam2 Student2 |
       | Sam2 Student2 | Sam1 Student1 |

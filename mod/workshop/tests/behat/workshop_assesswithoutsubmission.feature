@@ -35,7 +35,7 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "Allocate peer" in the ".phase20" "css_element"
     And I should see "expected: 4" in the ".phase20" "css_element"
     And I should see "to allocate: 4" in the ".phase20" "css_element"
-    And I allocate submissions in workshop "TestWorkshop" as:
+    And I allocate peers in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam1 Student1 | Sam2 Student2 |
       | Sam2 Student2 | Sam1 Student1 |

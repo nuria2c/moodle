@@ -51,7 +51,7 @@ Feature: Workshop submission removal
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I allocate submissions in workshop "TestWorkshop" as:
+    And I allocate peers in workshop "TestWorkshop" as:
       | Participant   | Reviewer      |
       | Sam2 Student2 | Sam3 Student3 |
     And I log out

@@ -61,12 +61,7 @@ class behat_workshopallocation_manual extends behat_base {
             $xpathselect = $xpathtd . "/descendant::span[contains(@class, 'form-autocomplete-downarrow')]";
         }
 
-        try {
-            $selectnode = $this->find('xpath', $xpathselect);
-        } catch (Exception $ex) {
-            $this->find_button(get_string('showallparticipants', 'workshopallocation_manual'))->press();
-            $selectnode = $this->find('xpath', $xpathselect);
-        }
+        $selectnode = $this->find('xpath', $xpathselect);
 
         if (!$this->running_javascript()) {
             $selectformfield = behat_field_manager::get_form_field($selectnode, $this->getSession());
@@ -90,13 +85,138 @@ class behat_workshopallocation_manual extends behat_base {
     }
 
     /**
+     * Manually deallocate a participant for workshop participant.
+     *
+     * @When /^I deallocate "(?P<participantreview>(?:[^"]|\\")*)" as "(?P<reviewtype>(?:[^"]|\\")*)" for workshop participant "(?P<participant>(?:[^"]|\\")*)"$/
+     * @param string $participantreview
+     * @param string $reviewtype
+     * @param string $participant
+     */
+    public function i_deallocate_a_participant_for_workshop_participant($participantreview, $reviewtype, $participant) {
+        $participant = behat_context_helper::escape($participant);
+        $participantreview = behat_context_helper::escape($participantreview);
+        $xpathtd = "//table[contains(concat(' ', normalize-space(@class), ' '), ' allocations ')]/".
+                "tbody/tr[./td[contains(concat(' ', normalize-space(@class), ' '), ' peer ')]".
+                "[contains(.,$participant)]]/".
+                "td[contains(concat(' ', normalize-space(@class), ' '), ' $reviewtype ')]";
+        $xpathselect = $xpathtd . "/descendant::li[contains(., $participantreview)]//a[contains(., 'X')]";
+        $selectnode = $this->find('xpath', $xpathselect);
+        $selectnode->click();
+    }
+
+    /**
+     * Manually adds a reviewee for workshop participant.
+     *
+     * This step should start on manual allocation page.
+     *
+     * @When /^I add a reviewee "(?P<reviewee_name_string>(?:[^"]|\\")*)" for workshop participant "(?P<participant_name_string>(?:[^"]|\\")*)"$/
+     * @param string $revieweename
+     * @param string $participantname
+     */
+    public function i_add_a_reviewee_for_workshop_participant($revieweename, $participantname) {
+        $participantnameliteral = behat_context_helper::escape($participantname);
+        $xpathtd = "//table[contains(concat(' ', normalize-space(@class), ' '), ' allocations ')]/".
+                "tbody/tr[./td[contains(concat(' ', normalize-space(@class), ' '), ' peer ')]".
+                "[contains(.,$participantnameliteral)]]/".
+                "td[contains(concat(' ', normalize-space(@class), ' '), ' reviewerof ')]";
+        if (!$this->running_javascript()) {
+            $xpathselect = $xpathtd . "/descendant::select";
+        } else {
+            $xpathselect = $xpathtd . "/descendant::span[contains(@class, 'form-autocomplete-downarrow')]";
+        }
+
+        $selectnode = $this->find('xpath', $xpathselect);
+
+        if (!$this->running_javascript()) {
+            $selectformfield = behat_field_manager::get_form_field($selectnode, $this->getSession());
+            $selectformfield->set_value($revieweename);
+            // Without Javascript we need to press the "Go" button.
+            $go = behat_context_helper::escape(get_string('go'));
+            $this->find('xpath', $xpathtd."/descendant::input[@value=$go]")->click();
+        } else {
+            $selectnode->click();
+            $path = $xpathtd ."/descendant::ul[@class='form-autocomplete-suggestions']//li[contains(.,'" . $revieweename . "')]";
+            $this->execute('behat_general::i_click_on', [$path, 'xpath_element']);
+            // With Javascript we just wait for the page to reload.
+            $this->getSession()->wait(self::EXTENDED_TIMEOUT, self::PAGE_READY_JS);
+        }
+
+        // Check the success string to appear.
+        $seeresults = get_string('seeresults', 'workshop');
+        $allocatedtext = behat_context_helper::escape(
+            get_string('allocationdonedetail', 'workshop', $seeresults));
+        $this->find('xpath', "//*[contains(.,$allocatedtext)]");
+    }
+
+    /**
+     * Check if there is reviewer/reviewee for participant.
+     *
+     * @Then /^I should see "(?P<participantreview>(?:[^"]|\\")*)" in "(?P<reviewtype>(?:[^"]|\\")*)" for "(?P<participant>(?:[^"]|\\")*)" in affected participants$/
+     * @param string $participantreview
+     * @param string $reviewtype
+     * @param string $participant
+     */
+    public function i_should_see_participantreview_in_affectedparticipants($participantreview, $reviewtype, $participant) {
+        $xpath = "//div[contains(@class, 'moodle-dialogue')]";
+        $xpath .= "//div[contains(@class, 'manual-allocator')]";
+        $xpath .= "//tr[td[1][contains(., '$participant')] and ";
+        $xpath .= "td[2][.//text()[contains(., '$participantreview')] and contains(@class, '$reviewtype')]]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check if there is a message for a participant.
+     *
+     * @Then /^I should see "(?P<message>(?:[^"]|\\")*)" "(?P<messagetype>(?:[^"]|\\")*)" message for participant "(?P<participant>(?:[^"]|\\")*)"$/
+     * @param string $message
+     * @param string $messagetype
+     * @param string $participant
+     */
+    public function i_should_message_for_participant($message, $messagetype, $participant) {
+        $xpath = "//div[contains(@class, 'manual-allocator')]";
+        $xpath .= "//tr[td[1]/text()='$participant' ";
+        $xpath .= "and td[1]//div[contains(., '$message') and contains(@class, 'alert-$messagetype')]]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check if there is no reviewer/reviewee for participant.
+     *
+     * @Then /^I should not see "(?P<participantreview>(?:[^"]|\\")*)" in "(?P<reviewtype>(?:[^"]|\\")*)" for "(?P<participant>(?:[^"]|\\")*)" in affected participants$/
+     * @param string $participantreview
+     * @param string $reviewtype
+     * @param string $participant
+     */
+    public function i_not_should_see_participantreview_in_affectedparticipants($participantreview, $reviewtype, $participant) {
+        $xpath = "//div[contains(@class, 'moodle-dialogue')]";
+        $xpath .= "//div[contains(@class, 'manual-allocator')]";
+        $xpath .= "//tr[td[1][contains(., '$participant')] and ";
+        $xpath .= "td[2][.//text()[contains(., '$participantreview')] and contains(@class, '$reviewtype')]]";
+        $this->execute('behat_general::should_not_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check if there is no reviewer/reviewee for participant.
+     *
+     * @Then /^I should see no "(?P<reviewtype>(?:[^"]|\\")*)" for "(?P<participant>(?:[^"]|\\")*)" in affected participants$/
+     * @param string $reviewtype
+     * @param string $participant
+     */
+    public function i_should_see_no_reviewer_for_participant_in_affectedparticipants($reviewtype, $participant) {
+        $xpath = "//div[contains(@class, 'moodle-dialogue')]";
+        $xpath .= "//div[contains(@class, 'manual-allocator')]";
+        $xpath .= "//tr[td[1][contains(., '$participant')] and td[2][normalize-space(.)='' and contains(@class, '$reviewtype')]]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
      * Manually allocates multiple reviewers in workshop.
      *
-     * @When /^I allocate submissions in workshop "(?P<workshop_name_string>(?:[^"]|\\")*)" as:$/
+     * @When /^I allocate peers in workshop "(?P<workshop_name_string>(?:[^"]|\\")*)" as:$/
      * @param string $workshopname
      * @param TableNode $table should have one column with title 'Reviewer' and another with title 'Participant' (or 'Reviewee')
      */
-    public function i_allocate_submissions_in_workshop_as($workshopname, TableNode $table) {
+    public function i_allocate_peers_in_workshop_as($workshopname, TableNode $table) {
         $this->find_link($workshopname)->click();
         $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', get_string('allocate', 'workshop'));
         $rows = $table->getRows();

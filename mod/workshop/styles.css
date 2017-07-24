@@ -1014,3 +1014,7 @@ path-mod-workshop .wizard-navigation ol:before {
     font-size: 1.1em;
     font-weight: bold;
 }
+.path-mod-workshop .allocations td.reviewerof span.label-info small,
+.path-mod-workshop .allocations td.reviewedby span.label-info small {
+    margin-left: 5px;
+}

@@ -39,6 +39,9 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
     /** @var string allocation view */
     protected $view;
 
+    /** @var boolean view user email */
+    protected $viewemail = false;
+
     ////////////////////////////////////////////////////////////////////////////
     // External rendering API
     ////////////////////////////////////////////////////////////////////////////
@@ -50,10 +53,19 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function render_workshopallocation_manual_allocations(workshopallocation_manual_allocations $data) {
-        global $PAGE;
+        global $PAGE, $COURSE, $CFG;
         $output     = $PAGE->get_renderer('workshopallocation_manual');
         $this->workshop     = $data->workshop;
         $this->view         = get_user_preferences('workshopallocation_manual_view', 'reviewedby');
+        // Extrafields to display.
+        $extrasearchfields = array();
+        if (!empty($CFG->showuseridentity)) {
+            $extrasearchfields = explode(',', $CFG->showuseridentity);
+        }
+        $coursecontext = \context_course::instance($COURSE->id);
+        if (in_array('email', $extrasearchfields) && has_capability('moodle/site:viewuseridentity', $coursecontext)) {
+            $this->viewemail = true;
+        }
         if ($data->hlauthorid > 0 and $data->hlreviewerid > 0) {
             return $this->render_workshopallocation_participantsaffected($data);
         }
@@ -71,8 +83,8 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         }
 
         // convert user collections into drop down menus
-        $authors    = array_map('fullname', $authors);
-        $reviewers  =  array_map('fullname', $reviewers);
+        $authors   = array_map('map_fullname_with_email', $authors);
+        $reviewers = array_map('map_fullname_with_email', $reviewers);
         $classtableviewselected = ($this->view == 'reviewedby') ? 'reviewee' : 'reviewer';
 
         $table              = new html_table();
@@ -155,7 +167,6 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function helper_allocations_of_participant(stdclass $allocation, array $userinfo, $typereview, $selfassessment) {
-        global $PAGE;
         $o = '';
         $o .= html_writer::start_tag('ul', array());
         $allocations = $allocation->{$typereview};
@@ -172,6 +183,11 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
             $o .= html_writer::end_tag('span');
             $o .= html_writer::start_tag('span');
             $o .= fullname($userinfo[$id]);
+            if ($this->viewemail) {
+                $o .= html_writer::start_tag('small');
+                $o .= $userinfo[$id]->email;
+                $o .= html_writer::end_tag('small');
+            }
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('li');
@@ -337,9 +353,9 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function helper_reviewers_of_participant(stdclass $allocation, array $userinfo, array $reviewers, $selfassessment) {
-        global $PAGE;
         $o = '';
         $o .= html_writer::start_tag('ul', array());
+
         foreach ($allocation->reviewedby as $reviewerid => $assessmentid) {
             if ($reviewerid == $allocation->userid) {
                 continue;
@@ -359,6 +375,11 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
             $o .= html_writer::end_tag('span');
             $o .= html_writer::start_tag('span');
             $o .= fullname($userinfo[$reviewerid]);
+            if ($this->viewemail) {
+                $o .= html_writer::start_tag('small');
+                $o .= $userinfo[$reviewerid]->email;
+                $o .= html_writer::end_tag('small');
+            }
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('li');
@@ -404,9 +425,9 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
      * @return string html code
      */
     protected function helper_reviewees_of_participant(stdclass $allocation, array $userinfo, array $authors, $selfassessment) {
-        global $PAGE;
         $o = '';
         $o .= html_writer::start_tag('ul', array());
+
         foreach ($allocation->reviewerof as $authorid => $assessmentid) {
             if ($authorid == $allocation->userid) {
                 continue;
@@ -425,6 +446,11 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
             $o .= html_writer::end_tag('span');
             $o .= html_writer::start_tag('span');
             $o .= fullname($userinfo[$authorid]);
+            if ($this->viewemail) {
+                $o .= html_writer::start_tag('small');
+                $o .= $userinfo[$authorid]->email;
+                $o .= html_writer::end_tag('small');
+            }
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('span');
             $o .= html_writer::end_tag('li');

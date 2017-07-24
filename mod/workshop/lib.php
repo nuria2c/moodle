@@ -1975,3 +1975,24 @@ function mod_workshop_get_fontawesome_icon_map() {
         'mod_workshop:userplan/task-fail' => 'fa-remove text-danger',
     ];
 }
+
+/**
+ * Get user fullname and email if allowed.
+ *
+ * @param stdClass $user
+ * @return string fullname with email if allowed
+ */
+function map_fullname_with_email($user) {
+    global $CFG, $COURSE;
+    $fullname = fullname($user);
+    // Extrafields to display.
+    $extrasearchfields = array();
+    if (!empty($CFG->showuseridentity)) {
+        $extrasearchfields = explode(',', $CFG->showuseridentity);
+    }
+    $coursecontext = \context_course::instance($COURSE->id);
+    if (in_array('email', $extrasearchfields) && has_capability('moodle/site:viewuseridentity', $coursecontext)) {
+        $fullname .= chr(32) . $user->email;
+    }
+    return $fullname;
+}

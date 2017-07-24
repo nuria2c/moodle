@@ -152,7 +152,8 @@ define(['jquery',
                             strings[0],
                             html,
                             function () {},
-                            self.destroyDialogue
+                            self.destroyDialogue,
+                            true
                             );
             }).fail(notification.exception);
         }

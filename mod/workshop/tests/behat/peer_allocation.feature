@@ -205,3 +205,46 @@ Feature: Workshop peer allocation
     And I should see "Awaiting the submission of Sam3 Student3" "warning" message for participant "Sam2 Student2"
     And I should see "This participant has no reviewer" "warning" message for participant "Sam2 Student2"
     And I should see "Awaiting the submission of Sam3 Student3" "warning" message for participant "Sam1 Student1"
+
+  Scenario: View user identity
+    Given I log out
+    And I log in as "admin"
+    And I navigate to "User policies" node in "Site administration > Users > Permissions"
+    And the following config values are set as admin:
+    | showuseridentity | email |
+    And I log out
+    And I log in as "teacher1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    And I navigate to "Allocate peers" in current page administration
+    When I add a reviewer "Sam2 Student2" for workshop participant "Sam1 Student1"
+    And I click on "See results" "link"
+    Then I should see "student2@example.com" in "reviewedby" for "Sam1 Student1" in affected participants
+    And I click on "Close" "button" in the "Affected participants" "dialogue"
+    And I should see "student2@example.com"
+    And I add a reviewer "Sam3 Student3" for workshop participant "Sam1 Student1"
+    And I deallocate "Sam2 Student2" as "reviewedby" for workshop participant "Sam1 Student1"
+    And I click on "Yes, I am sure" "button"
+    And I click on "See results" "link"
+    And I should see "student3@example.com" in "reviewedby" for "Sam1 Student1" in affected participants
+    And I should not see "student2@example.com" in "reviewedby" for "Sam1 Student1" in affected participants
+    And I click on "Close" "button" in the "Affected participants" "dialogue"
+    And I log out
+    And I log in as "admin"
+    And I navigate to "User policies" node in "Site administration > Users > Permissions"
+    And the following config values are set as admin:
+    | showuseridentity |  |
+    And I log out
+    And I log in as "teacher1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    And I navigate to "Allocate peers" in current page administration
+    And I add a reviewer "Sam3 Student3" for workshop participant "Sam4 Student4"
+    And I click on "See results" "link"
+    And I should not see "student3@example.com" in "reviewedby" for "Sam4 Student4" in affected participants
+    And I click on "Close" "button" in the "Affected participants" "dialogue"
+    And I should not see "student3@example.com"
+    And I deallocate "Sam3 Student3" as "reviewedby" for workshop participant "Sam1 Student1"
+    And I click on "Yes, I am sure" "button"
+    And I click on "See results" "link"
+    And I should not see "student3@example.com"

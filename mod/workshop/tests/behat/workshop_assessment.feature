@@ -152,3 +152,17 @@ Feature: Workshop submission and assessment
 
   @javascript
   Scenario: Add and assess submissions in workshop with javascript enabled
+    Given I log in as "teacher1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    And ".givengrades" "css_element" should not be visible
+    And ".receivedgrades" "css_element" should be visible
+    And I should see grade "52" for workshop participant "Sam1 Student1" set by peer "Sam2 Student2"
+    And I should see grade "12" for workshop participant "Sam1 Student1" set by peer "Terry1 Teacher1"
+    And I should see grade "32" for workshop participant "Sam1 Student1" in "submissiongrade" column
+    And I should see grade "16" for workshop participant "Sam1 Student1" in "gradinggrade" column
+    And I click on "Grades given" "radio"
+    And I should see given grade "60" by workshop participant "Sam1 Student1" for "Sam2 Student2"
+    And I should see given grade "68" by workshop participant "Sam1 Student1" for "Sam3 Student3"
+    And ".givengrades" "css_element" should be visible
+    And ".receivedgrades" "css_element" should not be visible

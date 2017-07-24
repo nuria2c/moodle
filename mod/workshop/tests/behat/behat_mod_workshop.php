@@ -211,6 +211,55 @@ class behat_mod_workshop extends behat_base {
     }
 
     /**
+     * Checks that the user has particular given grade for his peer in workshop.
+     *
+     * @Then I should see given grade :grade by workshop participant :participant for :peer
+     * @param string $grade
+     * @param string $participant
+     * @param string $peer
+     */
+    public function i_should_see_grade_for_workshop_participant_for_peer($grade, $participant, $peer) {
+        $participantliteral = behat_context_helper::escape($participant);
+        $peerliteral = behat_context_helper::escape($peer);
+        $gradeliteral = behat_context_helper::escape($grade);
+        $participantselector = "contains(concat(' ', normalize-space(@class), ' '), ' participant ') ".
+                "and contains(.,$participantliteral)";
+        $trxpath = "//table/tbody/tr[td[$participantselector]]";
+        $tdparticipantxpath = "//table/tbody/tr/td[$participantselector]";
+        $tdxpath = "/td[contains(@class, 'givengrade') and contains(.,$peerliteral)]/".
+                "descendant::span[contains(@class, 'grade') and .=$gradeliteral]";
+
+        $tr = $this->find('xpath', $trxpath);
+        $rowspan = $this->find('xpath', $tdparticipantxpath)->getAttribute('rowspan');
+
+        $xpath = $trxpath . $tdxpath;
+        if (!empty($rowspan)) {
+            for ($i = 1; $i < $rowspan; $i++) {
+                $xpath .= ' | '.$trxpath."/following-sibling::tr[$i]" . $tdxpath;
+            }
+        }
+        $this->find('xpath', $xpath);
+    }
+
+    /**
+     * Checks that the user has particular grade in column.
+     *
+     * @Then I should see grade :grade for workshop participant :participant in :column column
+     * @param string $grade
+     * @param string $participant
+     * @param string $column
+     */
+    public function i_should_see_grade_for_workshop_participant_in_column($grade, $participant, $column) {
+        $participantliteral = behat_context_helper::escape($participant);
+        $columnliteral = behat_context_helper::escape($column);
+        $gradeliteral = behat_context_helper::escape($grade);
+        $xpath = "//table[contains(@class, 'grading-report')]";
+        $xpath .= "//tr[td[1][contains(., $participantliteral)] and ";
+        $xpath .= "td[contains(@class, $columnliteral) and contains(., $gradeliteral)]]";
+        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+    }
+
+    /**
      * Configure portfolio plugin, set value for portfolio instance
      *
      * @When /^I set portfolio instance "(?P<portfolioinstance_string>(?:[^"]|\\")*)" to "(?P<value_string>(?:[^"]|\\")*)"$/

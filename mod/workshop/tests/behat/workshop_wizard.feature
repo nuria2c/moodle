@@ -1,4 +1,4 @@
-@mod @mod_workshop1 @javascript
+@mod @mod_workshop @javascript
 Feature: Workshop User can create workshop assessment from wizard
   In order to use workshop activity
   As a teacher
@@ -101,9 +101,9 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "20 Jan 2017" in field "Submissions deadline" of wizard summary
     And I should see "Yes" in field "Switch to the next phase after the submissions deadline" of wizard summary
     And I should see "Yes" in field "Allow assessment after submission" of wizard summary
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
-    And I should see "with submissions: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
+    And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should see "No" in field "Display appraisees name" of wizard summary
     And I should see "No" in field "Display appraisers name" of wizard summary
     And I should see "Yes" in field "Users can evaluate without having submitted the assignment" of wizard summary
@@ -189,9 +189,9 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "20 Jan 2017" in field "Submissions deadline" of wizard summary
     And I should see "Yes" in field "Switch to the next phase after the submissions deadline" of wizard summary
     And I should see "Yes" in field "Allow assessment after submission" of wizard summary
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
-    And I should see "with submissions: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
+    And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should not see "Display appraisees name"
     And I should not see "Display appraisers name"
     And I should see "No" in field "Users can evaluate without having submitted the assignment" of wizard summary
@@ -289,9 +289,9 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "20 Jan 2017" in field "Submissions deadline" of wizard summary
     And I should not see "Switch to the next phase after the submissions deadline"
     And I should not see "Allow assessment after submission"
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
-    And I should see "with submissions: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
+    And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should see "Yes" in field "Display appraisees name" of wizard summary
     And I should see "Yes" in field "Display appraisers name" of wizard summary
     And I should see "No" in field "Users can evaluate without having submitted the assignment" of wizard summary
@@ -369,8 +369,8 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "Yes" in field "Display appraisers name" of wizard summary
     And I should not see "Switch to the next phase after the submissions deadline"
     And I should not see "Allow assessment after submission"
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0" 
     And I should not see "Users can evaluate without having submitted the assignment"
     And I should see "21 Jan 2017" in field "Open for assessment from" of wizard summary
@@ -429,8 +429,8 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should not see "Display appraisers name"
     And I should not see "Switch to the next phase after the submissions deadline"
     And I should not see "Allow assessment after submission"
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0"
     And I should not see "Users can evaluate without having submitted the assignment"
     And I should not see "Open for assessment from"
@@ -502,8 +502,8 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "No" in field "Display appraisers name" of wizard summary
     And I should not see "Switch to the next phase after the submissions deadline"
     And I should not see "Allow assessment after submission"
-    And I should see "expected: 4" in field "Allocate peer" of wizard summary
-    And I should see "to allocate: 0" in field "Allocate peer" of wizard summary
+    And I should see "expected: 4" in field "Allocate peers" of wizard summary
+    And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0"
     And I should not see "Users can evaluate without having submitted the assignment"
     And I should not see "Open for assessment from"

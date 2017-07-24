@@ -24,7 +24,7 @@
 
 $string['aggregategrades'] = 'Re-calculate grades';
 $string['aggregation'] = 'Grades aggregation';
-$string['allocate'] = 'Allocate peer';
+$string['allocate'] = 'Allocate peers';
 $string['allocateaccordingto'] = 'Allocate according to';
 $string['allocatecannotassess'] = '<br />who cannot assess: {$a->waiting}';
 $string['allocatedetails'] = 'expected: {$a->expected}<br />to allocate: {$a->allocate}<br />with submissions: {$a->submitted}';

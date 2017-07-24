@@ -32,7 +32,7 @@ Feature: Workshop User can assess without submitting his own work
       | id_description__idx_1_editor | Aspect2 |
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I should see "Allocate peer" in the ".phase20" "css_element"
+    And I should see "Allocate peers" in the ".phase20" "css_element"
     And I should see "expected: 4" in the ".phase20" "css_element"
     And I should see "to allocate: 4" in the ".phase20" "css_element"
     And I allocate peers in workshop "TestWorkshop" as:

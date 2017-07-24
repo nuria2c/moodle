@@ -1,8 +1,8 @@
-@mod @mod_workshop22
-Feature: Workshop without submission and with assessment
+@mod @mod_workshop @javascript
+Feature: Workshop assessment without submission
   In order to use workshop activity
-  As a student
-  I need to be able to add assess peers for workshop without submission
+  As a student and as a teacher
+  I need to be able to assess peers for workshop without submission
 
   Background:
     Given the following "users" exist:
@@ -25,21 +25,49 @@ Feature: Workshop without submission and with assessment
     And the following "activities" exist:
       | activity | name         | intro                     | course | idnumber  | allowsubmission |
       | workshop | TestWorkshop | Test workshop description | c1     | workshop1 | 0               |
-# teacher1 sets up assessment form and changes the phase to submission
-    When I log in as "teacher1"
-    And I follow "Course1"
+    # Teacher1 sets up assessment form.
+    And I log in as "teacher1"
+    And I am on "Course1" course homepage
     And I edit assessment form in workshop "TestWorkshop" as:
       | id_description__idx_0_editor | Aspect1 |
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
     And I log out
-# teacher1 allocates reviewers and changes the phase to assessment
-    And I log in as "teacher1"
-    And I follow "Course1"
+
+  Scenario: Students self assess without submission
+    # Teacher1 setup self assessment.
+    Given I log in as "teacher1"
+    And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I should not see "Submission phase"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    And I click on "Show advanced settings" "link"
+    And I click on "Self assessment" "radio" in the "id_gradingsettings" "fieldset"
+    And I press "Save and display"
+    And I change phase in workshop "TestWorkshop" to "Assessment phase"
+    And I log out
+    # Student1 self assess.
+    When I log in as "student1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'Assess yourself')]]" "xpath_element" should exist
+    And I assess submission "Sam1" in workshop "TestWorkshop" as:
+      | grade__idx_0            | 6 / 10     |
+      | peercomment__idx_0      |            |
+      | grade__idx_1            | 7 / 10     |
+      | peercomment__idx_1      |            |
+      | Feedback for the author | Keep it up |
+    Then "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'Assess yourself')]]" "xpath_element" should exist
+    And I log out
+
+  Scenario: Students assess peers without submission
+    # Teacher1 allocates reviewers and changes the phase to assessment.
+    Given I log in as "teacher1"
+    When I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    Then I should not see "Submission phase"
     And I should see "Setup phase"
-    And I should see "Allocate peer"
+    And I should see "Allocate peers"
     And I should see "expected: 4"
     And I should see "to allocate: 4"
     And I allocate peers in workshop "TestWorkshop" as:
@@ -53,43 +81,43 @@ Feature: Workshop without submission and with assessment
     And I should see "to allocate: 0"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I log out
-# student1 assesses work of student2 and student3
+    # Student1 assesses work of student2 and student3.
     And I log in as "student1"
-    And I follow "Course1"
+    And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]" "xpath_element" should exist
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]]" "xpath_element" should exist
     And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
       | peercomment__idx_1      | Amazing           |
       | Feedback for the author | Good work         |
-    And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]" "xpath_element" should exist
-    And I follow "Course1"
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And I am on "Course1" course homepage
     And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
       | peercomment__idx_0      | Well done   |
       | grade__idx_1            | 8 / 10      |
       | peercomment__idx_1      | Very good   |
       | Feedback for the author | No comments |
-    And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]" "xpath_element" should exist
+    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All peers that have been assigned to you were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]]" "xpath_element" should exist
     And I log out
-# student2 assesses work of student1
+    # Student2 assesses work of student1.
     And I log in as "student2"
-    And I follow "Course1"
+    And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]" "xpath_element" should exist
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]]" "xpath_element" should exist
     And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Keep it up |
-    And "//ul[@class='tasks']/li[div[@class='title' and contains(.,'Assess peers')]]/div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]" "xpath_element" should exist
+    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All peers that have been assigned to you were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]]" "xpath_element" should exist
     And I log out
-# teacher1 makes sure he can see all peer grades
+    # Teacher1 makes sure he can see all peer grades.
     And I log in as "teacher1"
-    And I follow "Course1"
+    And I am on "Course1" course homepage
     And I follow "TestWorkshop"
     And I should see grade "52" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam2" set by peer "Sam1"
@@ -103,7 +131,7 @@ Feature: Workshop without submission and with assessment
     And I should see "10 / 10" in the "//fieldset[contains(.,'Aspect2')]" "xpath_element"
     And I should see "Amazing" in the "//fieldset[contains(.,'Aspect2')]" "xpath_element"
     And I should see "Good work" in the ".overallfeedback" "css_element"
-# teacher1 assesses the work on submission1 and assesses the assessment of peer
+    # Teacher1 assesses the work on submission1 and assesses the assessment of peer.
     And I set the following fields to these values:
       | Override grade for assessment | 11 |
       | Feedback for the reviewer     |    |
@@ -124,6 +152,59 @@ Feature: Workshop without submission and with assessment
     And I should see "16" in the "//table/tbody/tr[td[contains(concat(' ', normalize-space(@class), ' '), ' participant ') and contains(.,'Sam1')]]/td[contains(concat(' ', normalize-space(@class), ' '), ' gradinggrade ')]" "xpath_element"
     And I log out
 
-  @javascript
-  Scenario: Add and assess submissions in workshop with javascript enabled
+  Scenario: Teachers should not see some settings when Allow submissions checkbox is unchecked
+    Given I log in as "teacher1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    When I click on "Show advanced settings" "link"
+    # Without submissions behavior.
+    Then "input[name=allowsubmission]:not([checked=checked])" "css_element" should exist
+    And I should not see "Instructions for submission" in the "Submission settings" "fieldset"
+    And I should not see "Allow assessment after submission" in the "Submission settings" "fieldset"
+    And I should not see "Maximum number of submission attachments" in the "Submission settings" "fieldset"
+    And I should not see "Submission attachment allowed file types" in the "Submission settings" "fieldset"
+    And I should not see "Maximum submission attachment size" in the "Submission settings" "fieldset"
+    And I should not see "Late submissions" in the "Submission settings" "fieldset"
+    And I should not see "Display appraisees name" in the "Assessment settings" "fieldset"
+    # With submissions behavior.
+    And I click on "Allow submissions" "checkbox"
+    And I should see "Allow assessment after submission" in the "Submission settings" "fieldset"
+    And I should see "Maximum number of submission attachments" in the "Submission settings" "fieldset"
+    And I should see "Submission attachment allowed file types" in the "Submission settings" "fieldset"
+    And I should see "Maximum submission attachment size" in the "Submission settings" "fieldset"
+    And I should see "Late submissions" in the "Submission settings" "fieldset"
+    And I should see "Display appraisees name" in the "Assessment settings" "fieldset"
+    And I click on "Allow submissions" "checkbox"
+    And I press "Save and display"
+    And I log out
 
+  Scenario: Teachers should see the Allow submissions checkbox as disabled under certain conditions
+    Given I log in as "teacher1"
+    And I am on "Course1" course homepage
+    When I follow "TestWorkshop"
+    # Teacher1 should see the Allow submissions checkbox disabled if currently in the assessment phase or later.
+    And I change phase in workshop "TestWorkshop" to "Assessment phase"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    And I click on "Show advanced settings" "link"
+    Then the "Allow submissions" "checkbox" should be disabled
+    And I press "Save and display"
+    # Teacher1 should see the Allow submissions checkbox enabled if currently in the setup phase.
+    And I change phase in workshop "TestWorkshop" to "Setup phase"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    And the "Allow submissions" "checkbox" should be enabled
+    And I log out
+
+  Scenario: Teachers should see the Allocate peers steps in the setup phase
+    Given I log in as "teacher1"
+    And I am on "Course1" course homepage
+    When I follow "TestWorkshop"
+    Then I should see "Allocate peers" in the ".phase10" "css_element"
+    And I should see "expected: 4" in the ".phase10" "css_element"
+    And I should see "to allocate: 4" in the ".phase10" "css_element"
+    And I change phase in workshop "TestWorkshop" to "Assessment phase"
+    And I should see "Allocate peers" in the ".phase10 .fail" "css_element"
+    And I should see "There is at least one author who has no reviewer" in the ".phase10" "css_element"

@@ -28,7 +28,7 @@ Feature: Workshop peer allocation
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I navigate to "Allocate peer" in current page administration
+    And I navigate to "Allocate peers" in current page administration
 
   Scenario: Switch view
     Given ".reviewedby" "css_element" should be visible
@@ -88,14 +88,14 @@ Feature: Workshop peer allocation
     And I click on "Show advanced settings" "link"
     And I click on "Self and peer assessment" "radio"
     And I click on "Save and display" "button"
-    And I navigate to "Allocate peer" in current page administration
+    And I navigate to "Allocate peers" in current page administration
     And I should see "himself" in the "Sam1 Student1" "table_row"
     And I should see "himself" in the "Sam2 Student2" "table_row"
     And I should see "himself" in the "Sam3 Student3" "table_row"
     And I should see "himself" in the "Sam4 Student4" "table_row"
 
   Scenario: Manual peer allocation, add reviewer, reviewee
-    Given I navigate to "Allocate peer" in current page administration
+    Given I navigate to "Allocate peers" in current page administration
     When I add a reviewer "Sam2 Student2" for workshop participant "Sam1 Student1"
     And I should see "See results"
     And I click on "See results" "link"
@@ -178,7 +178,7 @@ Feature: Workshop peer allocation
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I navigate to "Allocate peer" in current page administration
+    And I navigate to "Allocate peers" in current page administration
     And I deallocate "Sam1 Student1" as "reviewedby" for workshop participant "Sam2 Student2"
     And I should see "You are going to remove the assessment of Sam2 Student2 from Sam1 Student1 that has already been graded. Are you really sure you want to do it?"
     And I click on "Yes, I am sure" "button"
@@ -198,7 +198,7 @@ Feature: Workshop peer allocation
     And I should see "Awaiting the submission of Sam3 Student3" "error" message for participant "Sam1 Student1"
     And I follow "TestWorkshop"
     And I change phase in workshop "TestWorkshop" to "Submission phase"
-    And I navigate to "Allocate peer" in current page administration
+    And I navigate to "Allocate peers" in current page administration
     And I should see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "warning" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "warning" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "warning" message for participant "Sam4 Student4"

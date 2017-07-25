@@ -25,8 +25,9 @@
 define(['jquery', 'core/str', 'core/notification'], function($, str, notification) {
     // Define toggletext jquery function.
     $.fn.extend({
-        toggleText: function(a, b) {
-            return this.text(this.text() == b ? a : b);
+        toggleHideShowLink: function(a, b) {
+            this.text(this.text() == b ? a : b);
+            this.attr('title' ,(this.attr('title') == b ? a : b));
         }
     });
 
@@ -87,7 +88,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
                 var element = $(e.target);
                 $(self.fieldsets).toggle();
                 element.toggleClass("showadvancedsettings hideadvancedsettings");
-                element.toggleText(strings[0], strings[1]);
+                element.toggleHideShowLink(strings[0], strings[1]);
             });
         }).fail(notification.exception);
 

@@ -28,6 +28,7 @@
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Gherkin\Node\TableNode as TableNode;
+use Behat\Mink\Exception\ExpectationException as ExpectationException;
 
 /**
  * Steps definitions related to mod_workshop.
@@ -90,10 +91,14 @@ class behat_mod_workshop extends behat_base {
      * @param TableNode $table data to fill the submission form with, must contain 'Title'
      */
     public function i_edit_assessment_form_in_workshop_as($workshopname, $table) {
-        $this->execute('behat_general::click_link', $workshopname);
-
-        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration',
-            get_string('editassessmentform', 'workshop'));
+        try {
+            $this->execute('behat_general::assert_page_contains_text', get_string('setupwizard', 'workshop'));
+            $this->execute('behat_general::click_link', get_string('manageactionnew', 'core_grading'));
+        } catch (Exception $ex) {
+            $this->execute('behat_general::click_link', $workshopname);
+            $this->execute('behat_navigation::i_navigate_to_in_current_page_administration',
+                get_string('editassessmentform', 'workshop'));
+        }
 
         $this->execute("behat_forms::i_set_the_following_fields_to_these_values", $table);
 
@@ -125,6 +130,53 @@ class behat_mod_workshop extends behat_base {
         $this->execute("behat_forms::i_set_the_following_fields_to_these_values", $table);
 
         $this->execute("behat_forms::press_button", $saveandclose);
+    }
+
+    /**
+     * Click on step in wizard navigation.
+     *
+     * @Then /^I click on "(?P<wizardstep_string>(?:[^"]|\\")*)" in the wizard navigation$/
+     * @throws ExpectationException Thrown by behat_base::find
+     * @param string $wizardstep Wizard step we want to move
+     */
+    public function i_click_on_in_the_wizard_navigation($wizardstep) {
+        $this->execute('behat_general::i_click_on_in_the',
+            array($wizardstep, "link", "//nav[contains(concat(' ', normalize-space(@class), ' '), ' wizard-navigation ')]",
+                  "xpath_element"));
+    }
+
+    /**
+     * Checks the step appears in wizard navigation.
+     *
+     * @Then /^I should see "(?P<wizardstep_string>(?:[^"]|\\")*)" in the wizard navigation$/
+     * @param string $wizardstep Wizard step we want to move
+     */
+    public function i_should_see_in_the_wizard_navigation($wizardstep) {
+        $this->execute('behat_general::assert_element_contains_text',
+            array($wizardstep, "//nav[contains(concat(' ', normalize-space(@class), ' '), ' wizard-navigation ')]",
+                  "xpath_element"));
+    }
+
+    /**
+     * Checks the step does not appear in wizard navigation.
+     *
+     * @Then /^I should not see "(?P<wizardstep_string>(?:[^"]|\\")*)" in the wizard navigation$/
+     * @param string $wizardstep Wizard step we want to move
+     */
+    public function i_should_not_see_in_the_wizard_navigation($wizardstep) {
+        $this->execute('behat_general::assert_element_not_contains_text',
+            array($wizardstep, "//nav[contains(concat(' ', normalize-space(@class), ' '), ' wizard-navigation ')]",
+                  "xpath_element"));
+    }
+
+    /**
+     * Checks if the step is the current one in wizard navigation.
+     *
+     * @Then /^the current step in wizard should be "(?P<wizardstep_string>(?:[^"]|\\")*)"$/
+     * @param string $wizardstep Wizard step we want to move
+     */
+    public function the_current_step_in_wizard_should_be($wizardstep) {
+         $this->execute('behat_general::assert_element_contains_text', array($wizardstep, "legend", "css_element"));
     }
 
     /**
@@ -180,4 +232,102 @@ class behat_mod_workshop extends behat_base {
             );
         }
     }
+
+    /**
+     * Checks, that element of specified type is checked.
+     *
+     * @Then /^the "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" should be checked$/
+     * @throws ExpectationException Thrown by behat_base::find
+     * @param string $element Element we look in
+     * @param string $selectortype The type of element where we are looking in.
+     */
+    public function the_element_should_be_checked($element, $selectortype) {
+
+        // Transforming from steps definitions selector/locator format to Mink format and getting the NodeElement.
+        $node = $this->get_selected_node($selectortype, $element);
+
+        if (!$node->hasAttribute('checked')) {
+            throw new ExpectationException('The element "' . $element . '" is not checked', $this->getSession());
+        }
+    }
+
+    /**
+     * Checks, that element of specified type is not checked.
+     *
+     * @Then /^the "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)" should not be checked$/
+     * @throws ExpectationException Thrown by behat_base::find
+     * @param string $element Element we look on
+     * @param string $selectortype The type of where we look
+     */
+    public function the_element_should_not_be_checked($element, $selectortype) {
+
+        // Transforming from steps definitions selector/locator format to mink format and getting the NodeElement.
+        $node = $this->get_selected_node($selectortype, $element);
+
+        if ($node->hasAttribute('checked')) {
+            throw new ExpectationException('The element "' . $element . '" is checked', $this->getSession());
+        }
+    }
+
+    /**
+     * Checks, that the specified field in the wizard summary contains the text value
+     *
+     * @Then /^I should see "(?P<value_string>(?:[^"]|\\")*)" in field "(?P<fieldname_string>(?:[^"]|\\")*)" of wizard summary$/
+     * @throws ExpectationException Thrown by behat_base::assert_element_contains_text
+     * @param string $value Value we look on
+     * @param string $fieldname Field where we look
+     */
+    public function i_should_see_in_field_of_wizard_summary($value, $fieldname) {
+
+        $xpath = '';
+        switch ($fieldname) {
+            case get_string('assessmenttype', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_assessmenttype']";
+                break;
+            case get_string('strategy', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_strategy']";
+                break;
+            case get_string('allowsubmission', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_allowsubmission']";
+                break;
+            case get_string('submissionendswitch', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_switchassessment']";
+                break;
+            case get_string('assessassoonsubmitted', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_assessassoonsubmitted']";
+                break;
+            case get_string('allocate', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_peerallocationdetails']";
+                break;
+            case get_string('displayappraiseesname', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_displayappraiseesname']";
+                break;
+            case get_string('displayappraisersname', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_displayappraisersname']";
+                break;
+            case get_string('assesswithoutsubmission', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_assesswithoutsubmission']";
+                break;
+            case get_string('submissionstart', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_submissionstart']";
+                break;
+            case get_string('submissionend', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_submissionend']";
+                break;
+            case get_string('assessmentstart', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_assessmentstart']";
+                break;
+            case get_string('assessmentend', 'workshop'):
+                $xpath = "//div[@id='fitem_id_summary_assessmentend']";
+                break;
+            default:
+                throw new ExpectationException('The field "' . $fieldname . '" is not defined in wizard summary',
+                        $this->getSession());
+        }
+
+        $this->execute('behat_general::assert_element_contains_text', array($fieldname, $xpath, "xpath_element"));
+        $this->execute('behat_general::assert_element_contains_text', array($value, $xpath, "xpath_element"));
+
+    }
+
 }

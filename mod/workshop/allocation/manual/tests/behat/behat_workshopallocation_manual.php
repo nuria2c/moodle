@@ -217,8 +217,13 @@ class behat_workshopallocation_manual extends behat_base {
      * @param TableNode $table should have one column with title 'Reviewer' and another with title 'Participant' (or 'Reviewee')
      */
     public function i_allocate_peers_in_workshop_as($workshopname, TableNode $table) {
-        $this->find_link($workshopname)->click();
-        $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', get_string('allocate', 'workshop'));
+        try {
+            $this->execute('behat_general::assert_page_contains_text', "Setup wizard");
+        } catch (Exception $ex) {
+            $this->find_link($workshopname)->click();
+            $this->execute('behat_navigation::i_navigate_to_in_current_page_administration', get_string('allocate', 'workshop'));
+        }
+
         $rows = $table->getRows();
         $reviewer = $participant = null;
         for ($i = 0; $i < count($rows[0]); $i++) {

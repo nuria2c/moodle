@@ -100,10 +100,14 @@ class summary_step_form extends step_form {
 
         // Peer allocation.
         $userplan = new \workshop_user_plan($this->workshop, $USER->id);
-        if (isset($userplan->phases[\workshop::PHASE_SUBMISSION])
-            && isset($userplan->phases[\workshop::PHASE_SUBMISSION]->tasks)
-            && isset($userplan->phases[\workshop::PHASE_SUBMISSION]->tasks['allocate'])) {
-            $details = $userplan->phases[\workshop::PHASE_SUBMISSION]->tasks['allocate']->details;
+        $phase = \workshop::PHASE_SUBMISSION;
+        if (!isset($userplan->phases[\workshop::PHASE_SUBMISSION])) {
+            $phase = \workshop::PHASE_SETUP;
+        }
+        if (isset($userplan->phases[$phase])
+            && isset($userplan->phases[$phase]->tasks)
+            && isset($userplan->phases[$phase]->tasks['allocate'])) {
+            $details = $userplan->phases[$phase]->tasks['allocate']->details;
             $mform->addElement('static', 'summary_peerallocationdetails', get_string('allocate', 'workshop'), $details);
         }
 

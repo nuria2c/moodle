@@ -89,7 +89,6 @@ define(['jquery',
             {key: 'pluginname', component: 'workshopallocation_random'}
         ]).done(function (strings) {
             var html = $('.allocator-random').html();
-            $('.allocator-random').remove();
             new Dialogue(
                     strings[0],
                     html,
@@ -105,14 +104,16 @@ define(['jquery',
      * @method renderAllocationResults
      */
     Allocation.prototype.renderAllocationResults = function () {
+        var self = this;
         str.get_strings([
             {key: 'allocationresults', component: 'workshopallocation_random'}
         ]).done(function (strings) {
             var html = $('.allocation-results-container').html();
-            $('.allocation-results-container').remove();
             new Dialogue(
                     strings[0],
-                    html
+                    html,
+                    function () {},
+                    self.destroyDialogue
                     );
         }).fail(notification.exception);
     };
@@ -150,7 +151,7 @@ define(['jquery',
                     new Dialogue(
                             strings[0],
                             html,
-                            null,
+                            function () {},
                             self.destroyDialogue
                             );
             }).fail(notification.exception);

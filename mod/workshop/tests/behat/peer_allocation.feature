@@ -47,7 +47,7 @@ Feature: Workshop peer allocation
   Scenario: Random peer allocation peer assessment
     Given I click on "Random allocation" "link"
     And "Random allocation" "dialogue" should be visible
-    When I set the field with xpath "//select[@name='numofreviews']" to "3"
+    When I set the field with xpath "//div[contains(@class, 'moodle-dialogue')]//select[@name='numofreviews']" to "3"
     And I click on "Remove current allocations" "checkbox" in the "Random allocation" "dialogue"
     And I click on "Apply" "button" in the "Random allocation" "dialogue"
     Then I should see "Allocation done"

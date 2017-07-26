@@ -3489,32 +3489,50 @@ class workshop_user_plan implements renderable {
                         $numofpeers++;
                         if (is_null($a->grade)) {
                             $numofpeerstodo++;
-                            if ($a->realsubmission == 0) {
-                                $numnotsubmitted++;
-                            }
                         }
-
+                        if ($a->realsubmission == 0) {
+                            $numnotsubmitted++;
+                        }
                     }
                 }
                 unset($a);
                 if ($numofpeers and ($submitted or $workshop->assesswithoutsubmission)) {
                     $task = new stdclass();
-                    $task->completed = 'warning';
                     $a = new stdclass();
                     $a->total = $numofpeers;
                     $a->todo  = $numofpeerstodo;
-                    $task->title = get_string('taskallpeersnotassessed', 'workshop');
                     if ($numofpeerstodo == 0) {
                         $task->completed = true;
                         $task->title = get_string('taskallpeersassessed', 'workshop');
-                    } else if ($numnotsubmitted > 0 and $canassess) {
-                        $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
-                        $a->todo = $numnotsubmitted;
+                        $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                        $phase->tasks['assesspeers'] = $task;
+                    } else {
+                        if (!$workshop->allowsubmission || ($canassess && $numofpeers - $numnotsubmitted > 0)) {
+                            if ($canassess) {
+                                $a->total = $numofpeers - $numnotsubmitted;
+                                $a->todo = $a->total - ($numofpeers - $numofpeerstodo);
+                            }
+                            if ($a->todo == 0) {
+                                $task->completed = true;
+                                $task->title = get_string('taskallpeersassessed', 'workshop');
+                            } else {
+                                $task->title = get_string('taskallpeersnotassessed', 'workshop');
+                                $task->completed = 'warning';
+                            }
+                            $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                            $phase->tasks['assesspeers'] = $task;
+                        }
+                        if ($numnotsubmitted > 0 and $canassess) {
+                            $a->total = $numofpeers;
+                            $a->todo = $numnotsubmitted;
+                            $task = new stdclass();
+                            $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
+                            $task->completed = 'warning';
+                            $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                            $phase->tasks['notsubmittedpeers'] = $task;
+                        }
                     }
-                    
-                    $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
                     unset($a);
-                    $phase->tasks['assesspeers'] = $task;
                 }
                 if ($workshop->useselfassessment and $numofself) {
                     $task = new stdclass();
@@ -3615,9 +3633,9 @@ class workshop_user_plan implements renderable {
                     $numofpeers++;
                     if (is_null($a->grade)) {
                         $numofpeerstodo++;
-                        if ($a->realsubmission == 0) {
-                            $numnotsubmitted++;
-                        }
+                    }
+                    if ($a->realsubmission == 0) {
+                        $numnotsubmitted++;
                     }
                 }
             }
@@ -3625,7 +3643,6 @@ class workshop_user_plan implements renderable {
             $conditionshowassessment = $workshop->phase > workshop::PHASE_SUBMISSION;
             if ($numofpeers and $conditionshowassessment) {
                 $task = new stdclass();
-                $task->title = get_string('taskallpeersnotassessed', 'workshop');
                 $task->completed = 'warning';
                 $a = new stdclass();
                 $a->total = $numofpeers;
@@ -3633,19 +3650,33 @@ class workshop_user_plan implements renderable {
                 if ($numofpeerstodo == 0) {
                     $task->completed = true;
                     $task->title = get_string('taskallpeersassessed', 'workshop');
-                } else if ($numnotsubmitted > 0 and $canassess) {
-                    $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
-                    $task->completed = false;
-                    $a->todo = $numnotsubmitted;
+                    $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                    $phase->tasks['assesspeers'] = $task;
                 } else {
-                    if ($workshop->phase > workshop::PHASE_ASSESSMENT) {
+                    if (!$workshop->allowsubmission || ($canassess && $numofpeers - $numnotsubmitted > 0)) {
+                        if ($canassess) {
+                            $a->total = $numofpeers - $numnotsubmitted;
+                            $a->todo = $a->total - ($numofpeers - $numofpeerstodo);
+                        }
+                        if ($a->todo == 0) {
+                            $task->completed = true;
+                            $task->title = get_string('taskallpeersassessed', 'workshop');
+                        } else {
+                            $task->title = get_string('taskallpeersnotassessed', 'workshop');
+                        }
+                        $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                        $phase->tasks['assesspeers'] = $task;
+                    }
+                    if ($numnotsubmitted > 0 and $canassess) {
+                        $a->total = $numofpeers;
+                        $a->todo = $numnotsubmitted;
+                        $task = new stdclass();
+                        $task->title = get_string('taskallpeersnotsubmitted', 'workshop');
                         $task->completed = false;
+                        $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
+                        $phase->tasks['notsubmittedpeers'] = $task;
                     }
                 }
-
-                $task->details = get_string('taskassesspeersdetails', 'workshop', $a);
-                unset($a);
-                $phase->tasks['assesspeers'] = $task;
             }
             if ($workshop->useselfassessment and $numofself and $conditionshowassessment) {
                 $task = new stdclass();

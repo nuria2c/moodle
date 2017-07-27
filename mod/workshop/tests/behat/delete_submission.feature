@@ -104,3 +104,92 @@ Feature: Workshop submission removal
     And I click on "Continue" "button"
     And "Submission1" "link" should exist
     And "Submission2" "link" should not exist
+
+  Scenario: Peers allocation is kept when teacher delete submissions
+    Given I log in as "teacher1"
+    # Peer assessment
+    And the following "activities" exist:
+      | activity | name          | intro                       | course | idnumber  | allowsubmission | assessmenttype |
+      | workshop | TestWorkshop1 | Test workshop 1 description | c1     | workshop1 | 1               | 1 |
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop1"
+    And I change phase in workshop "TestWorkshop1" to "Submission phase"
+    And I allocate peers in workshop "TestWorkshop1" as:
+      | Participant   | Reviewer      |
+      | Sam2 Student2 | Sam3 Student3 |
+      | Sam2 Student2 | Sam1 Student1 |
+    And I should see "Sam3 Student3" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "Sam1 Student1" in "reviewedby" for "Sam2 Student2" in allocations table
+    # Self assessment
+    And the following "activities" exist:
+      | activity | name          | intro                       | course | idnumber  | allowsubmission | assessmenttype |
+      | workshop | TestWorkshop2 | Test workshop 2 description | c1     | workshop2 | 1               | 2 |
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop2"
+    And I follow "Allocate peers"
+    And I should see "himself" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I follow "TestWorkshop2"
+    And I change phase in workshop "TestWorkshop2" to "Submission phase"
+    # Self and peer assessment
+    And the following "activities" exist:
+      | activity | name          | intro                       | course | idnumber  | allowsubmission | assessmenttype |
+      | workshop | TestWorkshop3 | Test workshop 3 description | c1     | workshop3 | 1               | 3 |
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop3"
+    And I allocate peers in workshop "TestWorkshop3" as:
+      | Participant   | Reviewer      |
+      | Sam2 Student2 | Sam3 Student3 |
+      | Sam2 Student2 | Sam1 Student1 |
+    And I should see "Sam3 Student3" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "Sam1 Student1" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "himself" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I follow "TestWorkshop3"
+    And I change phase in workshop "TestWorkshop3" to "Submission phase"
+    And I log out
+    And I log in as "student2"
+    And I am on "Course1" course homepage
+    And I add a submission in workshop "TestWorkshop1" as:
+      | Title              | Submission2  |
+      | Submission content | Some content |
+    And I add a submission in workshop "TestWorkshop2" as:
+      | Title              | Submission2  |
+      | Submission content | Some content |
+    And I add a submission in workshop "TestWorkshop3" as:
+      | Title              | Submission2  |
+      | Submission content | Some content |
+    And I log out
+    And I log in as "teacher1"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop1"
+    And "Submission2" "link" should exist
+    And I follow "Submission2"
+    And "Delete submission" "button" should exist
+    When I click on "Delete submission" "button"
+    And I click on "Continue" "button"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop2"
+    And "Submission2" "link" should exist
+    And I follow "Submission2"
+    And "Delete submission" "button" should exist
+    And I click on "Delete submission" "button"
+    And I click on "Continue" "button"
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop3"
+    And "Submission2" "link" should exist
+    And I follow "Submission2"
+    And "Delete submission" "button" should exist
+    And I click on "Delete submission" "button"
+    And I click on "Continue" "button"
+    And I follow "Allocate peers"
+    Then I should see "Sam3 Student3" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "Sam1 Student1" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "himself" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop2"
+    And I follow "Allocate peers"
+    And I should see "himself" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I am on "Course1" course homepage
+    And I follow "TestWorkshop1"
+    And I follow "Allocate peers"
+    And I should see "Sam3 Student3" in "reviewedby" for "Sam2 Student2" in allocations table
+    And I should see "Sam1 Student1" in "reviewedby" for "Sam2 Student2" in allocations table

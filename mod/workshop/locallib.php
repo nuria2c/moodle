@@ -1309,12 +1309,13 @@ class workshop {
      * Removes the submission and all relevant data
      *
      * @param stdClass $submission record to delete
+     * @param boolean $keepallocation If true keep allocation
      * @return void
      */
-    public function delete_submission(stdclass $submission) {
+    public function delete_submission(stdclass $submission, $keepallocation = false) {
         global $DB;
 
-        $assessments = $DB->get_records('workshop_assessments', array('submissionid' => $submission->id), '', 'id');
+        $assessments = $DB->get_records('workshop_assessments', array('submissionid' => $submission->id), '', 'id, reviewerid');
         $this->delete_assessment(array_keys($assessments));
 
         $fs = get_file_storage();
@@ -1322,6 +1323,21 @@ class workshop {
         $fs->delete_area_files($this->context->id, 'mod_workshop', 'submission_attachment', $submission->id);
 
         $DB->delete_records('workshop_submissions', array('id' => $submission->id));
+        if ($keepallocation and !empty($assessments)) {
+            $record = new \stdClass();
+            $record->workshopid     = $submission->workshopid;
+            $record->example        = 0;
+            $record->authorid       = $submission->authorid;
+            $record->timecreated    = time();
+            $record->timemodified   = 0;
+            $record->realsubmission = 0;
+            $record->contentformat  = FORMAT_HTML;
+            $record->feedbackauthorformat = editors_get_preferred_format();
+            $record->id = $DB->insert_record('workshop_submissions', $record);
+            foreach ($assessments as $assessment) {
+                $this->add_allocation($record, $assessment->reviewerid);
+            }
+        }
     }
 
     /**

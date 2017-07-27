@@ -127,7 +127,7 @@ if (!$candeleteall and $ownsubmission and $editable) {
 
 if ($submission->id and $delete and $confirm and $deletable) {
     require_sesskey();
-    $workshop->delete_submission($submission);
+    $workshop->delete_submission($submission, true);
 
     // Event information.
     $params = array(

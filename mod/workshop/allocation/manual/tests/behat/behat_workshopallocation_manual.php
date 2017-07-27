@@ -165,6 +165,21 @@ class behat_workshopallocation_manual extends behat_base {
     }
 
     /**
+     * Check if there is reviewer/reviewee for participant in allocations table.
+     *
+     * @Then /^I should see "(?P<participantreview>(?:[^"]|\\")*)" in "(?P<reviewtype>(?:[^"]|\\")*)" for "(?P<participant>(?:[^"]|\\")*)" in allocations table$/
+     * @param string $participantreview
+     * @param string $reviewtype
+     * @param string $participant
+     */
+    public function i_should_see_participantreview_in_allocations_table($participantreview, $reviewtype, $participant) {
+        $xpath = "//table[contains(@class, 'allocations')]";
+        $xpath .= "//tr[td[1][contains(., '$participant')] and ";
+        $xpath .= "td[2][.//text()[contains(., '$participantreview')] and contains(@class, '$reviewtype')]]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
      * Check if there is a message for a participant.
      *
      * @Then /^I should see "(?P<message>(?:[^"]|\\")*)" "(?P<messagetype>(?:[^"]|\\")*)" message for participant "(?P<participant>(?:[^"]|\\")*)"$/

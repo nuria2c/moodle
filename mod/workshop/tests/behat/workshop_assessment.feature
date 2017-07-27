@@ -84,14 +84,14 @@ Feature: Workshop submission and assessment
     And I log in as "student1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]]" "xpath_element" should exist
     And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
       | peercomment__idx_1      | Amazing           |
       | Feedback for the author | Good work         |
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]]" "xpath_element" should exist
     And I am on "Course1" course homepage
     And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
@@ -99,20 +99,20 @@ Feature: Workshop submission and assessment
       | grade__idx_1            | 8 / 10      |
       | peercomment__idx_1      | Very good   |
       | Feedback for the author | No comments |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All peers that have been assigned to you were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]]" "xpath_element" should exist
     And I log out
 # student2 assesses work of student1
     And I log in as "student2"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All peers that have been assigned to you were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]]" "xpath_element" should exist
+    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]]" "xpath_element" should exist
     And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Keep it up |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All peers that have been assigned to you were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]]" "xpath_element" should exist
+    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]]" "xpath_element" should exist
     And I log out
 # teacher1 makes sure he can see all peer grades
     And I log in as "teacher1"

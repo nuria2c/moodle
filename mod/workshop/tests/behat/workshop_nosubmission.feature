@@ -45,19 +45,16 @@ Feature: Workshop assessment without submission
     And I click on "Self assessment" "radio" in the "id_gradingsettings" "fieldset"
     And I press "Save and display"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
-    And I log out
     # Student1 self assess.
-    When I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'Assess yourself')]]" "xpath_element" should exist
+    When I am on "TestWorkshop" workshop in "Course1" course as "student1"
+    And I should see "Assess yourself" "warning" message in "Assessment phase"
     And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Keep it up |
-    Then "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'Assess yourself')]]" "xpath_element" should exist
+    Then I should see "Assess yourself" "success" message in "Assessment phase"
     And I log out
 
   Scenario: Students assess peers without submission
@@ -80,19 +77,16 @@ Feature: Workshop assessment without submission
     And I follow "TestWorkshop"
     And I should see "to allocate: 0"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
-    And I log out
     # Student1 assesses work of student2 and student3.
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 2" and "pending: 2" details in "Assessment phase"
     And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
       | peercomment__idx_1      | Amazing           |
       | Feedback for the author | Good work         |
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 2" and "pending: 1" details in "Assessment phase"
     And I am on "Course1" course homepage
     And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
@@ -100,25 +94,19 @@ Feature: Workshop assessment without submission
       | grade__idx_1            | 8 / 10      |
       | peercomment__idx_1      | Very good   |
       | Feedback for the author | No comments |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]]" "xpath_element" should exist
-    And I log out
+    And I should see "All eligible peers were assessed" "success" message with "total: 2" and "pending: 0" details in "Assessment phase"
     # Student2 assesses work of student1.
-    And I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]]" "xpath_element" should exist
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 1" and "pending: 1" details in "Assessment phase"
     And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Keep it up |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]]" "xpath_element" should exist
-    And I log out
+    And I should see "All eligible peers were assessed" "success" message with "total: 1" and "pending: 0" details in "Assessment phase"
     # Teacher1 makes sure he can see all peer grades.
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see grade "52" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam2" set by peer "Sam1"
     And I should see grade "-" for workshop participant "Sam2" set by peer "Sam4"

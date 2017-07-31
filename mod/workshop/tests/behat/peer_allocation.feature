@@ -10,7 +10,7 @@ Feature: Workshop peer allocation
       | student1 | Sam1      | Student1 | student1@example.com |
       | student2 | Sam2      | Student2 | student2@example.com |
       | student3 | Sam3      | Student3 | student3@example.com |
-      | student4 | Sam4      | Student4 | student3@example.com |
+      | student4 | Sam4      | Student4 | student4@example.com |
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
     And the following "courses" exist:
       | fullname  | shortname |
@@ -151,43 +151,28 @@ Feature: Workshop peer allocation
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
     And I change phase in workshop "TestWorkshop" to "Submission phase"
-    And I log out
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     Then I should see "You didn't have submit your work yet"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
     And "//div[contains(@class, 'submission-full') and contains(.,'Submission1') and contains(.,'submitted on')]" "xpath_element" should exist
-    And I log out
-    And I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
     And I should see "You didn't have submit your work yet"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
     And "//div[contains(@class, 'submission-full') and contains(.,'Submission2') and contains(.,'submitted on')]" "xpath_element" should exist
-    And I log out
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
-    And I log out
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
       | peercomment__idx_1      | Amazing           |
       | Feedback for the author | Good work         |
-    And I log out
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I navigate to "Allocate peers" in current page administration
     And I deallocate "Sam1 Student1" as "reviewedby" for workshop participant "Sam2 Student2"
     And I should see "You are going to remove the assessment of Sam2 Student2 from Sam1 Student1 that has already been graded. Are you really sure you want to do it?"
@@ -232,10 +217,7 @@ Feature: Workshop peer allocation
     And I navigate to "User policies" node in "Site administration > Users > Permissions"
     And the following config values are set as admin:
     | showuseridentity | email |
-    And I log out
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I navigate to "Allocate peers" in current page administration
     When I add a reviewer "Sam2 Student2" for workshop participant "Sam1 Student1"
     And I click on "See results" "link"
@@ -254,10 +236,7 @@ Feature: Workshop peer allocation
     And I navigate to "User policies" node in "Site administration > Users > Permissions"
     And the following config values are set as admin:
     | showuseridentity |  |
-    And I log out
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I navigate to "Allocate peers" in current page administration
     And I add a reviewer "Sam3 Student3" for workshop participant "Sam4 Student4"
     And I click on "See results" "link"

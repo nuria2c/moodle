@@ -3678,6 +3678,9 @@ class workshop_user_plan implements renderable {
                             $task->completed = true;
                             $task->title = get_string('taskallpeersassessed', 'workshop');
                         } else {
+                            if ($workshop->phase > workshop::PHASE_ASSESSMENT) {
+                                $task->completed = false;
+                            }
                             $task->title = get_string('taskallpeersnotassessed', 'workshop');
                         }
                         $task->details = get_string('taskassesspeersdetails', 'workshop', $a);

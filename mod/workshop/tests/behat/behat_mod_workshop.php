@@ -43,8 +43,8 @@ class behat_mod_workshop extends behat_base {
      * Changes the submission phase for the workshop.
      *
      * @When /^I change phase in workshop "(?P<workshop_name_string>(?:[^"]|\\")*)" to "(?P<phase_name_string>(?:[^"]|\\")*)"$/
-     * @param string $questiontype
      * @param string $workshopname
+     * @param string $phase
      */
     public function i_change_phase_in_workshop_to($workshopname, $phase) {
         $workshopname = $this->escape($workshopname);
@@ -377,6 +377,135 @@ class behat_mod_workshop extends behat_base {
         $this->execute('behat_general::assert_element_contains_text', array($fieldname, $xpath, "xpath_element"));
         $this->execute('behat_general::assert_element_contains_text', array($value, $xpath, "xpath_element"));
 
+    }
+
+    /**
+     * Check if there is a message for a participant in current phase.
+     *
+     * @Then I should see :message :messagetype message in :phase
+     * @param string $message
+     * @param string $messagetype
+     * @param string $phase
+     */
+    public function i_should_see_message_in_phase($message, $messagetype, $phase) {
+        $messageliteral = behat_context_helper::escape($message);
+        $xpath = "//div[h3[contains(text(), '$phase')] ";
+        $xpath .= "and //div[contains(@class, 'currentphase')]";
+        $xpath .= "//div[contains(., $messageliteral) ";
+        $xpath .= "and contains(@class, 'alert-$messagetype')]]";
+        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+    }
+
+    /**
+     * Check if there is a message with details for a participant in current phase.
+     *
+     * @Then I should see :message :messagetype message with :total and :pending details in :phase
+     * @param string $message
+     * @param string $messagetype
+     * @param string $total
+     * @param string $pending
+     * @param string $phase
+     */
+    public function i_should_see_message_with_details_in_phase($message, $messagetype, $total, $pending, $phase) {
+        $xpath = "//div[h3[contains(text(), '$phase')] ";
+        $xpath .= "and //div[contains(@class, 'currentphase')]";
+        $xpath .= "//div[contains(., '$message') ";
+        $xpath .= "and contains(., '$total') ";
+        $xpath .= "and contains(., '$pending') ";
+        $xpath .= "and contains(@class, 'alert-$messagetype')]]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check if there is a message with details for a participant in other phases.
+     *
+     * @Then I should see :message :messagetype message with :total and :pending details in other phases
+     * @param string $message
+     * @param string $messagetype
+     * @param string $total
+     * @param string $pending
+     */
+    public function i_should_see_message_with_details_in_otherphases($message, $messagetype, $total, $pending) {
+        switch ($messagetype) {
+            case 'error':
+                $class = "fail";
+                break;
+            case 'success':
+                $class = "completed";
+                break;
+            case "warning":
+            case "info":
+                $class = "info";
+                break;
+            default:
+                $class = "";
+        }
+        $this->execute('behat_general::click_link', get_string('otherphases', 'workshop'));
+        $xpath = "//div[contains(@class, 'otherphases') and //a[contains(text(), 'Other phases')]]";
+        $xpath .= "//li[contains(., '$message') ";
+        $xpath .= "and contains(., '$total') ";
+        $xpath .= "and contains(., '$pending') ";
+        $xpath .= "and contains(@class, '$class')]";
+        $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check if there is a message for a participant in other phases.
+     *
+     * @Then I should see :message :messagetype message in other phases
+     * @param string $message
+     * @param string $messagetype
+     */
+    public function i_should_see_message_in_otherphases($message, $messagetype) {
+        switch ($messagetype) {
+            case 'error':
+                $class = "fail";
+                break;
+            case 'success':
+                $class = "completed";
+                break;
+            case "warning":
+            case "info":
+                $class = "info";
+                break;
+            default:
+                $class = "";
+        }
+        $this->execute('behat_general::click_link', get_string('otherphases', 'workshop'));
+        $messageliteral = behat_context_helper::escape($message);
+        $xpath = "//div[contains(@class, 'otherphases') and //a[contains(text(), 'Other phases')]]";
+        $xpath .= "//li[contains(., $messageliteral) ";
+        $xpath .= "and contains(@class, '$class')]";
+        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+    }
+
+    /**
+     * Check if there is a message for participant.
+     *
+     * @Then I should see :message :messagetype message
+     * @param string $message
+     * @param string $messagetype
+     */
+    public function i_should_see_message($message, $messagetype) {
+        $messageliteral = behat_context_helper::escape($message);
+        $xpath = "//div[contains(.,$messageliteral) ";
+        $xpath .= "and contains(@class, 'alert-$messagetype')]";
+        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+    }
+
+    /**
+     * Steps to go on workshop page in course with an account.
+     *
+     * @Then I am on :workshop workshop in :course course as :login
+     * @param string $workshop
+     * @param string $course
+     * @param string $login
+     */
+    public function i_login_as_and_goto_workshop_page($workshop, $course, $login) {
+        $this->execute("behat_auth::i_log_out");
+        $this->execute("behat_auth::i_log_in_as", array($login));
+        $this->execute("behat_navigation::i_am_on_course_homepage", array($course));
+        $this->execute("behat_general::click_link", array($workshop));
     }
 
 }

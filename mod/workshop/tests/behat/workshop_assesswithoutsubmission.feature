@@ -55,44 +55,29 @@ Feature: Workshop User can assess without submitting his own work
     And I change phase in workshop "TestWorkshop" to "Submission phase"
     And I should not see "who cannot assess:" in the ".phase20" "css_element"
     And I should not see "who should not assess" in the ".phase20" "css_element"
-    And I log out
 # student1 submit his work
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
-    And I log out
 # student3 submit his work
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
-    And I log out
 # student4 submit his work
-    And I log in as "student4"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student4"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission4  |
       | Submission content | Some content |
-    And I log out
 # teacher change phase to Assessement
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I should see "who cannot assess: 2" in the ".phase20" "css_element"
     And I should see "who should not assess: 1" in the ".phase20" "css_element"
     And I should see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
-    And I log out
 # student2 can not assess student1 because he did not submited his work
-    When I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    When I am on "TestWorkshop" workshop in "Course1" course as "student2"
     Then I should see "You have not submitted your work yet"
     And I should see "You can not assess as long you do not submit your work"
     And I log out
@@ -107,11 +92,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 8 / 10            |
       | peercomment__idx_1      |                   |
       | Feedback for the author | Keep it up        |    
-    And I log out
 # teacher1 can see the assessments
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"   
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"  
     And I should see grade "-" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
 # teacher1 asses student1
@@ -144,49 +126,31 @@ Feature: Workshop User can assess without submitting his own work
     And I change phase in workshop "TestWorkshop" to "Submission and assessment phase"
     And I should see "waiting to assess: 4" in the ".phase20" "css_element"
     And I should see "who should not assess: 4" in the ".phase20" "css_element"
-    And I log out
 # student1 submit his work
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
-    And I log out
 # student3 submit his work
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
-    And I log out
 # student4 submit his work
-    And I log in as "student4"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student4"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission4  |
       | Submission content | Some content |
-    And I log out
 # teacher check information in Submission and assessment phase
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see "waiting to assess: 2" in the ".phase20" "css_element"
     And I should see "who should not assess: 1" in the ".phase20" "css_element"
-    And I log out
 # student2 can not assess student1 because he did not submited his work
-    When I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    When I am on "TestWorkshop" workshop in "Course1" course as "student2"
     Then I should see "You have not submitted your work yet"
     And I should see "You can not assess as long you do not submit your work" 
-    And I log out
 # student3 who submitted his work can assess student4
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I should not see "You have not submitted your work yet"
     And I assess submission "Submission4" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10     |
@@ -194,29 +158,20 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 8 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Good work  |    
-    And I log out
 # teacher change phase to Assessment
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see grade "-" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I should see "waiting to assess: 2" in the ".phase20" "css_element"
     And I should see "who should not assess: 1" in the ".phase20" "css_element"
-    And I should see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
-    And I log out    
+    And I should see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"   
 # student2 can not assess student1 because he did not submit his work    
-    And I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
     And I should see "You have not submitted your work yet"
     And I should see "You can not assess as long you do not submit your work" 
-    And I log out
 # teacher change phase to Assessement
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see grade "-" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
     And I log out
@@ -235,35 +190,23 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "Assessment phase"
     And I change phase in workshop "TestWorkshop" to "Submission phase"
     And I should not see "who cannot assess:" in the ".phase20" "css_element"
-    And I log out
 # student1 submit his work
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
-    And I log out
 # student3 submit his work
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
-    And I log out
 # teacher change phase to Assessement
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I should see "who cannot assess: 3" in the ".phase20" "css_element"
     And I should not see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
-    And I log out
 # student2 who did not submit his work can assess student1
-    When I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    When I am on "TestWorkshop" workshop in "Course1" course as "student2"
     Then I should see "You have not submitted your work yet"
     And I assess submission "Submission1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10            |
@@ -271,11 +214,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 7 / 10            |
       | peercomment__idx_1      |                   |
       | Feedback for the author | Keep it up        |   
-    And I log out
 # student1 who submitted his work assess student3
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I should not see "You have not submitted your work yet"
     And I assess submission "Submission3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10     |
@@ -283,11 +223,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 8 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Good work  |    
-    And I log out
 # teacher1 makes sure he can see all peer grades
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"  
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1" 
     And I should see grade "52" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam3" set by peer "Sam1"
 # teacher1 asses student1
@@ -323,35 +260,23 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "Submission and assessment phase"
     And I change phase in workshop "TestWorkshop" to "Submission and assessment phase"
     And I should see "waiting to assess: 4" in the ".phase20" "css_element"
-    And I log out
 # student2 submit his work
-    And I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
-    And I log out
 # student3 submit his work
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
-    And I log out
 # student4 submit his work
-    And I log in as "student4"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student4"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission4  |
       | Submission content | Some content |
-    And I log out
 # student1 who did not submit his work can assess student2
-    When I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    When I am on "TestWorkshop" workshop in "Course1" course as "student1"
     Then I should see "You have not submitted your work yet"
     And I assess submission "Submission2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10            |
@@ -359,11 +284,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 7 / 10            |
       | peercomment__idx_1      |                   |
       | Feedback for the author | Keep it up        |
-    And I log out
 # student3 who submitted his work assess student4
-    And I log in as "student3"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I should not see "You have not submitted your work yet"
     And I should see "Your work is currently submitted"
     And I assess submission "Submission4" in workshop "TestWorkshop" as:
@@ -372,11 +294,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 8 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Good work  |    
-    And I log out
 # teacher1 makes sure he can see all peer grades
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"   
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"  
     And I should see grade "52" for workshop participant "Sam2" set by peer "Sam1"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
 # teacher1 asses student1
@@ -395,19 +314,13 @@ Feature: Workshop User can assess without submitting his own work
     And I press "Save and close"
     And I should see grade "52" for workshop participant "Sam2" set by peer "Sam1"
     And I should see grade "60" for workshop participant "Sam2" set by peer "Terry1"
-    And I log out
 # teacher change phase to Assessement
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see "waiting to assess: 1" in the ".phase20" "css_element"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
     And I should not see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
-    And I log out
 # student1 who did not submit his work can assess student3
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I should see "You have not submitted your work yet"
     And I assess submission "Submission3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10            |
@@ -415,11 +328,8 @@ Feature: Workshop User can assess without submitting his own work
       | grade__idx_1            | 7 / 10            |
       | peercomment__idx_1      |                   |
       | Feedback for the author | Keep it up        |
-    And I log out
 # teacher1 makes sure he can see all peer assessment
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"  
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"  
     And I should see grade "52" for workshop participant "Sam2" set by peer "Sam1"
     And I should see grade "60" for workshop participant "Sam2" set by peer "Terry1"
     And I should see grade "56" for workshop participant "Sam3" set by peer "Sam1"

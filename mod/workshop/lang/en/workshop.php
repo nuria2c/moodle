@@ -88,7 +88,7 @@ $string['assesswithoutsubmission'] = 'Users can evaluate without having submitte
 $string['assesswithoutsubmission_help'] = 'If activated, a user can evaluate without having submitted his work.';
 $string['assignedassessments'] = 'Assigned submissions to assess';
 $string['assignedassessmentsnone'] = 'You have no assigned submission to assess';
-$string['assignedpeer'] = 'Assigned peer to assess';
+$string['assignedpeer'] = 'Assigned peers to assess';
 $string['assignedpeernone'] = 'You have no assigned peer to assess';
 $string['backtoeditform'] = 'Back to editing form';
 $string['byfullname'] = 'by <a href="{$a->url}">{$a->name}</a>';

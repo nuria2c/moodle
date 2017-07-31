@@ -33,35 +33,25 @@ Feature: Workshop submission and assessment
       | id_description__idx_1_editor | Aspect2 |
       | id_description__idx_2_editor |         |
     And I change phase in workshop "TestWorkshop" to "Submission phase"
-    And I log out
 # student1 submits
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     Then I should see "You didn't have submit your work yet"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission1  |
       | Submission content | Some content |
     And "//div[contains(@class, 'submission-full') and contains(.,'Submission1') and contains(.,'submitted on')]" "xpath_element" should exist
-    And I log out
 # student2 submits
-    And I log in as "student2"
-    And I am on "Course1" course homepage
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission2  |
       | Submission content | Some content |
-    And I log out
 # student3 submits
-    And I log in as "student3"
-    And I am on "Course1" course homepage
+    And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I add a submission in workshop "TestWorkshop" as:
       | Title              | Submission3  |
       | Submission content | Some content |
-    And I log out
 # teacher1 allocates reviewers and changes the phase to assessment
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see "to allocate: 4"
     And I should see "There is at least one author who has not yet submitted his work"
     Then I should see "Workshop submissions report"
@@ -79,19 +69,16 @@ Feature: Workshop submission and assessment
     And I follow "TestWorkshop"
     And I should see "to allocate: 1"
     And I change phase in workshop "TestWorkshop" to "Assessment phase"
-    And I log out
 # student1 assesses work of student2 and student3
-    And I log in as "student1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 2') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And I am on "TestWorkshop" workshop in "Course1" course as "student1"
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 2" and "pending: 2" details in "Assessment phase"
     And I assess submission "Sam2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 5 / 10            |
       | peercomment__idx_0      | You can do better |
       | grade__idx_1            | 10 / 10           |
       | peercomment__idx_1      | Amazing           |
       | Feedback for the author | Good work         |
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 2')]]" "xpath_element" should exist
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 2" and "pending: 1" details in "Assessment phase"
     And I am on "Course1" course homepage
     And I assess submission "Sam3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 9 / 10      |
@@ -99,25 +86,19 @@ Feature: Workshop submission and assessment
       | grade__idx_1            | 8 / 10      |
       | peercomment__idx_1      | Very good   |
       | Feedback for the author | No comments |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 2')]]" "xpath_element" should exist
-    And I log out
+    And I should see "All eligible peers were assessed" "success" message with "total: 2" and "pending: 0" details in "Assessment phase"
 # student2 assesses work of student1
-    And I log in as "student2"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
-    And "//div[@class='completedstatus info' and div[@class='title' and contains(.,'All eligible peers were not all assessed yet')] and div[@class='details' and contains(.,'pending: 1') and contains(.,'total: 1')]]" "xpath_element" should exist
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
+    And I should see "All eligible peers were not all assessed yet" "warning" message with "total: 1" and "pending: 1" details in "Assessment phase"
     And I assess submission "Sam1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10     |
       | peercomment__idx_0      |            |
       | grade__idx_1            | 7 / 10     |
       | peercomment__idx_1      |            |
       | Feedback for the author | Keep it up |
-    And "//div[@class='completedstatus completed' and div[@class='title' and contains(.,'All eligible peers were assessed')] and div[@class='details' and contains(.,'pending: 0') and contains(.,'total: 1')]]" "xpath_element" should exist
-    And I log out
+    And I should see "All eligible peers were assessed" "success" message with "total: 1" and "pending: 0" details in "Assessment phase"
 # teacher1 makes sure he can see all peer grades
-    And I log in as "teacher1"
-    And I am on "Course1" course homepage
-    And I follow "TestWorkshop"
+    And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see grade "52" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam2" set by peer "Sam1"
     And I should see grade "-" for workshop participant "Sam2" set by peer "Sam4"

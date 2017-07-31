@@ -195,6 +195,21 @@ class behat_workshopallocation_manual extends behat_base {
     }
 
     /**
+     * Check if the message is not there for a participant.
+     *
+     * @Then /^I should not see "(?P<message>(?:[^"]|\\")*)" "(?P<messagetype>(?:[^"]|\\")*)" message for participant "(?P<participant>(?:[^"]|\\")*)"$/
+     * @param string $message
+     * @param string $messagetype
+     * @param string $participant
+     */
+    public function i_should_not_see_message_for_participant($message, $messagetype, $participant) {
+        $xpath = "//div[contains(@class, 'manual-allocator')]";
+        $xpath .= "//tr[td[1]/text()='$participant' ";
+        $xpath .= "and td[1]//div[contains(., '$message') and contains(@class, 'alert-$messagetype')]]";
+        $this->execute('behat_general::should_not_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
      * Check if there is no reviewer/reviewee for participant.
      *
      * @Then /^I should not see "(?P<participantreview>(?:[^"]|\\")*)" in "(?P<reviewtype>(?:[^"]|\\")*)" for "(?P<participant>(?:[^"]|\\")*)" in affected participants$/

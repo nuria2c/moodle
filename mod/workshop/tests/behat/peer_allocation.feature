@@ -193,18 +193,28 @@ Feature: Workshop peer allocation
     And I should see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "error" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "error" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "error" message for participant "Sam4 Student4"
-    And I should see "Awaiting the submission of Sam3 Student3" "error" message for participant "Sam2 Student2"
+    And I should see "Awaiting the submission of Sam3 Student3 to assess" "error" message for participant "Sam2 Student2"
     And I should see "This participant has no reviewer" "error" message for participant "Sam2 Student2"
-    And I should see "Awaiting the submission of Sam3 Student3" "error" message for participant "Sam1 Student1"
+    And I should see "Awaiting the submission of Sam3 Student3 to assess" "error" message for participant "Sam1 Student1"
     And I follow "TestWorkshop"
     And I change phase in workshop "TestWorkshop" to "Submission phase"
     And I navigate to "Allocate peers" in current page administration
-    And I should see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "warning" message for participant "Sam3 Student3"
+    And I should not see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "warning" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "warning" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "warning" message for participant "Sam4 Student4"
-    And I should see "Awaiting the submission of Sam3 Student3" "warning" message for participant "Sam2 Student2"
+    And I should not see "Awaiting the submission of Sam3 Student3 to assess" "warning" message for participant "Sam2 Student2"
     And I should see "This participant has no reviewer" "warning" message for participant "Sam2 Student2"
-    And I should see "Awaiting the submission of Sam3 Student3" "warning" message for participant "Sam1 Student1"
+    And I should not see "Awaiting the submission of Sam3 Student3 to assess" "warning" message for participant "Sam1 Student1"
+    # Peer allocation merged phases
+    And I navigate to "Edit settings" in current page administration
+    And I follow "Show advanced settings"
+    And I follow "Expand all"
+    And I click on "Allow assessment after submission" "checkbox"
+    And I click on "Save and display" "button"
+    And I navigate to "Allocate peers" in current page administration
+    And I should see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "warning" message for participant "Sam3 Student3"
+    And I should see "Awaiting the submission of Sam3 Student3 to assess" "warning" message for participant "Sam2 Student2"
+    And I should see "Awaiting the submission of Sam3 Student3 to assess" "warning" message for participant "Sam1 Student1"
 
   Scenario: View user identity
     Given I log out

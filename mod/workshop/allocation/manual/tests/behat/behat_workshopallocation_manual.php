@@ -29,7 +29,8 @@ require_once(__DIR__ . '/../../../../../../lib/behat/behat_base.php');
 require_once(__DIR__ . '/../../../../../../lib/behat/behat_field_manager.php');
 
 use Behat\Gherkin\Node\TableNode as TableNode,
-    Behat\Mink\Exception\ElementTextException as ElementTextException;
+    Behat\Mink\Exception\ElementTextException as ElementTextException,
+    Behat\Mink\Exception\ExpectationException as ExpectationException;
 
 /**
  * Steps definitions related to workshopallocation_manual.
@@ -177,6 +178,41 @@ class behat_workshopallocation_manual extends behat_base {
         $xpath .= "//tr[td[1][contains(., '$participant')] and ";
         $xpath .= "td[2][.//text()[contains(., '$participantreview')] and contains(@class, '$reviewtype')]]";
         $this->execute('behat_general::should_exist', array($this->escape($xpath), 'xpath_element'));
+    }
+
+    /**
+     * Check the number of reviewer/reviewee for participant in allocations table.
+     *
+     * @Then I should see :nbreview :review for :participant in allocations table
+     * @param string $nbreview
+     * @param string $review Available value "reviewers", "reviewer", "reviewees" and "reviewee"
+     * @param string $participant
+     */
+    public function i_should_see_nbreview_in_allocations_table($nbreview, $review, $participant) {
+        $reviewtype = '';
+        switch ($review) {
+            case "reviewee":
+            case "reviewees":
+                $reviewtype = 'reviewerof';
+                break;
+            case "reviewer":
+            case "reviewers":
+                $reviewtype = 'reviewedby';
+                break;
+            default:
+                $msg = 'Available value "reviewers", "reviewer", "reviewees" and  "reviewee" , ' . $review . ' given';
+                throw new ExpectationException($msg, $this->getSession());
+        }
+
+        $xpath = "//table[contains(@class, 'allocations')]";
+        $xpath .= "//tr[td[1][contains(., '$participant')] and ";
+        $xpath .= "td[2][contains(@class, '$reviewtype')]]";
+        $xpath .= "/td[contains(@class, '$reviewtype')]/ul/li/span[contains(@class, 'label-info')]";
+        $reviews = $this->find_all('xpath', $xpath);
+        if (count($reviews) != $nbreview) {
+            throw new ExpectationException('The number of "' . $review . '" for the participant "' . $participant .
+                '" is not "' . $nbreview .'" , "' . count($reviews) . '" found', $this->getSession());
+        }
     }
 
     /**

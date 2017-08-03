@@ -101,6 +101,14 @@ class workshop_random_allocator implements workshop_allocator {
                 $curassessments = array();
             } else {
                 $curassessments = $assessments;
+                // We should not include self allocations because it's already created.
+                if ($this->workshop->assessmenttype != workshop::PEER_ASSESSMENT) {
+                    foreach ($curassessments as $key => $assessment) {
+                        if ($assessment->authorid == $assessment->reviewerid) {
+                            unset($curassessments[$key]);
+                        }
+                    }
+                }
             }
             $options                     = array();
             $options['numofreviews']     = $settings->numofreviews;

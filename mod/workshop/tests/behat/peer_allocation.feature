@@ -83,12 +83,22 @@ Feature: Workshop peer allocation
     And I should see "Sam1 Student1" in the "Sam4 Student4" "table_row"
     And I should see "Sam3 Student3" in the "Sam4 Student4" "table_row"
     And I should not see "himself" in the "Sam4 Student4" "table_row"
-    # Self and peer assessment
-    And I navigate to "Edit settings" in current page administration
+
+  Scenario: Random peer allocation self and peer assessment
+    Given I navigate to "Edit settings" in current page administration
     And I click on "Show advanced settings" "link"
     And I click on "Self and peer assessment" "radio"
     And I click on "Save and display" "button"
     And I navigate to "Allocate peers" in current page administration
+    And I click on "Random allocation" "link"
+    And "Random allocation" "dialogue" should be visible
+    When I set the field with xpath "//div[contains(@class, 'moodle-dialogue')]//select[@name='numofreviews']" to "2"
+    And I click on "Apply" "button" in the "Random allocation" "dialogue"
+    And I should see "Allocation done"
+    Then I should see "3" "reviewers" for "Sam1 Student1" in allocations table
+    And I should see "3" "reviewers" for "Sam2 Student2" in allocations table
+    And I should see "3" "reviewers" for "Sam3 Student3" in allocations table
+    And I should see "3" "reviewers" for "Sam4 Student4" in allocations table
     And I should see "himself" in the "Sam1 Student1" "table_row"
     And I should see "himself" in the "Sam2 Student2" "table_row"
     And I should see "himself" in the "Sam3 Student3" "table_row"

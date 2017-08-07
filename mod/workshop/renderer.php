@@ -296,7 +296,7 @@ class mod_workshop_renderer extends plugin_renderer_base {
      * @return string html code to be displayed
      */
     protected function render_workshop_user_plan(workshop_user_plan $plan) {
-        if (has_capability('moodle/course:manageactivities', $plan->workshop->context, $plan->userid)) {
+        if (user_has_phases_table_view($plan->workshop->context, $plan->userid)) {
             // Output HTML code.
             $o  = '';
             $numberofphases = count($plan->phases);

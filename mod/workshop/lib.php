@@ -2004,3 +2004,15 @@ function map_fullname_with_email($user) {
     }
     return $fullname;
 }
+
+/**
+ * Check if user has access to the table of phases (teacher view).
+ *
+ * @param stdClass $context Workshop context
+ * @param int $userid The user ID
+ * @return boolean True if user has access to the table of phases
+ */
+function user_has_phases_table_view($context, $userid) {
+    return has_capability('mod/workshop:switchphase', $context, $userid)
+            || has_capability('mod/workshop:allocate', $context, $userid);
+}

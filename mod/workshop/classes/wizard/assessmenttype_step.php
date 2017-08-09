@@ -54,6 +54,9 @@ class assessmenttype_step extends step {
         } else {
             $this->workshop->useselfassessment = true;
         }
+        if ($data->assessmenttype == \workshop::SELF_ASSESSMENT) {
+            $this->workshop->assesswithoutsubmission = 0;
+        }
         $this->workshop->timemodified = time();
         $DB->update_record('workshop', $this->workshop->get_record());
 

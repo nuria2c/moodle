@@ -63,7 +63,7 @@ class assessmentsettings_step_form extends step_form {
             $mform->setDefault('displayappraisersname', $anonymitysettings->display_appraisers_name());
         }
         // Do not display assess without submission if allow submission is false.
-        if ($record->allowsubmission != 0) {
+        if ($record->allowsubmission != 0 && !$this->workshop->is_self_assessment_type()) {
             // Assess without submission.
             $label = get_string('assesswithoutsubmission', 'workshop');
             $mform->addElement('checkbox', 'assesswithoutsubmission', $label);

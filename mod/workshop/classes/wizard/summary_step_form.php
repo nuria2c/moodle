@@ -124,13 +124,12 @@ class summary_step_form extends step_form {
             $yesno = ($anonymitysettings->display_appraisers_name()) ? get_string('yes') : get_string('no');
             $label = get_string('displayappraisersname', 'workshop');
             $mform->addElement('static', 'summary_displayappraisersname', $label, $yesno);
-        }
-
-        // Assess without submission.
-        if ($record->allowsubmission) {
-            $yesno = $record->assesswithoutsubmission ? get_string('yes') : get_string('no');
-            $mform->addElement('static',
-                'summary_assesswithoutsubmission', get_string('assesswithoutsubmission', 'workshop'), $yesno);
+            // Assess without submission.
+            if ($record->allowsubmission) {
+                $yesno = $record->assesswithoutsubmission ? get_string('yes') : get_string('no');
+                $mform->addElement('static',
+                    'summary_assesswithoutsubmission', get_string('assesswithoutsubmission', 'workshop'), $yesno);
+            }
         }
 
         // Assessment start.

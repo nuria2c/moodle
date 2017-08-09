@@ -184,7 +184,7 @@ Feature: Workshop User can assess without submitting his own work
     And I wait until "Show advanced settings" "link" exists
     And I click on "Show advanced settings" "link"
     And I expand all fieldsets
-    And I click on "Users can evaluate without having submitted the assignment" "checkbox"
+    And I click on "Users can evaluate others without having submitted their own assignment" "checkbox"
     And I press "Save and display"
     And I should see "Submission phase"
     And I should see "Assessment phase"
@@ -254,7 +254,7 @@ Feature: Workshop User can assess without submitting his own work
     And I wait until "Show advanced settings" "link" exists
     And I click on "Show advanced settings" "link"
     And I expand all fieldsets
-    And I click on "Users can evaluate without having submitted the assignment" "checkbox"
+    And I click on "Users can evaluate others without having submitted their own assignment" "checkbox"
     And I click on "Allow assessment after submission" "checkbox"
     And I press "Save and display"
     And I should see "Submission and assessment phase"
@@ -334,3 +334,4 @@ Feature: Workshop User can assess without submitting his own work
     And I should see grade "60" for workshop participant "Sam2" set by peer "Terry1"
     And I should see grade "56" for workshop participant "Sam3" set by peer "Sam1"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
+

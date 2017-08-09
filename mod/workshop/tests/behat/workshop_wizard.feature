@@ -79,11 +79,11 @@ Feature: Workshop User can create workshop assessment from wizard
     And the current step in wizard should be "Assessment settings"
     And the "Display appraisees name" "checkbox" should not be checked
     And the "Display appraisers name" "checkbox" should not be checked
-    And the "Users can evaluate without having submitted the assignment" "checkbox" should not be checked
+    And the "Users can evaluate others without having submitted their own assignment" "checkbox" should not be checked
     And I should not see "Open for assessment from"
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentend[enabled]' and @type='checkbox']" "xpath_element" should not be checked
-    And I click on "Users can evaluate without having submitted the assignment" "checkbox"
+    And I click on "Users can evaluate others without having submitted their own assignment" "checkbox"
     And I set the field "Instructions for assessment" to "Assess as soon as possible"
     And I click on "//input[@name='assessmentend[enabled]' and @type='checkbox']" "xpath_element"
     And I select "12" from the "assessmentend[day]" singleselect
@@ -106,7 +106,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should see "No" in field "Display appraisees name" of wizard summary
     And I should see "No" in field "Display appraisers name" of wizard summary
-    And I should see "Yes" in field "Users can evaluate without having submitted the assignment" of wizard summary
+    And I should see "Yes" in field "Users can evaluate others without having submitted their own assignment" of wizard summary
     And I should see "28 Jan 2017" in field "Deadline for assessment" of wizard summary
 # navigate through all steps
     And I click on "Assessment type" in the wizard navigation
@@ -137,7 +137,6 @@ Feature: Workshop User can create workshop assessment from wizard
     And I click on "Self assessment" "radio"
     And I wait until the page is ready
     And I should not see "Peer allocation" in the wizard navigation
-#    And I should not see "Peer allocation" in the "//nav[contains(concat(' ', normalize-space(@class), ' '), ' wizard-navigation ')]" "xpath_element"
     And I click on "Next" "button"
 # enter Grading method step
     And the current step in wizard should be "Grading method"
@@ -171,7 +170,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And the current step in wizard should be "Assessment settings"
     And I should not see "Display appraisees name"
     And I should not see "Display appraisers name"
-    And the "Users can evaluate without having submitted the assignment" "checkbox" should not be checked
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should not see "Open for assessment from"
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentend[enabled]' and @type='checkbox']" "xpath_element" should not be checked
@@ -194,11 +193,11 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should not see "Display appraisees name"
     And I should not see "Display appraisers name"
-    And I should see "No" in field "Users can evaluate without having submitted the assignment" of wizard summary
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should see "28 Jan 2017" in field "Deadline for assessment" of wizard summary
     And I log out
 
-  Scenario: Workshop for self and peer assessment and with submission
+  Scenario: Workshop for self and peers assessment and with submission
     Given I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
@@ -257,7 +256,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And the current step in wizard should be "Assessment settings"
     And the "Display appraisees name" "checkbox" should not be checked
     And the "Display appraisers name" "checkbox" should not be checked
-    And the "Users can evaluate without having submitted the assignment" "checkbox" should not be checked
+    And the "Users can evaluate others without having submitted their own assignment" "checkbox" should not be checked
     And I should see "Open for assessment from"
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentstart[enabled]' and @type='checkbox']" "xpath_element" should not be checked
@@ -294,7 +293,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "with submissions: 0" in field "Allocate peers" of wizard summary
     And I should see "Yes" in field "Display appraisees name" of wizard summary
     And I should see "Yes" in field "Display appraisers name" of wizard summary
-    And I should see "No" in field "Users can evaluate without having submitted the assignment" of wizard summary
+    And I should see "No" in field "Users can evaluate others without having submitted their own assignment" of wizard summary
     And I should see "21 Jan 2017" in field "Open for assessment from" of wizard summary
     And I should see "28 Jan 2017" in field "Deadline for assessment" of wizard summary
     And I log out
@@ -348,7 +347,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentstart[enabled]' and @type='checkbox']" "xpath_element" should not be checked
     And the "//input[@name='assessmentend[enabled]' and @type='checkbox']" "xpath_element" should not be checked
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I click on "Display appraisers name" "checkbox"
     And I set the field "Instructions for assessment" to "Assess as soon as possible"
     And I click on "//input[@name='assessmentstart[enabled]' and @type='checkbox']" "xpath_element"
@@ -372,7 +371,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "expected: 4" in field "Allocate peers" of wizard summary
     And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0" 
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should see "21 Jan 2017" in field "Open for assessment from" of wizard summary
     And I should see "28 Jan 2017" in field "Deadline for assessment" of wizard summary
     And I log out
@@ -413,7 +412,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And the current step in wizard should be "Assessment settings"
     And I should not see "Display appraisees name"
     And I should not see "Display appraisers name"
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should see "Open for assessment from"
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentstart[enabled]' and @type='checkbox']" "xpath_element" should not be checked
@@ -432,7 +431,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "expected: 4" in field "Allocate peers" of wizard summary
     And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0"
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should not see "Open for assessment from"
     And I should not see "Deadline for assessment"
     And I log out
@@ -482,7 +481,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And the current step in wizard should be "Assessment settings"
     And I should not see "Display appraisees name"
     And I should see "Display appraisers name"
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should see "Open for assessment from"
     And I should see "Deadline for assessment"
     And the "//input[@name='assessmentstart[enabled]' and @type='checkbox']" "xpath_element" should not be checked
@@ -505,7 +504,7 @@ Feature: Workshop User can create workshop assessment from wizard
     And I should see "expected: 4" in field "Allocate peers" of wizard summary
     And I should see "to allocate: 0" in field "Allocate peers" of wizard summary
     And I should not see "with submissions: 0"
-    And I should not see "Users can evaluate without having submitted the assignment"
+    And I should not see "Users can evaluate others without having submitted their own assignment"
     And I should not see "Open for assessment from"
     And I should see "28 Jan 2017" in field "Deadline for assessment" of wizard summary
     And I log out

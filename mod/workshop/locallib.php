@@ -3639,11 +3639,15 @@ class workshop_user_plan implements renderable {
             // Number of self-assessments to do - should be 0 or 1.
             $numofselftodo   = 0;
             $numnotsubmitted = 0;
+            $numselfnotsubmitted = 0;
             foreach ($phase->assessments as $a) {
                 if ($a->authorid == $userid) {
                     $numofself++;
                     if (is_null($a->grade)) {
                         $numofselftodo++;
+                    }
+                    if ($a->realsubmission == 0) {
+                        $numselfnotsubmitted++;
                     }
                 } else {
                     $numofpeers++;
@@ -3702,7 +3706,9 @@ class workshop_user_plan implements renderable {
                 $task->completed = 'warning';
                 if ($numofselftodo == 0) {
                     $task->completed = true;
-                } elseif ($workshop->phase > workshop::PHASE_ASSESSMENT) {
+                } else if ($workshop->phase > workshop::PHASE_ASSESSMENT ||
+                        ($workshop->phase == workshop::PHASE_ASSESSMENT && $workshop->allowsubmission &&
+                         $numselfnotsubmitted > 0)) {
                     $task->completed = false;
                 }
                 $task->title = get_string('taskassessself', 'workshop');

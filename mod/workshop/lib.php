@@ -116,6 +116,10 @@ function workshop_add_instance(stdclass $workshop) {
         $workshop->useselfassessment = true;
     }
 
+    if ($workshop->assessmenttype == \workshop::SELF_ASSESSMENT) {
+        $workshop->assesswithoutsubmission = 0;
+    }
+
     if (isset($workshop->gradinggradepass)) {
         $workshop->gradinggradepass = (float)unformat_float($workshop->gradinggradepass);
     }
@@ -230,6 +234,10 @@ function workshop_update_instance(stdclass $workshop) {
         $workshop->useselfassessment = false;
     } else {
         $workshop->useselfassessment = true;
+    }
+
+    if ($workshop->assessmenttype == \workshop::SELF_ASSESSMENT) {
+        $workshop->assesswithoutsubmission = 0;
     }
 
     if (isset($workshop->gradinggradepass)) {

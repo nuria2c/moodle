@@ -127,6 +127,8 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
     workshopform.prototype.displayAppraiseesNameSelector = "#fitem_id_displayappraiseesname";
     /** @var {String} display Appraisers Name selector. */
     workshopform.prototype.displayAppraisersNameSelector = "#fitem_id_displayappraisersname";
+    /** @var {String} assesswithoutsubmission selector. */
+    workshopform.prototype.assesswithoutsubmissionSelector = "#fitem_id_assesswithoutsubmission";
 
     /**
      * Function triggered when assessment type or allow submission changed.
@@ -137,7 +139,9 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         if (parseInt($(this.assessmenttypeSelector + ":checked").val()) == this.selfassessment) {
             $(this.displayAppraiseesNameSelector).hide();
             $(this.displayAppraisersNameSelector).hide();
+            $(this.assesswithoutsubmissionSelector).hide();
         } else {
+            $(this.assesswithoutsubmissionSelector).show();
             $(this.displayAppraisersNameSelector).show();
             if ($(this.allowsubmissionSelector).is((':not(:checked)'))) {
                 $(this.displayAppraiseesNameSelector).hide();

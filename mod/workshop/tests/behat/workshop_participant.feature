@@ -290,7 +290,7 @@ Feature: Workshop particpant
     And I am on "TestWorkshop" workshop in "Course1" course as "student1"
     And I should see "You didn't have submit your work yet" "error" message in other phases
     And I should see "All peer associated with you have not yet all submitted their work. So you can not evaluate them all" "error" message with "total: 2" and "pending: 2" details in "Assessment phase"
-    And I should see "Assess yourself" "warning" message in "Assessment phase"
+    And I should see "Assess yourself" "error" message in "Assessment phase"
     And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I change phase in workshop "TestWorkshop" to "Submission and assessment phase"
     And I am on "TestWorkshop" workshop in "Course1" course as "student2"

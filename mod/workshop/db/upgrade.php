@@ -103,6 +103,18 @@ function xmldb_workshop_upgrade($oldversion) {
             $dbman->add_field($tablesubmission, $field);
         }
 
+        // For existing workshop set some values to avoid compatibility problems.
+        $DB->execute("UPDATE {workshop}
+                         SET assesswithoutsubmission = 1
+                       WHERE 1=1");
+
+        $DB->execute("UPDATE {workshop}
+                         SET  assessmenttype = 3
+                       WHERE id IN (SELECT DISTINCT s.workshopid
+                                      FROM {workshop_submissions} as s
+                                      JOIN {workshop_assessments} as a ON (s.id = a.submissionid)
+                                     WHERE s.authorid = a.reviewerid)");
+
         upgrade_mod_savepoint(true, 2017051806, 'workshop');
 
     }

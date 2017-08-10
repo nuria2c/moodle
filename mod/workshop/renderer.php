@@ -433,18 +433,30 @@ class mod_workshop_renderer extends plugin_renderer_base {
 
         // Other phases.
         if (!empty($otherphases) && !$emptyphases) {
-            $html .= html_writer::start_tag('div', array('class' => 'otherphases'));
-            $html .= print_collapsible_region_start('', 'workshop-viewlet-allexamples',
-                    get_string('otherphases', 'workshop'), '', true, true);
-            $html .= $this->box_start('generalbox');
+            $taskfail = false;
+            $boxcontainer = '';
             foreach ($otherphases as $phase) {
                 if (!empty($phase->tasks)) {
-                    $html .= html_writer::span($phase->title, 'phasename');
-                    $html .= $this->helper_user_plan_tasks($phase->tasks);
+                    if (!$taskfail) {
+                        // Check if one task has a fail status.
+                        foreach ($phase->tasks as $taskcode => $task) {
+                            if ($task->completed === false) {
+                                $taskfail=true;
+                                break;
+                            }
+                        }
+                    }
+                    $boxcontainer .= html_writer::span($phase->title, 'phasename');
+                    $boxcontainer .= $this->helper_user_plan_tasks($phase->tasks);
                 }
             }
+            $collaps = $taskfail ? false : true;
+            $html .= html_writer::start_tag('div', array('class' => 'otherphases'));
+            $html .= print_collapsible_region_start('', 'workshop-viewlet-allexamples',
+                    get_string('otherphases', 'workshop'), '', $collaps, true);
+            $html .= $this->box_start('generalbox');
+            $html .= $boxcontainer;
             $html .= $this->box_end();
-
             $html .= print_collapsible_region_end(true);
             $html .= html_writer::end_div();
         }

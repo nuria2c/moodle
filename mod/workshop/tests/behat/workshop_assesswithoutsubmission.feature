@@ -78,14 +78,15 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
 # student2 can not assess student1 because he did not submited his work
     When I am on "TestWorkshop" workshop in "Course1" course as "student2"
-    Then I should see "You have not submitted your work yet"
-    And I should see "You can not assess as long you do not submit your work"
+    Then I should see "You didn't have submit your work yet" "error" message in other phases
+    And I should not see "Your submission"
+    And I should see "You can not assess as long you do not submit your work" "error" message
     And I log out
 # student3 who submitted his work can assess student4
     And I log in as "student3"
     And I am on "Course1" course homepage
     And I follow "TestWorkshop"
-    And I should not see "You have not submitted your work yet"
+    And I should see "Your work is currently submitted" "success" message in other phases
     And I assess submission "Submission4" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10            |
       | peercomment__idx_0      | You can do better |
@@ -109,6 +110,10 @@ Feature: Workshop User can assess without submitting his own work
     And I should see grade "-" for workshop participant "Sam1" set by peer "Sam2"
     And I should see grade "60" for workshop participant "Sam4" set by peer "Sam3"
     And I should see grade "68" for workshop participant "Sam1" set by peer "Terry1"
+    And I change phase in workshop "TestWorkshop" to "Grading evaluation phase"
+    And I am on "TestWorkshop" workshop in "Course1" course as "student2"
+    And I should see "You didn't have submit your work yet" "error" message in other phases
+    And I should not see "Your submission"
     And I log out
 
   Scenario: Workshop without permission for asses without submission and merge phase (submission - assessment)
@@ -147,8 +152,9 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "who should not assess: 1" in the ".phase20" "css_element"
 # student2 can not assess student1 because he did not submited his work
     When I am on "TestWorkshop" workshop in "Course1" course as "student2"
-    Then I should see "You have not submitted your work yet"
-    And I should see "You can not assess as long you do not submit your work" 
+    Then I should see "You didn't have submit your work yet" "warning" message
+    And I should not see "You have not submitted your work yet"
+    And I should see "You can not assess as long you do not submit your work" "error" message
 # student3 who submitted his work can assess student4
     And I am on "TestWorkshop" workshop in "Course1" course as "student3"
     And I should not see "You have not submitted your work yet"
@@ -168,8 +174,9 @@ Feature: Workshop User can assess without submitting his own work
     And I should see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"   
 # student2 can not assess student1 because he did not submit his work    
     And I am on "TestWorkshop" workshop in "Course1" course as "student2"
-    And I should see "You have not submitted your work yet"
-    And I should see "You can not assess as long you do not submit your work" 
+    And I should see "You didn't have submit your work yet" "error" message in other phases
+    And I should not see "Your submission"
+    And I should see "You can not assess as long you do not submit your work" "error" message
 # teacher change phase to Assessement
     And I am on "TestWorkshop" workshop in "Course1" course as "teacher1"
     And I should see grade "-" for workshop participant "Sam1" set by peer "Sam2"
@@ -207,7 +214,8 @@ Feature: Workshop User can assess without submitting his own work
     And I should not see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
 # student2 who did not submit his work can assess student1
     When I am on "TestWorkshop" workshop in "Course1" course as "student2"
-    Then I should see "You have not submitted your work yet"
+    Then I should see "You didn't have submit your work yet" "error" message in other phases
+    And I should not see "You have not submitted your work yet"
     And I assess submission "Submission1" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10            |
       | peercomment__idx_0      | You can do better |
@@ -216,7 +224,7 @@ Feature: Workshop User can assess without submitting his own work
       | Feedback for the author | Keep it up        |   
 # student1 who submitted his work assess student3
     And I am on "TestWorkshop" workshop in "Course1" course as "student1"
-    And I should not see "You have not submitted your work yet"
+    And I should see "Your work is currently submitted" "success" message in other phases
     And I assess submission "Submission3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10     |
       | peercomment__idx_0      |            |
@@ -277,7 +285,8 @@ Feature: Workshop User can assess without submitting his own work
       | Submission content | Some content |
 # student1 who did not submit his work can assess student2
     When I am on "TestWorkshop" workshop in "Course1" course as "student1"
-    Then I should see "You have not submitted your work yet"
+    Then I should see "You didn't have submit your work yet" "warning" message
+    And I should not see "You have not submitted your work yet"
     And I assess submission "Submission2" in workshop "TestWorkshop" as:
       | grade__idx_0            | 6 / 10            |
       | peercomment__idx_0      | You can do better |
@@ -286,8 +295,7 @@ Feature: Workshop User can assess without submitting his own work
       | Feedback for the author | Keep it up        |
 # student3 who submitted his work assess student4
     And I am on "TestWorkshop" workshop in "Course1" course as "student3"
-    And I should not see "You have not submitted your work yet"
-    And I should see "Your work is currently submitted"
+    And I should see "Your work is currently submitted" "success" message
     And I assess submission "Submission4" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10     |
       | peercomment__idx_0      |            |
@@ -321,7 +329,8 @@ Feature: Workshop User can assess without submitting his own work
     And I should not see "There is at least one participant who should not be a reviewer because he has not submitted his work and a parameter prohibits it" in the ".phase20" "css_element"
 # student1 who did not submit his work can assess student3
     And I am on "TestWorkshop" workshop in "Course1" course as "student1"
-    And I should see "You have not submitted your work yet"
+    And I should see "You didn't have submit your work yet" "error" message in other phases
+    And I should not see "Your submission"
     And I assess submission "Submission3" in workshop "TestWorkshop" as:
       | grade__idx_0            | 7 / 10            |
       | peercomment__idx_0      | You can do better |

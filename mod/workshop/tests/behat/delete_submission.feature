@@ -59,7 +59,7 @@ Feature: Workshop submission removal
     And I should see "Are you sure you want to delete the following submission?"
     And I should see "Submission1"
     And I click on "Continue" "button"
-    And I should see "You have not submitted your work yet"
+    And I should see "You didn't have submit your work yet" "warning" message
 
   Scenario: Students cannot delete their submissions if the submissions are not editable
     Given I log in as "teacher1"

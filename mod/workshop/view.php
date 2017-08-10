@@ -215,7 +215,6 @@ case workshop::PHASE_SUBMISSION:
                 $btntxt = get_string('editsubmission', 'workshop');
             }
         } else {
-            echo $output->container(get_string('noyoursubmission', 'workshop'));
             $anysubmission = $workshop->get_submission_by_author($USER->id, false);
             if ($workshop->creating_submission_allowed($USER->id)) {
                 $idsubmission = (isset($anysubmission->id)) ? $anysubmission->id : 0;
@@ -305,20 +304,21 @@ case workshop::PHASE_ASSESSMENT:
                 print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'), false, true);
                 echo $output->box_start('generalbox ownsubmission');
                 echo $output->render($workshop->prepare_submission_summary($ownsubmission, true));
+                echo $output->box_end();
+                print_collapsible_region_end();
             } else {
-                print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
-                echo $output->box_start('generalbox ownsubmission');
-                echo $output->container(get_string('noyoursubmission', 'workshop'));
                 if ($workshop->creating_submission_allowed($USER->id)) {
+                    print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
                     $btnurl = new moodle_url($workshop->submission_url(), array('edit' => 'on'));
                     $btntxt = get_string('createsubmission', 'workshop');
+                    if (!empty($btnurl)) {
+                        echo $output->single_button($btnurl, $btntxt, 'get');
+                    }
+
+                    echo $output->box_end();
+                    print_collapsible_region_end();
                 }
             }
-            if (!empty($btnurl)) {
-                echo $output->single_button($btnurl, $btntxt, 'get');
-            }
-            echo $output->box_end();
-            print_collapsible_region_end();
         }
     }
 
@@ -550,17 +550,16 @@ case workshop::PHASE_EVALUATION:
         echo $output->box_end();
         print_collapsible_region_end();
     }
-    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
+
+    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context) &&
+            $submission = $workshop->get_submission_by_author($USER->id)) {
         print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
         echo $output->box_start('generalbox ownsubmission');
-        if ($submission = $workshop->get_submission_by_author($USER->id)) {
-            echo $output->render($workshop->prepare_submission_summary($submission, true));
-        } else {
-            echo $output->container(get_string('noyoursubmission', 'workshop'));
-        }
+        echo $output->render($workshop->prepare_submission_summary($submission, true));
         echo $output->box_end();
         print_collapsible_region_end();
     }
+
     if ($assessments = $workshop->get_assessments_by_reviewer($USER->id)) {
         $text = $workshop->allowsubmission ? get_string('assignedassessments', 'workshop') : get_string('assignedpeer', 'workshop');
         print_collapsible_region_start('', 'workshop-viewlet-assignedassessments', $text);
@@ -643,14 +642,11 @@ case workshop::PHASE_CLOSED:
             print_collapsible_region_end();
         }
     }
-    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context)) {
+    if ($workshop->allowsubmission && has_capability('mod/workshop:submit', $PAGE->context) &&
+            $submission = $workshop->get_submission_by_author($USER->id)) {
         print_collapsible_region_start('', 'workshop-viewlet-ownsubmission', get_string('yoursubmission', 'workshop'));
         echo $output->box_start('generalbox ownsubmission');
-        if ($submission = $workshop->get_submission_by_author($USER->id)) {
-            echo $output->render($workshop->prepare_submission_summary($submission, true));
-        } else {
-            echo $output->container(get_string('noyoursubmission', 'workshop'));
-        }
+        echo $output->render($workshop->prepare_submission_summary($submission, true));
         echo $output->box_end();
 
         if (!empty($submission->gradeoverby) and strlen(trim($submission->feedbackauthor)) > 0) {
@@ -659,6 +655,7 @@ case workshop::PHASE_CLOSED:
 
         print_collapsible_region_end();
     }
+
     if (has_capability('mod/workshop:viewpublishedsubmissions', $workshop->context)) {
         $shownames = has_capability('mod/workshop:viewauthorpublished', $workshop->context);
         if ($submissions = $workshop->get_published_submissions()) {

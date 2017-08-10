@@ -57,24 +57,31 @@ define(['jquery',
         });
     };
 
+    /** @type {Dialogue} Reference to the random attribution dialogue. */
+    Allocation.prototype.randomAllocationDialogue = null;
+
+    /** @type {Dialogue} Reference to the allocation results dialogue. */
+    Allocation.prototype.allocationResultsDialogue = null;
+
+    /** @type {Dialogue} Reference to the affected participants dialogue. */
+    Allocation.prototype.affectedParticipantsDialogue = null;
+
     /**
      * Show random allocation form.
      *
      * @method showRandomAllocationForm
-     * @param {Dialogue} popup Dialogue object to initialise.
+     * @param {Dialogue} dialogue Dialogue object to initialise.
      */
-    Allocation.prototype.showRandomAllocationForm = function (popup) {
-        var body = $(popup.getContent());
+    Allocation.prototype.showRandomAllocationForm = function (dialogue) {
+        var self = this,
+                body = $(dialogue.getContent()),
+                viewToDisplay = $('input[name="allocationview"]:checked').val(),
+                value = (viewToDisplay == 'reviewee' ? 1 : 2);
         body.find('fieldset.hidden').removeClass('hidden');
-        var viewToDisplay = $('input[name="allocationview"]:checked').val();
-        if (viewToDisplay == 'reviewee') {
-            body.find('select[name="numper"]').val(2);
-        } else {
-            body.find('select[name="numper"]').val(1);
-        }
+        body.find('select[name="numper"]').val(value);
         body.find('.btn-cancel').on('click', function (e) {
             e.preventDefault();
-            popup.close();
+            self.hideDialogue(dialogue);
         });
     };
 
@@ -88,13 +95,17 @@ define(['jquery',
         str.get_strings([
             {key: 'pluginname', component: 'workshopallocation_random'}
         ]).done(function (strings) {
-            var html = $('.allocator-random').html();
-            new Dialogue(
+            if (!self.randomAllocationDialogue) {
+                var content = $('.allocator-random');
+                self.randomAllocationDialogue = new Dialogue(
                     strings[0],
-                    html,
-                    self.showRandomAllocationForm.bind(self),
-                    self.destroyDialogue
+                    content.html(),
+                    self.showRandomAllocationForm.bind(self)
                     );
+                content.remove();
+            } else {
+                self.showDialogue(self.randomAllocationDialogue);
+            }
         }).fail(notification.exception);
     };
 
@@ -108,13 +119,13 @@ define(['jquery',
         str.get_strings([
             {key: 'allocationresults', component: 'workshopallocation_random'}
         ]).done(function (strings) {
-            var html = $('.allocation-results-container').html();
-            new Dialogue(
-                    strings[0],
-                    html,
-                    function () {},
-                    self.destroyDialogue
-                    );
+            if (!self.allocationResultsDialogue) {
+                var content = $('.allocation-results-container');
+                self.allocationResultsDialogue = new Dialogue(strings[0], content.html());
+                content.remove();
+            } else {
+                self.showDialogue(self.allocationResultsDialogue);
+            }
         }).fail(notification.exception);
     };
 
@@ -143,30 +154,43 @@ define(['jquery',
      */
     Allocation.prototype.showAffectedParticipants = function () {
         var self = this;
-        if ($('.allocation-popup-content').length != 0) {
-            str.get_strings([
-                {key: 'affectedparticipants', component: 'workshopallocation_manual'}
-            ]).done(function (strings) {
-                    var html = $('.allocation-popup-content').html();
-                    new Dialogue(
-                            strings[0],
-                            html,
-                            function () {},
-                            self.destroyDialogue,
-                            true
-                            );
-            }).fail(notification.exception);
-        }
+        str.get_strings([
+            {key: 'affectedparticipants', component: 'workshopallocation_manual'}
+        ]).done(function (strings) {
+            if (!self.affectedParticipantsDialogue) {
+                var content = $('.allocation-popup-content');
+                self.affectedParticipantsDialogue = new Dialogue(
+                    strings[0],
+                    content.html(),
+                    function () {},
+                    function () {},
+                    true
+                );
+                content.remove();
+            } else {
+                self.showDialogue(self.affectedParticipantsDialogue);
+            }
+        }).fail(notification.exception);
     };
 
     /**
-     * destroy DOM after close.
+     * Show dialogue.
      *
-     * @param Dialogue
-     * @method destroyDialogue
+     * @param {Dialogue} dialogue
+     * @method showDialogue
      */
-    Allocation.prototype.destroyDialogue = function (dialg) {
-        dialg.close();
+    Allocation.prototype.showDialogue = function (dialogue) {
+        dialogue.yuiDialogue.show();
+    };
+
+    /**
+     * Hide dialogue after close.
+     *
+     * @param {Dialogue} dialogue
+     * @method hideDialogue
+     */
+    Allocation.prototype.hideDialogue = function (dialogue) {
+        dialogue.yuiDialogue.hide();
     };
 
     return /** @alias module:mod_workshop/allocation */ {

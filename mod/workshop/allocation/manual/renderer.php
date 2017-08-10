@@ -217,29 +217,29 @@ class workshopallocation_manual_renderer extends mod_workshop_renderer  {
         $header .= html_writer::label($label, 'allocation-view-switcher');
 
         $checkreviewedby = ($this->view == 'reviewedby') ? 'checked' : null;
-        $checkreviewerof = ($this->view == 'reviewerof') ? 'checked' : null;
         $radioattributes = array(
             'class' => 'radio-view-switcher',
-            'id' => 'id_allocationreviewer',
+            'id' => 'id_allocationreviewee',
             'type' => 'radio',
             'name' => 'allocationview',
             'checked' => $checkreviewedby,
             'value' => 'reviewee'
         );
         $radioreviewedby = html_writer::empty_tag('input', $radioattributes);
-        $radioreviewedby .= html_writer::label(get_string('reviewer', 'workshopallocation_manual'), 'id_allocationreviewer');
+        $radioreviewedby .= html_writer::label(get_string('reviewee', 'workshopallocation_manual'), 'id_allocationreviewee');
         $radioreviewedby = html_writer::span($radioreviewedby);
 
+        $checkreviewerof = ($this->view == 'reviewerof') ? 'checked' : null;
         $radioattributes = array(
             'class' => 'radio-view-switcher',
-            'id' => 'id_allocationreviewee',
+            'id' => 'id_allocationreviewer',
             'type' => 'radio',
             'name' => 'allocationview',
             'checked' => $checkreviewerof,
             'value' => 'reviewer'
         );
         $radioreviewerof = html_writer::empty_tag('input', $radioattributes);
-        $radioreviewerof .= html_writer::label(get_string('reviewee', 'workshopallocation_manual'), 'id_allocationreviewee');
+        $radioreviewerof .= html_writer::label(get_string('reviewer', 'workshopallocation_manual'), 'id_allocationreviewer');
         $radioreviewerof = html_writer::span($radioreviewerof);
 
         $header .= $radioreviewedby . $radioreviewerof;

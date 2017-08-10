@@ -61,6 +61,12 @@ class workshop_random_allocator implements workshop_allocator {
     public function init() {
         global $PAGE;
 
+        $numper = optional_param('numper', null, PARAM_INT);
+        if ($numper) {
+            $view = ($numper == workshop_random_allocator_setting::NUMPER_SUBMISSION ? 'reviewedby' : 'reviewerof');
+            set_user_preference('workshopallocation_manual_view', $view);
+        }
+
         $result = new workshop_allocation_result($this);
         $customdata = array();
         $customdata['workshop'] = $this->workshop;

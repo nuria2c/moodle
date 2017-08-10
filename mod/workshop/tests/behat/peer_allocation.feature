@@ -33,16 +33,21 @@ Feature: Workshop peer allocation
   Scenario: Switch view
     Given ".reviewedby" "css_element" should be visible
     And ".reviewerof" "css_element" should not be visible
-    When I click on "The reviewee" "radio"
+    When I click on "The reviewer" "radio"
     Then ".reviewerof" "css_element" should be visible
     And ".reviewedby" "css_element" should not be visible
     And I click on "Random allocation" "link"
-    And the field "numper" matches value "1"
+    And the field "numper" matches value "by reviewer"
     And I reload the page
     And "//input[@checked and @value='reviewer']" "xpath_element" should exist
     And "//input[@checked and @value='reviewee']" "xpath_element" should not exist
     And ".reviewerof" "css_element" should be visible
     And ".reviewedby" "css_element" should not be visible
+    And I click on "Random allocation" "link"
+    And I select "by reviewee" from the "numper" singleselect
+    And I click on "Apply" "button" in the "Random allocation" "dialogue"
+    And ".reviewedby" "css_element" should be visible
+    And ".reviewerof" "css_element" should not be visible
 
   Scenario: Random peer allocation peer assessment
     Given I click on "Random allocation" "link"
@@ -115,7 +120,7 @@ Feature: Workshop peer allocation
     And I should see no "reviewedby" for "Sam2 Student2" in affected participants
     And I click on "Close" "button" in the "Affected participants" "dialogue"
     And I add a reviewer "Sam3 Student3" for workshop participant "Sam4 Student4"
-    And I click on "The reviewee" "radio"
+    And I click on "The reviewer" "radio"
     And I add a reviewee "Sam3 Student3" for workshop participant "Sam2 Student2"
     And I click on "See results" "link"
     And "Affected participants" "dialogue" should be visible
@@ -183,7 +188,7 @@ Feature: Workshop peer allocation
     And I should not see "Sam1 Student1" in "reviewedby" for "Sam2 Student2" in affected participants
     And I should see "Sam2 Student2" in "reviewedby" for "Sam1 Student1" in affected participants
     And I click on "Close" "button" in the "Affected participants" "dialogue"
-    And I click on "The reviewee" "radio"
+    And I click on "The reviewer" "radio"
     And I add a reviewee "Sam3 Student3" for workshop participant "Sam2 Student2"
     And I should see "Prevent immediate assessement of Sam1 Student1, Sam2 Student2" "error" message for participant "Sam3 Student3"
     And I should see "No submission found for this user" "error" message for participant "Sam3 Student3"
